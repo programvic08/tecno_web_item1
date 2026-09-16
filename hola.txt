@@ -2,3 +2,4 @@
 hola soy ignacioprobando 
 // ng generate servicio mi-servicio
 // ng serve     <- ejecutar 
+// https://feathericons.com    <- iconos 
