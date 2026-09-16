@@ -1,0 +1,89 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+}
+
+/* Navbar y Footer */
+.navbar, .footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  padding: 30px 20px;
+}
+
+.navbar {
+  border-bottom: 2px solid #000;
+}
+
+.footer {
+  border-top: 2px solid #000;
+  margin-top: auto;
+}
+
+.placeholder-text {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #000;
+  text-transform: uppercase;
+}
+
+/* Layout general */
+.perfil-layout {
+  flex: 1;
+  display: flex;
+  padding: 0 25px 0 0;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+/* Sidebar lateral */
+.sidebar {
+  width: 220px;
+  border-right: 2px solid #000;
+  padding: 25px 20px;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.sidebar ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.sidebar li {
+  margin-bottom: 12px;
+}
+
+.sidebar a {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sidebar a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Área central contenedora */
+.content-area {
+  margin: auto;
+  align-self: center;
+  width: 100%;
+  max-width: 750px;
+  border: 2px solid #000;
+  padding: 35px 40px;
+  box-sizing: border-box;
+  background-color: #fff;
+}
