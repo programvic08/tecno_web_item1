@@ -1,0 +1,67 @@
+<div class="container mt-4">
+  <h2>Reportes de Reclamos</h2>
+  <p>Volumen y tiempos de resolución de atención ciudadana</p>
+
+  
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="fechaDesde">Desde:</label>
+      <input type="date" id="fechaDesde" [(ngModel)]="filtroFechaDesde">
+    </div>
+    <div class="col-md-3">
+      <label for="fechaHasta">Hasta:</label>
+      <input type="date" id="fechaHasta" [(ngModel)]="filtroFechaHasta">
+    </div>
+    <div class="col-md-3">
+      <label for="categoria">Categoría:</label>
+      <select id="categoria" [(ngModel)]="filtroCategoria">
+        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="estado">Estado:</label>
+      <select id="estado" [(ngModel)]="filtroEstado">
+        <option *ngFor="let est of estados" [value]="est">{{ est }}</option>
+      </select>
+    </div>
+  </div>
+
+  <button (click)="aplicarFiltros()">Filtrar</button>
+
+  
+  <div *ngIf="isLoading">
+    <p>Cargando datos...</p>
+  </div>
+
+  
+  <div *ngIf="!isLoading">
+    <p>Total de Reclamos: {{ reporte.totalReclamos }}</p>
+    <p>Tiempo Promedio de Resolución: {{ reporte.tiempoPromedioResolucionDias }} días</p>
+
+    <h4>Reclamos por Estado</h4>
+    <table>
+      <thead>
+        <tr><th>Estado</th><th>Cantidad</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of reporte.reclamosPorEstado">
+          <td>{{ item.estado }}</td>
+          <td>{{ item.cantidad }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Reclamos por Categoría</h4>
+    <table>
+      <thead>
+        <tr><th>Categoría</th><th>Cantidad</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of reporte.reclamosPorCategoria">
+          <td>{{ item.categoria }}</td>
+          <td>{{ item.cantidad }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
