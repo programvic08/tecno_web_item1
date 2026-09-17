@@ -1,0 +1,142 @@
+<h1>Crear Reclamo</h1>
+<ol>
+  <li>El qué</li>
+  <li>Dónde</li>
+  <li>Revisión</li>
+</ol>
+
+<section *ngIf="paso === 1">
+  <h2 >1. El qué</h2>
+  <form #elQue="ngForm" 
+        (ngSubmit)="continuar(elQue.valid === true)">
+    <div>
+      <label for="categoria">Categoría</label>
+      <select id="categoria" 
+              name="categoria" 
+              [(ngModel)]="categoria" 
+              (ngModelChange)="cambiarCategoria()" 
+              required>
+              /*como en el formulario dejamos que el metodo continuar sea verdadero haciendo que todo 
+              el formulario quede completado, dejando value en ="" obligamos al usuario a marcar una 
+              opción para seguir con el siguiente paso */
+        <option value="">Selecciona una categoría</option>
+        <option *ngFor="let nombre of nombresCategorias" 
+                [value]="nombre">
+                  {{ nombre }}</option>
+      </select>
+    </div>
+    <div>
+      <label for="subcategoria">Subcategoría</label>
+      <select id="subcategoria" 
+              name="subcategoria" 
+              [(ngModel)]="subcategoria" 
+              [disabled]="!categoria" 
+              required>
+        <option value="">Selecciona una subcategoría</option>
+        <option *ngFor="let nombre of categorias[categoria] 
+                || []" 
+                [value]="nombre">
+                {{ nombre }}</option>
+      </select>
+    </div>
+    <div>
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" 
+                rows="5" 
+                name="descripcion" 
+                [(ngModel)]="descripcion" 
+                required></textarea>
+    </div>
+    <div>
+      <label for="recurrente">¿Es un problema recurrente?</label>
+      <select id="recurrente" 
+              name="recurrente" 
+              [(ngModel)]="recurrente" 
+              required>
+        <option value="">Selecciona una respuesta</option>
+        <option value="Sí">Sí</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <button type="button">Evidencia / fotografía</button>
+    <button type="submit">Continuar a Dónde</button>
+  </form>
+</section>
+
+<section *ngIf="paso === 2" >
+  <h2>2. Dónde</h2>
+  <form #donde="ngForm" 
+        (ngSubmit)="continuar(donde.valid === true)">
+    <div>
+      <label for="direccion">Dirección</label>
+      <input id="direccion" 
+             type="text" 
+             name="direccion" 
+             [(ngModel)]="direccion" 
+             required>
+    </div>
+    <div>
+      <label for="fecha-hora">Fecha y hora observada</label>
+      <input id="fecha-hora" 
+             type="datetime-local" 
+             name="fechaHora" 
+             [(ngModel)]="fechaHora" 
+             required>
+    </div>
+    <div>
+      <label for="referencia">Ubicación o referencia</label>
+      <input id="referencia" 
+             type="text" 
+             name="referencia" 
+             [(ngModel)]="referencia">
+    </div>
+    <div>
+      <label for="sector">Sector / zona</label>
+      <input id="sector" 
+             type="text" 
+             name="sector" 
+             [(ngModel)]="sector">
+    </div>
+    <p>Espacio reservado para un mapa futuro.</p>
+    <button type="button" (click)="volver()">Volver a El qué</button>
+    <button type="submit">Revisar reclamo</button>
+  </form>
+</section>
+
+<section *ngIf="paso === 3" >
+  <h2 >3. Revisión</h2>
+  <dl>
+    <dt>Categoría</dt>
+    <dd>{{ categoria }}</dd>
+
+    <dt>Subcategoría</dt>
+    <dd>{{ subcategoria }}</dd>
+
+    <dt>Descripción</dt>
+    <dd>{{ descripcion }}</dd>
+
+    <dt>¿Es un problema recurrente?</dt>
+    <dd>{{ recurrente }}</dd>
+
+    <dt>Dirección</dt>
+    <dd>{{ direccion }}</dd>
+
+    <dt>Fecha y hora observada</dt>
+    <dd>{{ mostrarFechaHora() }}</dd>
+
+    <dt>Ubicación o referencia</dt>
+    <dd>{{ referencia || 'Sin indicar' }}</dd>
+
+    <dt>Sector / zona</dt>
+    <dd>{{ sector || 'Sin indicar' }}</dd>
+
+    <dt>Evidencia adjunta</dt>
+    <dd>Sin evidencia adjunta.</dd>
+
+    <dt>Datos del ciudadano</dt>
+    <dd>Se obtendrán de la sesión del usuario autenticado.</dd>
+  </dl>
+  <button type="button" (click)="volver()">Volver a Dónde</button>
+  <button type="button">Cancelar</button>
+  <button type="button">Enviar Reclamo</button>
+</section>

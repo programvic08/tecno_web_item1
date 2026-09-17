@@ -1,17 +1,19 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeAdminComponent } from './adminInterface/home-admin/home-admin.component';
+import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeAdminComponent
+    CrearReclamoComponent
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     AppRoutingModule
   ],
   providers: [],
