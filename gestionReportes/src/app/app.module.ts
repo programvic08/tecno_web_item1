@@ -3,12 +3,21 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeAdminComponent } from './adminInterface/home-admin/home-admin.component';
+
+
+import { UserhomeComponent } from './pages/userhome/userhome/userhome.component';
+import { AdminhomeComponent } from './pages/adminhome/adminhome/adminhome.component';
+
+import { LoginComponent } from './pages/login/login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeAdminComponent
+   
+    UserhomeComponent,
+    AdminhomeComponent,
+    
+    LoginComponent
   ],
   imports: [
     BrowserModule,
