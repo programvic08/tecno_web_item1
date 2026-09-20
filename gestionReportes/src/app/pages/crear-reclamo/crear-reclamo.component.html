@@ -1,0 +1,152 @@
+<div class="reclamo-container">
+  <h1>Crear Reclamo</h1>
+
+  <ol>
+    <li>El qué</li>
+    <li>Dónde</li>
+    <li [class.activo]="!reclamoGenerado">Revisión</li>
+  </ol>
+
+  <!-- Formulario: visible mientras no se haya generado el reclamo -->
+  <ng-container *ngIf="!reclamoGenerado">
+    <h2>3. Revisión</h2>
+
+    <div class="campo">
+      <label>Categoría</label>
+      <div class="opciones-labels">
+        <label
+          *ngFor="let cat of categorias"
+          [class.seleccionado]="isCategoriaSelected(cat.nombre)"
+          (click)="toggleCategoria(cat.nombre)">
+          {{ cat.nombre }}
+        </label>
+      </div>
+    </div>
+
+    <div class="campo" *ngIf="categoriasSeleccionadas.length > 0">
+      <label>Subcategoría</label>
+      <div *ngFor="let categoria of categoriasSeleccionadas" class="grupo-subcategorias">
+        <span>{{ categoria.nombre }}</span>
+        <div class="opciones-labels">
+          <label
+            *ngFor="let sub of categoria.subcategorias"
+            [class.seleccionado]="isSubcategoriaSelected(sub)"
+            (click)="toggleSubcategoria(sub)">
+            {{ sub }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" rows="3" [(ngModel)]="descripcion" name="descripcion"></textarea>
+    </div>
+
+    <div class="campo">
+      <label>¿Es un problema recurrente?</label>
+      <div class="opciones-labels">
+        <label [class.seleccionado]="esRecurrente === true" (click)="esRecurrente = true">Sí</label>
+        <label [class.seleccionado]="esRecurrente === false" (click)="esRecurrente = false">No</label>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="direccion">Dirección</label>
+      <input id="direccion" type="text" [(ngModel)]="direccion" name="direccion" />
+    </div>
+
+    <div class="campo">
+      <label for="fechaHora">Fecha y hora observada</label>
+      <input id="fechaHora" type="datetime-local" [(ngModel)]="fechaHoraObservada" name="fechaHora" />
+    </div>
+
+    <div class="campo">
+      <label for="ubicacion">Ubicación o referencia</label>
+      <input id="ubicacion" type="text" [(ngModel)]="ubicacionReferencia" name="ubicacion" placeholder="Sin indicar" />
+    </div>
+
+    <div class="campo">
+      <label for="sectorZona">Sector / zona</label>
+      <input id="sectorZona" type="text" [(ngModel)]="sectorZona" name="sectorZona" placeholder="Sin indicar" />
+    </div>
+
+    <div class="campo">
+      <label for="evidencia">Evidencia adjunta</label>
+      <input id="evidencia" type="file" (change)="onArchivoSeleccionado($event)" />
+      <span *ngIf="evidenciaNombre">{{ evidenciaNombre }}</span>
+    </div>
+
+    <div class="campo">
+      <label>Datos del ciudadano</label>
+      <p>{{ datosCiudadanoTexto }}</p>
+    </div>
+
+    <div class="acciones">
+      <button type="button" (click)="volver()">Volver a Dónde</button>
+      <button type="button" (click)="cancelar()">Cancelar</button>
+      <button type="button" [disabled]="!formularioValido" (click)="enviarReclamo()">Enviar Reclamo</button>
+    </div>
+  </ng-container>
+
+  <!-- Tarjeta: visible una vez generado el reclamo -->
+  <ng-container *ngIf="reclamoGenerado">
+    <h2>Reclamo generado</h2>
+
+    <div class="tarjeta-reclamo">
+      <div class="campo">
+        <label>Categoría</label>
+        <p>{{ reclamoGenerado.categorias.join(', ') }}</p>
+      </div>
+
+      <div class="campo" *ngIf="reclamoGenerado.subcategorias.length > 0">
+        <label>Subcategoría</label>
+        <p>{{ reclamoGenerado.subcategorias.join(', ') }}</p>
+      </div>
+
+      <div class="campo">
+        <label>Descripción</label>
+        <p>{{ reclamoGenerado.descripcion }}</p>
+      </div>
+
+      <div class="campo">
+        <label>¿Es un problema recurrente?</label>
+        <p>{{ reclamoGenerado.esRecurrente === true ? 'Sí' : (reclamoGenerado.esRecurrente === false ? 'No' : 'No indicado') }}</p>
+      </div>
+
+      <div class="campo">
+        <label>Dirección</label>
+        <p>{{ reclamoGenerado.direccion }}</p>
+      </div>
+
+      <div class="campo">
+        <label>Fecha y hora observada</label>
+        <p>{{ reclamoGenerado.fechaHoraObservada || 'Sin indicar' }}</p>
+      </div>
+
+      <div class="campo">
+        <label>Ubicación o referencia</label>
+        <p>{{ reclamoGenerado.ubicacionReferencia }}</p>
+      </div>
+
+      <div class="campo">
+        <label>Sector / zona</label>
+        <p>{{ reclamoGenerado.sectorZona }}</p>
+      </div>
+
+      <div class="campo">
+        <label>Evidencia adjunta</label>
+        <p>{{ reclamoGenerado.evidenciaNombre }}</p>
+      </div>
+
+      <div class="campo">
+        <label>Datos del ciudadano</label>
+        <p>{{ reclamoGenerado.datosCiudadano }}</p>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="button" (click)="editarReclamo()">Editar</button>
+    </div>
+  </ng-container>
+</div>

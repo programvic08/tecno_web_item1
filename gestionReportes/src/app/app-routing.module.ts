@@ -4,14 +4,19 @@ import { UserhomeComponent } from './pages/userhome/userhome/userhome.component'
 import { LoginComponent } from './pages/login/login/login.component';
 import { AdminhomeComponent } from './pages/adminhome/adminhome/adminhome.component';
 import { ReporteReclamosComponent } from './components/admin/reporte-reclamos/reporte-reclamos.component';
+ import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
 
+  
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' }, 
   { path: 'login', component: LoginComponent },
   { path: 'userHome', component: UserhomeComponent },
   { path: 'adminHome', component: AdminhomeComponent },
   { path: 'reporteReclamo', component: ReporteReclamosComponent },
-  { path: '**', redirectTo: 'userHome' }];
+  
+  { path: 'crear-reclamo', component: CrearReclamoComponent },
+  { path: 'prueba-reclamo', component: CrearReclamoComponent },
+{ path: '**', redirectTo: 'userHome' }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
