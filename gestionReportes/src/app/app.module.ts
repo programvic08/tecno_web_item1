@@ -13,6 +13,7 @@ import { UserhomeComponent } from './pages/userhome/userhome/userhome.component'
 import { AdminhomeComponent } from './pages/adminhome/adminhome/adminhome.component';
 
 import { LoginComponent } from './pages/login/login/login.component';
+import { BandejaReclamosComponent } from './pages/bandeja-reclamos/bandeja-reclamos.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { LoginComponent } from './pages/login/login/login.component';
     UserhomeComponent,
     AdminhomeComponent,
     
-    LoginComponent
+    LoginComponent,
+    BandejaReclamosComponent
   ],
   imports: [
     BrowserModule,
