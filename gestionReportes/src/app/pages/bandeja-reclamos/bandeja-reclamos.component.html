@@ -1,0 +1,70 @@
+<div class="container mt-4">
+  <h2>Bandeja de Reclamos</h2>
+  <p>Gestión, asignación y seguimiento de reclamos ciudadanos</p>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="estado">Estado:</label>
+      <select id="estado" class="form-select" [(ngModel)]="filtroEstado">
+        <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="categoria">Categoría:</label>
+      <select id="categoria" class="form-select" [(ngModel)]="filtroCategoria">
+        <option *ngFor="let c of categorias" [value]="c">{{ c }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="prioridad">Prioridad:</label>
+      <select id="prioridad" class="form-select" [(ngModel)]="filtroPrioridad">
+        <option *ngFor="let p of prioridades" [value]="p">{{ p }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="ubicacion">Ubicación:</label>
+      <input type="text" id="ubicacion" class="form-control" [(ngModel)]="filtroUbicacion" placeholder="Buscar...">
+    </div>
+  </div>
+
+  <table class="table table-striped table-bordered align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Folio</th>
+        <th>Categoría</th>
+        <th>Ubicación</th>
+        <th>Fecha</th>
+        <th>Prioridad</th>
+        <th>Estado</th>
+        <th>Agente</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of reclamosFiltrados">
+        <td>{{ r.folio }}</td>
+        <td>
+          <strong>{{ r.categoria }}</strong><br>
+          <small class="text-muted">{{ r.subcategoria }}</small>
+        </td>
+        <td>{{ r.ubicacion }}</td>
+        <td>{{ r.fecha }}</td>
+        <td>{{ r.prioridad }}</td>
+        <td>
+          <span class="badge" [ngClass]="badgeClaseEstado(r.estado)">
+            {{ r.estado }}
+          </span>
+        </td>
+        <td>{{ r.agenteAsignado }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" (click)="verDetalle(r.folio)">Ver detalle</button>
+          <button class="btn btn-sm btn-outline-success" (click)="asignarme(r.folio)" *ngIf="r.agenteAsignado === 'Sin asignar'">Asignarme</button>
+        </td>
+      </tr>
+
+      <tr *ngIf="reclamosFiltrados.length === 0">
+        <td colspan="8" class="text-center">No hay reclamos que coincidan con los filtros.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
