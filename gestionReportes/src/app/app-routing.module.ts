@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
-
+ import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
 const routes: Routes = [
-  { path: 'crear-reclamo', component: CrearReclamoComponent }
+  { path: 'crear-reclamo', component: CrearReclamoComponent },
+   { path: 'prueba-reclamo', component: CrearReclamoComponent }
 ];
 
 @NgModule({

@@ -8,13 +8,13 @@ import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.compo
 
 @NgModule({
   declarations: [
-    AppComponent,
-    CrearReclamoComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    CrearReclamoComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
