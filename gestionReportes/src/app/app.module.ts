@@ -21,6 +21,7 @@ import { LoginComponent } from './pages/login/login/login.component';
     ReporteReclamosComponent,
     UserhomeComponent,
     AdminhomeComponent,
+    
     LoginComponent
   ],
   imports: [

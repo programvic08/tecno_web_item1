@@ -18,7 +18,7 @@ const routes: Routes = [
   { path: 'crear-reclamo', component: CrearReclamoComponent },
   { path: 'prueba-reclamo', component: CrearReclamoComponent },
   { path: 'historial', component: HistorialComponent },
-{ path: '**', redirectTo: 'userHome' }];
+  { path: '**', redirectTo: 'login' }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

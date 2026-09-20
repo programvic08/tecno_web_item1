@@ -2,79 +2,147 @@
   <h1>Crear Reclamo</h1>
 
   <ol>
-    <li>El qué</li>
-    <li>Dónde</li>
-    <li [class.activo]="!reclamoGenerado">Revisión</li>
+    <li [class.activo]="paso === 1">El qué</li>
+    <li [class.activo]="paso === 2">Dónde</li>
+    <li [class.activo]="paso === 3">Revisión</li>
   </ol>
 
-  <!-- Formulario: visible mientras no se haya generado el reclamo -->
-  <ng-container *ngIf="!reclamoGenerado">
+  <!-- Paso 1: El qué -->
+  <section *ngIf="paso === 1">
+    <h2>1. El qué</h2>
+
+    <form #elQue="ngForm" (ngSubmit)="continuar(elQue.valid === true)">
+      <div class="campo">
+        <label for="categoria">Categoría</label>
+        <select
+          id="categoria"
+          name="categoria"
+          [(ngModel)]="categoria"
+          (ngModelChange)="cambiarCategoria()"
+          required>
+          <option value="" disabled>Selecciona una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat.nombre">{{ cat.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="campo" *ngIf="categoria">
+        <label for="subcategoria">Subcategoría</label>
+        <select id="subcategoria" name="subcategoria" [(ngModel)]="subcategoria">
+          <option value="" disabled>Selecciona una subcategoría</option>
+          <option *ngFor="let sub of subcategoriasDisponibles" [value]="sub">{{ sub }}</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion" rows="3" [(ngModel)]="descripcion" required></textarea>
+      </div>
+
+      <div class="campo">
+        <label>¿Es un problema recurrente?</label>
+        <div class="opciones-radio">
+          <label>
+            <input type="radio" name="recurrente" [value]="true" [(ngModel)]="esRecurrente" />
+            Sí
+          </label>
+          <label>
+            <input type="radio" name="recurrente" [value]="false" [(ngModel)]="esRecurrente" />
+            No
+          </label>
+        </div>
+      </div>
+
+      <div class="acciones">
+        <button type="submit" [disabled]="!elQue.valid">Siguiente</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Paso 2: Dónde -->
+  <section *ngIf="paso === 2">
+    <h2>2. Dónde</h2>
+
+    <form #donde="ngForm" (ngSubmit)="continuar(donde.valid === true)">
+      <div class="campo">
+        <label for="direccion">Dirección</label>
+        <input id="direccion" type="text" name="direccion" [(ngModel)]="direccion" required />
+      </div>
+
+      <div class="campo">
+        <label for="fechaHora">Fecha y hora observada</label>
+        <input id="fechaHora" type="datetime-local" name="fechaHora" [(ngModel)]="fechaHoraObservada" />
+      </div>
+
+      <div class="campo">
+        <label for="ubicacion">Ubicación o referencia</label>
+        <input id="ubicacion" type="text" name="ubicacion" [(ngModel)]="ubicacionReferencia" placeholder="Sin indicar" />
+      </div>
+
+      <div class="campo">
+        <label for="sectorZona">Sector / zona</label>
+        <input id="sectorZona" type="text" name="sectorZona" [(ngModel)]="sectorZona" placeholder="Sin indicar" />
+      </div>
+
+      <div class="campo">
+        <label for="evidencia">Evidencia adjunta</label>
+        <input id="evidencia" type="file" (change)="onArchivoSeleccionado($event)" />
+        <span *ngIf="evidenciaNombre">{{ evidenciaNombre }}</span>
+      </div>
+
+      <div class="acciones">
+        <button type="button" (click)="volver()">Volver</button>
+        <button type="submit" [disabled]="!donde.valid">Siguiente</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Paso 3: Revisión -->
+  <section *ngIf="paso === 3">
     <h2>3. Revisión</h2>
 
     <div class="campo">
       <label>Categoría</label>
-      <div class="opciones-labels">
-        <label
-          *ngFor="let cat of categorias"
-          [class.seleccionado]="isCategoriaSelected(cat.nombre)"
-          (click)="toggleCategoria(cat.nombre)">
-          {{ cat.nombre }}
-        </label>
-      </div>
+      <p>{{ categoria }}</p>
     </div>
 
-    <div class="campo" *ngIf="categoriasSeleccionadas.length > 0">
+    <div class="campo" *ngIf="subcategoria">
       <label>Subcategoría</label>
-      <div *ngFor="let categoria of categoriasSeleccionadas" class="grupo-subcategorias">
-        <span>{{ categoria.nombre }}</span>
-        <div class="opciones-labels">
-          <label
-            *ngFor="let sub of categoria.subcategorias"
-            [class.seleccionado]="isSubcategoriaSelected(sub)"
-            (click)="toggleSubcategoria(sub)">
-            {{ sub }}
-          </label>
-        </div>
-      </div>
+      <p>{{ subcategoria }}</p>
     </div>
 
     <div class="campo">
-      <label for="descripcion">Descripción</label>
-      <textarea id="descripcion" rows="3" [(ngModel)]="descripcion" name="descripcion"></textarea>
+      <label>Descripción</label>
+      <p>{{ descripcion }}</p>
     </div>
 
     <div class="campo">
       <label>¿Es un problema recurrente?</label>
-      <div class="opciones-labels">
-        <label [class.seleccionado]="esRecurrente === true" (click)="esRecurrente = true">Sí</label>
-        <label [class.seleccionado]="esRecurrente === false" (click)="esRecurrente = false">No</label>
-      </div>
+      <p>{{ esRecurrente === true ? 'Sí' : (esRecurrente === false ? 'No' : 'No indicado') }}</p>
     </div>
 
     <div class="campo">
-      <label for="direccion">Dirección</label>
-      <input id="direccion" type="text" [(ngModel)]="direccion" name="direccion" />
+      <label>Dirección</label>
+      <p>{{ direccion }}</p>
     </div>
 
     <div class="campo">
-      <label for="fechaHora">Fecha y hora observada</label>
-      <input id="fechaHora" type="datetime-local" [(ngModel)]="fechaHoraObservada" name="fechaHora" />
+      <label>Fecha y hora observada</label>
+      <p>{{ fechaHoraObservada || 'Sin indicar' }}</p>
     </div>
 
     <div class="campo">
-      <label for="ubicacion">Ubicación o referencia</label>
-      <input id="ubicacion" type="text" [(ngModel)]="ubicacionReferencia" name="ubicacion" placeholder="Sin indicar" />
+      <label>Ubicación o referencia</label>
+      <p>{{ ubicacionReferencia || 'Sin indicar' }}</p>
     </div>
 
     <div class="campo">
-      <label for="sectorZona">Sector / zona</label>
-      <input id="sectorZona" type="text" [(ngModel)]="sectorZona" name="sectorZona" placeholder="Sin indicar" />
+      <label>Sector / zona</label>
+      <p>{{ sectorZona || 'Sin indicar' }}</p>
     </div>
 
     <div class="campo">
-      <label for="evidencia">Evidencia adjunta</label>
-      <input id="evidencia" type="file" (change)="onArchivoSeleccionado($event)" />
-      <span *ngIf="evidenciaNombre">{{ evidenciaNombre }}</span>
+      <label>Evidencia adjunta</label>
+      <p>{{ evidenciaNombre || 'Sin evidencia adjunta.' }}</p>
     </div>
 
     <div class="campo">
@@ -82,71 +150,13 @@
       <p>{{ datosCiudadanoTexto }}</p>
     </div>
 
-    <div class="acciones">
-      <button type="button" (click)="volver()">Volver a Dónde</button>
-      <button type="button" (click)="cancelar()">Cancelar</button>
-      <button type="button" [disabled]="!formularioValido" (click)="enviarReclamo()">Enviar Reclamo</button>
-    </div>
-  </ng-container>
-
-  <!-- Tarjeta: visible una vez generado el reclamo -->
-  <ng-container *ngIf="reclamoGenerado">
-    <h2>Reclamo generado</h2>
-
-    <div class="tarjeta-reclamo">
-      <div class="campo">
-        <label>Categoría</label>
-        <p>{{ reclamoGenerado.categorias.join(', ') }}</p>
-      </div>
-
-      <div class="campo" *ngIf="reclamoGenerado.subcategorias.length > 0">
-        <label>Subcategoría</label>
-        <p>{{ reclamoGenerado.subcategorias.join(', ') }}</p>
-      </div>
-
-      <div class="campo">
-        <label>Descripción</label>
-        <p>{{ reclamoGenerado.descripcion }}</p>
-      </div>
-
-      <div class="campo">
-        <label>¿Es un problema recurrente?</label>
-        <p>{{ reclamoGenerado.esRecurrente === true ? 'Sí' : (reclamoGenerado.esRecurrente === false ? 'No' : 'No indicado') }}</p>
-      </div>
-
-      <div class="campo">
-        <label>Dirección</label>
-        <p>{{ reclamoGenerado.direccion }}</p>
-      </div>
-
-      <div class="campo">
-        <label>Fecha y hora observada</label>
-        <p>{{ reclamoGenerado.fechaHoraObservada || 'Sin indicar' }}</p>
-      </div>
-
-      <div class="campo">
-        <label>Ubicación o referencia</label>
-        <p>{{ reclamoGenerado.ubicacionReferencia }}</p>
-      </div>
-
-      <div class="campo">
-        <label>Sector / zona</label>
-        <p>{{ reclamoGenerado.sectorZona }}</p>
-      </div>
-
-      <div class="campo">
-        <label>Evidencia adjunta</label>
-        <p>{{ reclamoGenerado.evidenciaNombre }}</p>
-      </div>
-
-      <div class="campo">
-        <label>Datos del ciudadano</label>
-        <p>{{ reclamoGenerado.datosCiudadano }}</p>
-      </div>
+    <div class="acciones" *ngIf="!enviado">
+      <button type="button" (click)="volver()">Volver</button>
+      <button type="button" [disabled]="!formularioValido" (click)="enviarReclamo()">Enviar</button>
     </div>
 
-    <div class="acciones">
-      <button type="button" (click)="editarReclamo()">Editar</button>
-    </div>
-  </ng-container>
+    <p *ngIf="enviado" class="confirmacion">
+      Reclamo generado correctamente. (De momento esto es solo una vista previa: no se ha enviado a ningún servidor.)
+    </p>
+  </section>
 </div>
