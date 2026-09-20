@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { HistorialComponent } from './pages/historial/historial.component';
 import { UserhomeComponent } from './pages/userhome/userhome/userhome.component';
 import { LoginComponent } from './pages/login/login/login.component';
 import { AdminhomeComponent } from './pages/adminhome/adminhome/adminhome.component';
@@ -16,6 +17,7 @@ const routes: Routes = [
   
   { path: 'crear-reclamo', component: CrearReclamoComponent },
   { path: 'prueba-reclamo', component: CrearReclamoComponent },
+  { path: 'historial', component: HistorialComponent },
 { path: '**', redirectTo: 'userHome' }];
 
 @NgModule({

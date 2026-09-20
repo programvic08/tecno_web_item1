@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { HistorialComponent } from './pages/historial/historial.component';
 import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
 import { ReporteReclamosComponent } from './components/admin/reporte-reclamos/reporte-reclamos.component';
 
@@ -16,6 +17,7 @@ import { LoginComponent } from './pages/login/login/login.component';
 @NgModule({
   declarations: [
     AppComponent,
+    HistorialComponent,
     ReporteReclamosComponent,
     UserhomeComponent,
     AdminhomeComponent,
