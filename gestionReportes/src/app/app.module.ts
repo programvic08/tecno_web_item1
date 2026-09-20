@@ -6,13 +6,18 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ReporteReclamosComponent } from './components/admin/reporte-reclamos/reporte-reclamos.component';
 
+import { UserhomeComponent } from './pages/userhome/userhome/userhome.component';
+import { AdminhomeComponent } from './pages/adminhome/adminhome/adminhome.component';
 
+import { LoginComponent } from './pages/login/login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ReporteReclamosComponent
- 
+    ReporteReclamosComponent,
+    UserhomeComponent,
+    AdminhomeComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
