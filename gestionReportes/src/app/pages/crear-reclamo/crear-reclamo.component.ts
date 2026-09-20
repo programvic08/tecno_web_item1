@@ -8,8 +8,8 @@ interface CategoriaOption {
 }
 
 interface ReclamoGenerado {
-  categorias: string[];
-  subcategorias: string[];
+  categoria: string;
+  subcategoria: string;
   descripcion: string;
   esRecurrente: boolean | null;
   direccion: string;
@@ -28,8 +28,10 @@ interface ReclamoGenerado {
 })
 export class CrearReclamoComponent {
 
+  // 1 = "El qué", 2 = "Dónde", 3 = "Revisión"
+  paso = 1;
+
   // Catálogo de categorías y subcategorías disponibles.
-  // Se eligen como "labels" seleccionables, permitiendo multi-selección.
   // Reemplaza esto por tu catálogo real (o cárgalo desde un servicio) cuando corresponda.
   categorias: CategoriaOption[] = [
     {
@@ -58,71 +60,43 @@ export class CrearReclamoComponent {
     }
   ];
 
-  selectedCategorias: string[] = [];
-  selectedSubcategorias: string[] = [];
-
+  // --- Paso 1: El qué ---
+  categoria = '';
+  subcategoria = '';
   descripcion = '';
   esRecurrente: boolean | null = null;
+
+  // --- Paso 2: Dónde ---
   direccion = '';
   fechaHoraObservada = '';
   ubicacionReferencia = '';
   sectorZona = '';
-
   evidenciaArchivo: File | null = null;
   evidenciaNombre = '';
 
+  // --- Dato fijo (no editable) ---
   // En la app real esto vendría del servicio de autenticación / sesión del usuario.
   datosCiudadanoTexto = 'Se obtendrán de la sesión del usuario autenticado.';
 
-  // Reclamo ya compilado, listo para mostrarse como tarjeta. Null mientras se edita el formulario.
+  // --- Estado final ---
   reclamoGenerado: ReclamoGenerado | null = null;
+  enviado = false;
 
   get subcategoriasDisponibles(): string[] {
-    const subs = this.categorias
-      .filter(c => this.selectedCategorias.includes(c.nombre))
-      .flatMap(c => c.subcategorias);
-    return Array.from(new Set(subs));
+    const cat = this.categorias.find(c => c.nombre === this.categoria);
+    return cat ? cat.subcategorias : [];
   }
 
-  get categoriasSeleccionadas(): CategoriaOption[] {
-    return this.categorias.filter(categoria =>
-      this.selectedCategorias.includes(categoria.nombre)
-    );
-  }
-
+  // Chequeo final antes de poder enviar (además de la validación de cada paso).
   get formularioValido(): boolean {
-    return this.selectedCategorias.length > 0
+    return this.categoria !== ''
       && this.descripcion.trim().length > 0
       && this.direccion.trim().length > 0;
   }
 
-  isCategoriaSelected(nombre: string): boolean {
-    return this.selectedCategorias.includes(nombre);
-  }
-
-  isSubcategoriaSelected(nombre: string): boolean {
-    return this.selectedSubcategorias.includes(nombre);
-  }
-
-  toggleCategoria(nombre: string): void {
-    const idx = this.selectedCategorias.indexOf(nombre);
-    if (idx === -1) {
-      this.selectedCategorias.push(nombre);
-    } else {
-      this.selectedCategorias.splice(idx, 1);
-      // Si se quita una categoría, sus subcategorías ya no deben quedar seleccionadas.
-      this.selectedSubcategorias = this.selectedSubcategorias
-        .filter(s => this.subcategoriasDisponibles.includes(s));
-    }
-  }
-
-  toggleSubcategoria(nombre: string): void {
-    const idx = this.selectedSubcategorias.indexOf(nombre);
-    if (idx === -1) {
-      this.selectedSubcategorias.push(nombre);
-    } else {
-      this.selectedSubcategorias.splice(idx, 1);
-    }
+  cambiarCategoria(): void {
+    // Al cambiar de categoría, la subcategoría anterior ya no tiene por qué aplicar.
+    this.subcategoria = '';
   }
 
   onArchivoSeleccionado(event: Event): void {
@@ -136,14 +110,27 @@ export class CrearReclamoComponent {
     }
   }
 
+  // Avanza de paso solo si el formulario del paso actual es válido.
+  continuar(formularioValido: boolean): void {
+    if (formularioValido && this.paso < 3) {
+      this.paso++;
+    }
+  }
+
+  volver(): void {
+    if (this.paso > 1) {
+      this.paso--;
+    }
+  }
+
   enviarReclamo(): void {
     if (!this.formularioValido) {
       return;
     }
 
     this.reclamoGenerado = {
-      categorias: [...this.selectedCategorias],
-      subcategorias: [...this.selectedSubcategorias],
+      categoria: this.categoria,
+      subcategoria: this.subcategoria,
       descripcion: this.descripcion,
       esRecurrente: this.esRecurrente,
       direccion: this.direccion,
@@ -154,30 +141,9 @@ export class CrearReclamoComponent {
       datosCiudadano: this.datosCiudadanoTexto
     };
 
-    // NOTA: por ahora el reclamo solo se arma localmente y se muestra como tarjeta.
-    // Aquí es donde más adelante se llamaría al servicio para enviarlo al backend.
-  }
+    this.enviado = true;
 
-  cancelar(): void {
-    this.selectedCategorias = [];
-    this.selectedSubcategorias = [];
-    this.descripcion = '';
-    this.esRecurrente = null;
-    this.direccion = '';
-    this.fechaHoraObservada = '';
-    this.ubicacionReferencia = '';
-    this.sectorZona = '';
-    this.evidenciaArchivo = null;
-    this.evidenciaNombre = '';
-    this.reclamoGenerado = null;
-  }
-
-  volver(): void {
-    // Placeholder: aquí se integraría la navegación de regreso al paso "2. Dónde".
-    console.log('Volver al paso: Dónde');
-  }
-
-  editarReclamo(): void {
-    this.reclamoGenerado = null;
+    // NOTA: por ahora el reclamo solo se arma localmente y se marca como "enviado".
+    // Aquí es donde más adelante se llamaría al servicio para mandarlo al backend.
   }
 }
