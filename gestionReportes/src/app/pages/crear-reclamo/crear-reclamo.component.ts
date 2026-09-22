@@ -24,7 +24,8 @@ interface ReclamoGenerado {
   selector: 'app-crear-reclamo',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './crear-reclamo.component.html'
+  templateUrl: './crear-reclamo.component.html',
+  styleUrls: ['./crear-reclamo.component.css']
 })
 export class CrearReclamoComponent {
 

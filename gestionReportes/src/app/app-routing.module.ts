@@ -4,7 +4,7 @@ import { HistorialComponent } from './pages/historial/historial.component';
 import { UserhomeComponent } from './pages/userhome/userhome/userhome.component';
 import { LoginComponent } from './pages/login/login/login.component';
 import { AdminhomeComponent } from './pages/adminhome/adminhome/adminhome.component';
-import { ReporteReclamosComponent } from './components/admin/reporte-reclamos/reporte-reclamos.component';
+import { ReporteReclamosComponent } from './pages/reporte-reclamos/reporte-reclamos.component';
 import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
 import { BandejaReclamosComponent } from './pages/bandeja-reclamos/bandeja-reclamos.component';
 
