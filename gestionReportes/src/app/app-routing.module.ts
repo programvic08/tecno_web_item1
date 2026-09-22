@@ -15,11 +15,9 @@ const routes: Routes = [
   { path: 'adminHome', component: AdminhomeComponent },
   { path: 'reporteReclamo', component: ReporteReclamosComponent },
   { path: 'crear-reclamo', component: CrearReclamoComponent },
-  { path: 'prueba-reclamo', component: CrearReclamoComponent },
   { path: 'bandeja-reclamos', component: BandejaReclamosComponent },
-    { path: 'historial', component: HistorialComponent },
-  { path: '**', redirectTo: 'login' }
-];
+  { path: 'historial', component: HistorialComponent},
+{ path: '**', redirectTo: 'userHome' }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
