@@ -1,8 +1,9 @@
+<app-header subtitulo="SISTEMA DE REPORTES Y MÉTRICAS MUNICIPALES"></app-header>
+
 <div class="container mt-4">
   <h2>Reportes de Reclamos</h2>
   <p>Volumen y tiempos de resolución de atención ciudadana</p>
 
-  
   <div class="row mb-3">
     <div class="col-md-3">
       <label for="fechaDesde">Desde:</label>
@@ -26,17 +27,17 @@
     </div>
   </div>
 
-  <button (click)="aplicarFiltros()">Filtrar</button>
+  <button class="btn-filtrar" (click)="aplicarFiltros()">Filtrar</button>
 
-  
-  <div *ngIf="isLoading">
+  <div *ngIf="isLoading" class="cargando">
     <p>Cargando datos...</p>
   </div>
 
-  
-  <div *ngIf="!isLoading">
-    <p>Total de Reclamos: {{ reporte.totalReclamos }}</p>
-    <p>Tiempo Promedio de Resolución: {{ reporte.tiempoPromedioResolucionDias }} días</p>
+  <div *ngIf="!isLoading" class="reporte-content">
+    <div class="metricas-resumen">
+      <p><strong>Total de Reclamos:</strong> {{ reporte.totalReclamos }}</p>
+      <p><strong>Tiempo Promedio de Resolución:</strong> {{ reporte.tiempoPromedioResolucionDias }} días</p>
+    </div>
 
     <h4>Reclamos por Estado</h4>
     <table>
@@ -65,3 +66,5 @@
     </table>
   </div>
 </div>
+
+<app-footer></app-footer>

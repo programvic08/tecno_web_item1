@@ -1,3 +1,5 @@
+<app-header subtitulo="PANEL DE GESTIÓN Y ASIGNACIÓN DE RECLAMOS"></app-header>
+
 <div class="container mt-4">
   <h2>Bandeja de Reclamos</h2>
   <p>Gestión, asignación y seguimiento de reclamos ciudadanos</p>
@@ -51,13 +53,11 @@
         <td>{{ r.fecha }}</td>
         <td>{{ r.prioridad }}</td>
         <td>
-          <span class="badge" [ngClass]="badgeClaseEstado(r.estado)">
-            {{ r.estado }}
-          </span>
+          <app-status-badge [estado]="r.estado"></app-status-badge>
         </td>
         <td>{{ r.agenteAsignado }}</td>
         <td>
-          <button class="btn btn-sm btn-outline-primary" (click)="verDetalle(r.folio)">Ver detalle</button>
+          <button class="btn btn-sm btn-outline-primary" [routerLink]="['/modificar-reclamo']" [queryParams]="{ folio: r.folio }">Gestionar / Editar</button>
           <button class="btn btn-sm btn-outline-success" (click)="asignarme(r.folio)" *ngIf="r.agenteAsignado === 'Sin asignar'">Asignarme</button>
         </td>
       </tr>
@@ -68,3 +68,5 @@
     </tbody>
   </table>
 </div>
+
+<app-footer></app-footer>

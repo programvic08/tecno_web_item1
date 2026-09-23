@@ -1,12 +1,11 @@
-<div class="page-layout">
+<app-header subtitulo="CONSULTA DE RECLAMOS AL CIUDADANO"></app-header>
 
-  <!-- Contenido Principal -->
+<div class="page-layout">
   <main class="historial-container">
     <div class="header-bar">
       <h2>Historial de Reclamos</h2>
       <div class="filter-group">
         <label for="estado">Filtrar por estado:</label>
-        <!-- Usamos la función segura del TypeScript -->
         <select id="estado" class="select-filter" (change)="onFiltroChange($event)">
           <option value="">Todos</option>
           <option value="Recibido">Recibido</option>
@@ -30,7 +29,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Recorre la lista filtrada -->
           <tr *ngFor="let item of reclamosFiltrados">
             <td><strong>#{{ item.id }}</strong></td>
             <td>
@@ -40,18 +38,22 @@
             <td>{{ item.ubicacion }}</td>
             <td>{{ item.fecha }}</td>
             <td>
-              <span class="status-badge" [ngClass]="item.css">
-                {{ item.estado }}
-              </span>
+              <app-status-badge [estado]="item.estado"></app-status-badge>
             </td>
             <td>
-              <button type="button" class="btn-action">Ver detalle</button>
+              <button type="button" class="btn-action" (click)="verDetalle(item.folio)">Ver estado</button>
+            </td>
+          </tr>
+
+          <tr *ngIf="reclamosFiltrados.length === 0">
+            <td colspan="6" style="text-align: center; padding: 20px;">
+              No se encontraron reclamos registrados.
             </td>
           </tr>
         </tbody>
       </table>
     </div>
   </main>
-
-
 </div>
+
+<app-footer></app-footer>

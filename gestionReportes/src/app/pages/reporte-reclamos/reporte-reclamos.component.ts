@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ReporteReclamo } from 'src/app/models/reporte-reclamo';
+import { ReclamoService } from '../../core/services/reclamo.service';
+import { ReporteEstadistico } from '../../models/reclamo.model';
 
 @Component({
   selector: 'app-reporte-reclamos',
@@ -7,61 +8,37 @@ import { ReporteReclamo } from 'src/app/models/reporte-reclamo';
   styleUrls: ['./reporte-reclamos.component.css']
 })
 export class ReporteReclamosComponent implements OnInit {
-
   filtroFechaDesde: string = '';
   filtroFechaHasta: string = '';
-  filtroCategoria: string = 'TODAS';
-  filtroEstado: string = 'TODOS';
+  filtroCategoria: string = 'Todas';
+  filtroEstado: string = 'Todos';
 
-  categorias: string[] = ['TODAS', 'Alumbrado público', 'Aseo', 'Seguridad', 'Áreas verdes'];
-  estados: string[] = ['TODOS', 'Recibido', 'En revisión', 'En proceso', 'Resuelto', 'Rechazado', 'Cerrado'];
+  categorias: string[] = ['Todas', 'Aseo y Ornato', 'Alumbrado Público', 'Infraestructura Urbana', 'Seguridad y Ruidos'];
+  estados: string[] = ['Todos', 'Recibido', 'En proceso', 'Resuelto', 'Cerrado'];
 
   isLoading: boolean = false;
-
-  reporte: ReporteReclamo = {
+  reporte: ReporteEstadistico = {
     totalReclamos: 0,
     tiempoPromedioResolucionDias: 0,
     reclamosPorEstado: [],
     reclamosPorCategoria: []
   };
 
-  constructor() { }
+  constructor(private reclamoService: ReclamoService) {}
 
   ngOnInit(): void {
-    this.cargarDatosReporte();
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
+    this.isLoading = true;
+    this.reclamoService.obtenerReporte().subscribe(datos => {
+      this.reporte = datos;
+      this.isLoading = false;
+    });
   }
 
   aplicarFiltros(): void {
-    console.log('Filtrando:', {
-      desde: this.filtroFechaDesde,
-      hasta: this.filtroFechaHasta,
-      categoria: this.filtroCategoria,
-      estado: this.filtroEstado
-    });
-    this.cargarDatosReporte();
-    
-  }
-
-  private cargarDatosReporte(): void {
-    this.isLoading = true;
-
-    // esto simula una carga (como que esta funcionando)
-    setTimeout(() => {
-      this.reporte = {
-        totalReclamos: 12,
-        tiempoPromedioResolucionDias: 3,
-        reclamosPorEstado: [
-          { estado: 'Recibido', cantidad: 3 },
-          { estado: 'En proceso', cantidad: 4 },
-          { estado: 'Resuelto', cantidad: 5 }
-        ],
-        reclamosPorCategoria: [
-          { categoria: 'Alumbrado público', cantidad: 4 },
-          { categoria: 'Aseo', cantidad: 3 },
-          { categoria: 'Seguridad', cantidad: 5 }
-        ]
-      };
-      this.isLoading = false;
-    }, 500);
+    this.cargarDatos();
   }
 }

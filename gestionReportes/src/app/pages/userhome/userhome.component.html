@@ -1,26 +1,6 @@
 <div class="main-layout">
-  
-  <!-- Top Banner Oficial -->
-  <div class="official-banner">
-    <div class="container-inner">
-      <p>Un sitio oficial de la <strong>Municipalidad de New York</strong></p>
-    </div>
-  </div>
+  <app-header subtitulo="TRÁMITES Y SERVICIOS AL CIUDADANO"></app-header>
 
-  <!-- Header con Logo y Búsqueda -->
-  <header class="site-header">
-    <div class="header-container">
-      <div class="brand">
-        <div class="nyc-logo">NY</div>
-        <div class="brand-text">
-          <h2>Municipalidad de New York</h2>
-          <span>TRÁMITES Y SERVICIOS AL CIUDADANO</span>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero Banner Azul -->
   <section class="hero-section">
     <div class="hero-content">
       <h1>Portal de Reclamos y Sugerencias</h1>
@@ -28,15 +8,12 @@
     </div>
   </section>
 
-  <!-- Sección Principal de Opciones (Rejilla / Grid) -->
   <main class="claims-container">
     <div class="section-title">
       <h2>Opciones de Gestión</h2>
     </div>
 
     <div class="cards-grid">
-
-      <!-- Tarjeta 1: Crear Reclamo -->
       <div class="card-item">
         <div class="card-icon">
           <span class="material-symbols-outlined">add_alert</span>
@@ -50,7 +27,6 @@
         </div>
       </div>
 
-      <!-- Tarjeta 2: Historial de Reclamo -->
       <div class="card-item">
         <div class="card-icon">
           <span class="material-symbols-outlined">history</span>
@@ -64,7 +40,6 @@
         </div>
       </div>
 
-      <!-- Tarjeta 3: Estados de los Reclamos -->
       <div class="card-item">
         <div class="card-icon">
           <span class="material-symbols-outlined">analytics</span>
@@ -74,27 +49,11 @@
           <p>Siga el avance en tiempo real de sus trámites activos y resoluciones asignadas.</p>
         </div>
         <div class="card-footer">
-          <button class="btn-action" routerLink="/userHome">Revisar Estados &rarr;</button>
+          <button class="btn-action" routerLink="/estado-reclamo">Revisar Estados &rarr;</button>
         </div>
       </div>
-
     </div>
   </main>
 
-  <!-- Pie de Página Institucional -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-info">
-        <h4>Municipalidad de New York</h4>
-        <p>Lunes a viernes: 08:30 a 17:00</p>
-      </div>
-      <div class="footer-links">
-        <a href="#">Accesibilidad</a>
-        <a href="#">Privacidad</a>
-        <a href="#">Términos de uso</a>
-        <a href="#" routerLink="/login">Cerrar Sesión</a>
-      </div>
-    </div>
-  </footer>
-
+  <app-footer></app-footer>
 </div>

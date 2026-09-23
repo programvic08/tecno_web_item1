@@ -1,3 +1,5 @@
+<app-header subtitulo="FORMULARIO DE ATENCIÓN CIUDADANA"></app-header>
+
 <div class="reclamo-container">
   <h1>Crear Reclamo</h1>
 
@@ -152,11 +154,13 @@
 
     <div class="acciones" *ngIf="!enviado">
       <button type="button" (click)="volver()">Volver</button>
-      <button type="button" [disabled]="!formularioValido" (click)="enviarReclamo()">Enviar</button>
+      <button type="button" [disabled]="!formularioValido" (click)="enviarReclamo()">Enviar Reclamo</button>
     </div>
 
     <p *ngIf="enviado" class="confirmacion">
-      Reclamo generado correctamente. (De momento esto es solo una vista previa: no se ha enviado a ningún servidor.)
+      ¡Reclamo registrado con éxito! Redirigiendo al historial...
     </p>
   </section>
 </div>
+
+<app-footer></app-footer>

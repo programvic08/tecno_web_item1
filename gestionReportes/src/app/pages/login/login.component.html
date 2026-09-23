@@ -1,0 +1,38 @@
+<div class="contenedor-login">
+  <div class="titulo-login">
+    <h1>Iniciar sesión</h1>
+    <p>Accede con tu cuenta municipal</p>
+  </div>
+  
+  <div class="formulario-login">
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-elements">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="tucorreo@ejemplo.com" required>
+      </div>
+      <div class="form-elements">
+        <label for="password">Contraseña</label>
+        <!-- Se corrigió pasword -> password -->
+        <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="••••••••" required>
+      </div>
+      <div class="recuperar-contraseña">
+        <a href="#">¿Olvidaste tu contraseña?</a>
+      </div>
+      <button type="submit" class="btn-ingresar">Ingresar</button>
+    </form>
+
+    <hr class="divider">
+
+    <div class="usuario">
+      <p>Cuentas de prueba:</p>
+      <div class="user-buttons">
+        <button type="button" class="btn-user" (click)="ingresarComo(RolUsuario.CIUDADANO)">Ciudadano</button>
+        <button type="button" class="btn-user" (click)="ingresarComo(RolUsuario.ADMINISTRADOR)">Administrador</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-footer">
+    <p>¿No tienes cuenta? <a href="#">Crear una</a></p>
+  </div>
+</div>
