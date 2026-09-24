@@ -56,4 +56,11 @@ export class BandejaReclamosComponent {
       default: return 'bg-light text-dark';
     }
   }
+
+  limpiarFiltros(): void {
+    this.filtroEstado = 'Todos';
+    this.filtroCategoria = 'Todos';
+    this.filtroPrioridad = 'Todos';
+    this.filtroUbicacion = '';
+  }
 }
