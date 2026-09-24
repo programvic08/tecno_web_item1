@@ -1,74 +1,215 @@
-# Sistema de Atención Ciudadana y Reclamos - Municipalidad de New York 🗽
+# 🏛️ Gestión de Reportes Ciudadanos
 
-El Sistema de Atención Ciudadana y Reclamos es una solución web desarrollada para la Municipalidad de New York, orientada a centralizar y digitalizar el reporte de incidencias urbanas. Permite a los vecinos reportar problemas de infraestructura, aseo, alumbrado público, seguridad y ruidos molestos. La plataforma garantiza trazabilidad completa desde la creación del ticket hasta su resolución, ofreciendo interfaces adaptadas tanto para la ciudadanía como para el personal municipal.
+Aplicación web para la **gestión de reclamos municipales**. Permite a los ciudadanos reportar problemas urbanos (basura, alumbrado, infraestructura, ruidos) y hacerles seguimiento, mientras que los agentes municipales los administran, priorizan y analizan mediante reportes estadísticos.
 
-Objetivo del Proyecto
-Este proyecto busca resolver la fragmentación y falta de seguimiento en la gestión manual o telefónica de reclamos municipales. El objetivo es ofrecer una aplicación SPA estructurada, accesible y eficiente que automatice la recepción, priorización, asignación y resolución de incidencias en la ciudad de New York.
+> ⚠️ **Estado actual:** el proyecto funciona con **datos simulados (mock)**. No hay backend: los reclamos viven en memoria y se reinician al recargar la página.
 
-📋 Características del Sistema
+![Angular](https://img.shields.io/badge/Angular-15.2-DD0031?logo=angular&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.9-3178C6?logo=typescript&logoColor=white)
+![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?logo=reactivex&logoColor=white)
 
--Administrador / Agente Municipal:
-Bandeja de Reclamos: Consola central con filtros por estado, categoría, prioridad, fecha y ubicación.
+---
 
-Gestión y Asignación: Asignación rápida de reclamos a sí mismo u otros agentes, cambio de estados (Recibido, En revisión, En proceso, Resuelto, Rechazado) y actualización de prioridades.
+## 📋 Tabla de contenidos
 
-Bitácora Operativa: Registro de observaciones internas y notas públicas de avance.
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologías](#-tecnologías)
+- [Requisitos previos](#-requisitos-previos)
+- [Instalación y ejecución](#-instalación-y-ejecución)
+- [Cuentas de prueba](#-cuentas-de-prueba)
+- [Rutas de la aplicación](#-rutas-de-la-aplicación)
+- [Arquitectura y estructura](#-arquitectura-y-estructura)
+- [Autenticación y seguridad](#-autenticación-y-seguridad)
+- [Modelo de datos](#-modelo-de-datos)
+- [Scripts disponibles](#-scripts-disponibles)
+- [Próximos pasos](#-próximos-pasos)
+- [Autores](#-autores)
 
-Reportes Estadísticos: Panel con métricas de volumen total de solicitudes, tiempo promedio de resolución y distribución por categoría/estado.
+---
 
--Ciudadano:
-Reporte de Reclamos en 3 Pasos: Formulario guiado para seleccionar categoría, subcategoría, descripción, ubicación, fecha/hora observada, recurrencia y adjunto de evidencia.
+## ✨ Funcionalidades
 
-Historial Personal: Panel con el listado de todos los reclamos ingresados y su estado actual.
+### 👤 Ciudadano
+- **Crear reclamo** mediante un formulario por pasos: categoría, subcategoría, descripción, si es recurrente, dirección, fecha/hora observada, sector, referencia y evidencia adjunta.
+- **Historial** de reclamos con filtro por estado.
+- **Seguimiento del estado** buscando por folio, con una línea de tiempo (timeline) del avance.
 
-Seguimiento en Tiempo Real: Consulta por número de Folio (REC-2026-XXX) con una línea de tiempo (timeline) del avance del trámite.
+### 🛠️ Administrador / Agente municipal
+- **Bandeja de reclamos** con filtros por estado, categoría, prioridad y ubicación, y opción de asignarse un reclamo.
+- **Modificar reclamo:** cambiar estado, prioridad, agente asignado y agregar observaciones.
+- **Reportes estadísticos:** total de reclamos, tiempo promedio de resolución, y distribución por estado y por categoría.
 
-Tecnologías utilizadas
-Frontend: Angular 15.
+### 🔐 General
+- Inicio de sesión con validación de formulario.
+- Redirección automática según el rol.
+- Sesión con **expiración automática** y aviso en el login.
+- Perfil de usuario editable (nombre, teléfono, dirección).
+- Menú de navegación dinámico según el rol.
 
-Gestión de Estado & Reactividad: RxJS (BehaviorSubject, Observable, take(1)).
+---
 
-Seguridad & Rutas: Angular Router con AuthGuard y RoleGuard (CanActivate).
+## 🧰 Tecnologías
 
-Estilos: CSS3 nativo ajustado al US Web Design System (USWDS — NYC).
+| Tecnología | Uso |
+|---|---|
+| [Angular 15](https://angular.io/) | Framework principal (arquitectura con `NgModule`) |
+| TypeScript 4.9 | Lenguaje |
+| RxJS 7.8 | Estado reactivo (`BehaviorSubject`) y flujos asíncronos |
+| Angular Router | Navegación y protección de rutas con guards |
+| Angular Forms | Formularios template-driven y reactive |
 
-⚙️ Instalación y configuración
-Prerrequisitos
-Asegúrate de tener instalados los siguientes programas:
-¬Node.js, versión 16 u 18.
+---
 
-¬Angular CLI, versión 15 o superior.
+## ✅ Requisitos previos
 
-Clonar el repositorio
-git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+- [Node.js](https://nodejs.org/) **16.14+ o 18.x** (compatible con Angular 15)
+- npm (incluido con Node.js)
+- Angular CLI (opcional, para usar el comando `ng` directamente):
 
-Configuración del frontend
-1. Instalar dependencias:
-En tu carpeta de proyecto ejecutar el comando
+```bash
+npm install -g @angular/cli@15
+```
 
+---
+
+## 🚀 Instalación y ejecución
+
+```bash
+# 1. Clonar el repositorio
+git clone <URL_DEL_REPOSITORIO>
+cd gestionReportes
+
+# 2. Instalar dependencias
 npm install
 
-o
-
-npm i
-
-2. Iniciar la aplicación de Angular:
+# 3. Levantar el servidor de desarrollo
 npm start
+```
 
-o
+Luego abre **http://localhost:4200/** en tu navegador. La app se recarga automáticamente al modificar el código.
 
-ng serve -o
+---
 
-La aplicación estará disponible en http://localhost:4200.
+## 🔑 Cuentas de prueba
 
-Roles de usuario
-Administrador:
-Bandeja de gestión, asignación de agentes, cambio de estados y reportes.
+Al no existir backend, hay dos cuentas de demostración (también disponibles como botones en la pantalla de login):
 
-Ciudadano:
-Creación de reclamos, historial personal y seguimiento en tiempo real.
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Ciudadano | `ciudadano@gmail.com` | `123456` |
+| Administrador | `admin@gmail.com` | `123456` |
 
-Características Técnicas Específicas
-Control de Acceso y Rutas Protegidas: Implementación de AuthGuard y RoleGuard mediante metadata data: { rolRequerido } para restringir el acceso a rutas administrativas o ciudadanas.
-Design System Institucional (USWDS): Uso estricto de los tokens visuales oficiales de la Municipalidad de New York: paleta primaria Navy (#112F4E), Rojo (#D83933), Cian (#008DE3), Celeste (#D2EBF1); regla roja editorial de 5px en encabezados principales; campos de formulario con esquinas rectas (0px border-radius) y filete de 2px; y anillo de foco cian de 4px para navegación accesible.
-Manejo de Estado Centralizado: Gestión reactiva a través de ReclamoService y AuthService utilizando BehaviorSubject para propagar cambios de forma síncrona en toda la SPA sin necesidad de backend externo.
+---
+
+## 🗺️ Rutas de la aplicación
+
+| Ruta | Componente | Acceso |
+|---|---|---|
+| `/login` | Inicio de sesión | Público |
+| `/userHome` | Inicio del ciudadano | Ciudadano |
+| `/crear-reclamo` | Crear un reclamo | Ciudadano |
+| `/historial` | Historial de reclamos | Ciudadano |
+| `/estado-reclamo` | Seguimiento por folio (`?folio=REC-2026-101`) | Ciudadano |
+| `/adminHome` | Inicio del administrador | Administrador |
+| `/bandeja-reclamos` | Bandeja con filtros | Administrador |
+| `/modificar-reclamo` | Editar un reclamo (`?folio=...`) | Administrador |
+| `/reporteReclamo` | Reportes estadísticos | Administrador |
+| `/perfil` | Perfil del usuario (editable) | Ciudadano y Administrador |
+
+Cualquier ruta inexistente redirige a `/login`.
+
+---
+
+## 🏗️ Arquitectura y estructura
+
+```
+src/app/
+├── core/
+│   ├── guards/          # AuthGuard (sesión) y RoleGuard (rol requerido)
+│   └── services/        # AuthService y ReclamoService
+├── models/              # Interfaces y enums (Reclamo, Usuario, estados, roles...)
+├── pages/               # Vistas de la aplicación
+│   ├── login/
+│   ├── userhome/            ├── adminhome/
+│   ├── crear-reclamo/       ├── bandeja-reclamos/
+│   ├── historial/           ├── modificar-reclamo/
+│   ├── estado-reclamo/      ├── reporte-reclamos/
+│   └── perfil/
+├── shared/components/   # Header, Footer y StatusBadge reutilizables
+├── app-routing.module.ts
+└── app.module.ts
+```
+
+**Decisiones de diseño**
+
+- **Servicios como única fuente de datos:** los componentes solo consumen `AuthService` y `ReclamoService`. Cuando exista un backend, solo habrá que cambiar estos servicios.
+- **Estado reactivo:** la lista de reclamos y la sesión se exponen como `Observable` (`reclamos$`, `usuario$`, `rol$`), y las vistas se actualizan solas.
+- **Rutas protegidas por rol:** las rutas hijas de cada rol usan `AuthGuard` + `RoleGuard`. Si un usuario entra a una ruta que no le corresponde, se le redirige a su propio inicio.
+- **Enums tipados** para estados, prioridades y roles, evitando strings sueltos.
+
+---
+
+## 🔒 Autenticación y seguridad
+
+- Al iniciar sesión se genera un **token JWT simulado** (header + payload + firma ficticia) guardado en `sessionStorage`, por lo que se borra al cerrar la pestaña.
+- El payload incluye `sub`, `rol`, `iat` y `exp`.
+- La sesión **expira automáticamente** (20 minutos por defecto, configurable en `duracionSesionSeg` dentro de `auth.service.ts`). Al vencer, se cierra la sesión y se muestra un aviso en el login.
+- Un token manipulado o mal formado se detecta y se considera sesión inválida.
+- El perfil editado se guarda en `localStorage` por rol y se conserva entre sesiones.
+
+> ⚠️ Esta autenticación es **solo una simulación para desarrollo**. La firma del token no es real y las credenciales están en el código. No debe usarse en producción.
+
+---
+
+## 🗃️ Modelo de datos
+
+**Estados del reclamo:** `Recibido` → `En revisión` → `En proceso` → `Resuelto` / `Rechazado` → `Cerrado`
+
+**Prioridades:** `Baja`, `Media`, `Alta`, `Urgente`
+
+**Roles:** `Ciudadano`, `Administrador`
+
+**Categorías disponibles**
+
+| Categoría | Subcategorías |
+|---|---|
+| Aseo y Ornato | Microbasural, Corte de césped, Escombros |
+| Alumbrado Público | Luminaria apagada, Poste dañado, Foco parpadeando |
+| Infraestructura Urbana | Bache / Evento, Vereda rota, Señalética caída |
+| Seguridad y Ruidos | Ruido molesto, Vehículo abandonado, Inseguridad |
+
+Los folios tienen el formato `REC-2026-XXX`.
+
+---
+
+## 📜 Scripts disponibles
+
+| Comando | Descripción |
+|---|---|
+| `npm start` | Servidor de desarrollo en `localhost:4200` |
+| `npm run build` | Compila para producción en `dist/gestion-reportes` |
+| `npm run watch` | Compila en modo desarrollo y observa cambios |
+| `npm test` | Ejecuta las pruebas unitarias con Karma |
+
+---
+
+## 🔭 Próximos pasos
+
+- [ ] Conectar con un backend real (API REST) y una base de datos.
+- [ ] Autenticación real con JWT firmado en servidor.
+- [ ] Persistencia de reclamos y subida real de evidencias.
+- [ ] Filtros funcionales en el reporte estadístico (fechas, categoría, estado).
+- [ ] Pantalla de detalle completo del reclamo en la bandeja.
+- [ ] Recuperación de contraseña.
+
+---
+
+## 👥 Autores
+
+- **Nombre Apellido** — [@usuario-github](https://github.com/usuario-github)
+
+---
+
+## 📄 Licencia
+
+Proyecto de uso académico / educativo. *(Ajusta esta sección según corresponda.)*
