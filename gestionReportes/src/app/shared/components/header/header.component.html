@@ -15,3 +15,27 @@
     </div>
   </div>
 </header>
+
+<nav class="main-nav" *ngIf="enlaces$ | async as enlaces" aria-label="Navegación principal">
+  <div class="nav-container">
+    <ul class="nav-links">
+      <li *ngFor="let enlace of enlaces">
+        <a [routerLink]="enlace.ruta" routerLinkActive="activo">
+          <span class="material-symbols-outlined">{{ enlace.icono }}</span>
+          {{ enlace.etiqueta }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="nav-usuario" *ngIf="usuario$ | async as usuario">
+      <a routerLink="/perfil" routerLinkActive="activo">
+        <span class="material-symbols-outlined">person</span>
+        {{ usuario.nombre }}
+      </a>
+      <button type="button" class="btn-salir" (click)="cerrarSesion()">
+        <span class="material-symbols-outlined">logout</span>
+        Cerrar sesión
+      </button>
+    </div>
+  </div>
+</nav>

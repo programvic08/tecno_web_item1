@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { CanActivate, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -7,15 +7,13 @@ import { AuthService } from '../services/auth.service';
 })
 export class AuthGuard implements CanActivate {
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService) {}
 
   canActivate(): boolean | UrlTree {
     if (this.authService.estaAutenticado()) {
       return true;
     }
-    return this.router.createUrlTree(['/login']);
+    // Al login (con aviso si la sesión había vencido)
+    return this.authService.crearUrlLogin();
   }
 }

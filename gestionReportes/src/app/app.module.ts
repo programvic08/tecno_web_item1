@@ -15,6 +15,7 @@ import { BandejaReclamosComponent } from './pages/bandeja-reclamos/bandeja-recla
 import { ReporteReclamosComponent } from './pages/reporte-reclamos/reporte-reclamos.component';
 import { EstadoReclamoComponent } from './pages/estado-reclamo/estado-reclamo.component';
 import { ModificarReclamoComponent } from './pages/modificar-reclamo/modificar-reclamo.component';
+import { PerfilComponent } from './pages/perfil/perfil.component';
 
 // Componentes Compartidos (Reutilizables)
 import { HeaderComponent } from './shared/components/header/header.component';
@@ -38,7 +39,8 @@ import { StatusBadgeComponent } from './shared/components/status-badge/status-ba
     FooterComponent,
     StatusBadgeComponent,
     EstadoReclamoComponent,
-    ModificarReclamoComponent
+    ModificarReclamoComponent,
+    PerfilComponent
   ],
   imports: [
     BrowserModule,
