@@ -1,4 +1,4 @@
-﻿# 🏛️ Gestión de Reportes Ciudadanos
+# 🏛️ Gestión de Reportes Ciudadanos
 
 Aplicación web para la **gestión de reclamos municipales**. Permite a los ciudadanos reportar problemas urbanos (basura, alumbrado, infraestructura, ruidos) y hacerles seguimiento, mientras que los agentes municipales los administran, priorizan y analizan mediante reportes estadísticos.
 
@@ -57,7 +57,6 @@ Aplicación web para la **gestión de reclamos municipales**. Permite a los ciud
 | RxJS 7.8 | Estado reactivo (`BehaviorSubject`) y flujos asíncronos |
 | Angular Router | Navegación y protección de rutas con guards |
 | Angular Forms | Formularios template-driven y reactive |
-| Material Symbols | Íconos (Google Fonts) |
 
 ---
 
