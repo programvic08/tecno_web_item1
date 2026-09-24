@@ -25,7 +25,7 @@ export class CrearReclamoComponent implements OnInit {
   sectorZona: string = '';
   evidenciaNombre: string = '';
 
-  datosCiudadanoTexto: string = 'Maximiliano Burgos — mburgos@alumnos.uta.cl';
+  datosCiudadanoTexto: string = 'adeyemi yamal — yamal@adeyemi.com';
   enviado: boolean = false;
 
   constructor(

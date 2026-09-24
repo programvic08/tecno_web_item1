@@ -45,6 +45,9 @@ const routes: Routes = [
     ]
   },
 
+  // --- RUTA COMPARTIDA: perfil (cualquier usuario con sesión válida, sin importar el rol) ---
+  { path: 'perfil', component: PerfilComponent, canActivate: [AuthGuard] },
+
   { path: '**', redirectTo: 'login' }
 ];
 
