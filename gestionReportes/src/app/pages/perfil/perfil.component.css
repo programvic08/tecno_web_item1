@@ -1,0 +1,48 @@
+.perfil-container { max-width: 700px; margin: 30px auto; padding: 0 16px; }
+
+.perfil-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--nyc-red);
+  border-radius: 4px;
+  padding: 24px;
+}
+
+.perfil-card h2 { font-family: 'Georgia', serif; color: var(--primary-blue); }
+
+.perfil-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+
+.avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--primary-blue); color: #ffffff;
+  font-size: 20px; font-weight: 700;
+}
+
+.rol-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  background: var(--bg-item); color: var(--primary-blue);
+  font-size: 12px; font-weight: 600;
+}
+
+.datos { border-top: 1px solid var(--border-color); }
+.dato { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 12px 0; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+.dato dt { width: 160px; font-weight: 600; color: var(--text-gray); }
+
+.campo { margin-bottom: 16px; }
+.campo label { display: block; margin-bottom: 6px; font-weight: 600; }
+.campo input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; }
+.campo input.ng-invalid.ng-touched { border-color: var(--nyc-red); }
+.error { display: block; margin-top: 4px; color: #991b1b; font-size: 12px; }
+
+.acciones { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.btn-primario, .btn-cancelar { padding: 10px 20px; border-radius: 4px; font-weight: 600; cursor: pointer; }
+.btn-primario { background: var(--primary-blue); color: #ffffff; border: none; }
+.btn-primario:hover:not(:disabled) { background: #173f65; }
+.btn-primario:disabled { opacity: 0.5; }
+.btn-cancelar { background: #f0f0f0; color: var(--text-dark); border: 1px solid var(--border-color); }
+
+.alerta-exito {
+  margin-top: 16px; padding: 12px; border-radius: 4px;
+  background: #dcfce7; color: #15803d; text-align: center; font-weight: 600;
+}

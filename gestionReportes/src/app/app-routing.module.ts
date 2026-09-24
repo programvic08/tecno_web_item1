@@ -9,6 +9,7 @@ import { BandejaReclamosComponent } from './pages/bandeja-reclamos/bandeja-recla
 import { ReporteReclamosComponent } from './pages/reporte-reclamos/reporte-reclamos.component';
 import { EstadoReclamoComponent } from './pages/estado-reclamo/estado-reclamo.component';
 import { ModificarReclamoComponent } from './pages/modificar-reclamo/modificar-reclamo.component';
+import { PerfilComponent } from './pages/perfil/perfil.component';
 
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
@@ -29,6 +30,9 @@ const routes: Routes = [
   { path: 'bandeja-reclamos', component: BandejaReclamosComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.ADMINISTRADOR } },
   { path: 'modificar-reclamo', component: ModificarReclamoComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.ADMINISTRADOR } },
   { path: 'reporteReclamo', component: ReporteReclamosComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.ADMINISTRADOR } },
+  // --- VISTA COMPARTIDA (cualquier usuario con sesión iniciada) ---
+  { path: 'perfil', component: PerfilComponent, canActivate: [AuthGuard] },
+
   { path: '**', redirectTo: 'login' }
 ];
 

@@ -1,0 +1,109 @@
+<app-header subtitulo="MI PERFIL Y CONFIGURACIÓN"></app-header>
+
+<main class="perfil-container">
+  <ng-container *ngIf="usuario$ | async as usuario">
+
+    <!-- Vista de detalle -->
+    <section class="perfil-card" *ngIf="!editando; else formularioEdicion">
+      <div class="perfil-header">
+        <div class="avatar">{{ obtenerIniciales(usuario.nombre) }}</div>
+        <div>
+          <h2>{{ usuario.nombre }}</h2>
+          <span class="rol-tag">{{ usuario.rol }}</span>
+        </div>
+      </div>
+
+      <dl class="datos">
+        <div class="dato">
+          <dt>Correo electrónico</dt>
+          <dd>{{ usuario.email }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Teléfono</dt>
+          <dd>{{ usuario.telefono || 'Sin indicar' }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Dirección</dt>
+          <dd>{{ usuario.direccion || 'Sin indicar' }}</dd>
+        </div>
+      </dl>
+
+      <p class="alerta-exito" *ngIf="guardadoExito">¡Perfil actualizado con éxito!</p>
+
+      <div class="acciones">
+        <button type="button" class="btn-primario" (click)="iniciarEdicion(usuario)">Editar perfil</button>
+      </div>
+    </section>
+
+    <!-- Formulario de edición -->
+    <ng-template #formularioEdicion>
+      <section class="perfil-card">
+        <h2>Editar perfil</h2>
+
+        <form #formPerfil="ngForm" (ngSubmit)="guardarCambios(formPerfil)">
+          <div class="campo">
+            <label for="email">Correo electrónico</label>
+            <input id="email" type="email" [value]="usuario.email" disabled />
+          </div>
+
+          <div class="campo">
+            <label for="nombre">Nombre completo</label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              [(ngModel)]="perfilEditable.nombre"
+              #nombre="ngModel"
+              required
+              minlength="3"
+              maxlength="60"
+            />
+            <small class="error" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
+              <span *ngIf="nombre.errors?.['required']">El nombre es obligatorio.</span>
+              <span *ngIf="nombre.errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
+            </small>
+          </div>
+
+          <div class="campo">
+            <label for="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              name="telefono"
+              type="tel"
+              [(ngModel)]="perfilEditable.telefono"
+              #telefono="ngModel"
+              pattern="^\+?[0-9]{8,12}$"
+              placeholder="Ej: +56912345678"
+            />
+            <small class="error" *ngIf="telefono.invalid && (telefono.dirty || telefono.touched)">
+              Ingresa un teléfono válido (8 a 12 dígitos, puede partir con +).
+            </small>
+          </div>
+
+          <div class="campo">
+            <label for="direccion">Dirección</label>
+            <input
+              id="direccion"
+              name="direccion"
+              type="text"
+              [(ngModel)]="perfilEditable.direccion"
+              #direccion="ngModel"
+              maxlength="100"
+            />
+            <small class="error" *ngIf="direccion.invalid && (direccion.dirty || direccion.touched)">
+              La dirección no puede superar los 100 caracteres.
+            </small>
+          </div>
+
+          <div class="acciones">
+            <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+            <button type="submit" class="btn-primario" [disabled]="formPerfil.invalid">Guardar cambios</button>
+          </div>
+        </form>
+      </section>
+    </ng-template>
+
+  </ng-container>
+</main>
+
+<app-footer></app-footer>
