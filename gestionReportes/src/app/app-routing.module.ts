@@ -19,19 +19,31 @@ const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
 
-  // --- VISTAS EXCLUSIVAS DEL CIUDADANO ---
-  { path: 'userHome', component: UserhomeComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.CIUDADANO } },
-  { path: 'crear-reclamo', component: CrearReclamoComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.CIUDADANO } },
-  { path: 'historial', component: HistorialComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.CIUDADANO } },
-  { path: 'estado-reclamo', component: EstadoReclamoComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.CIUDADANO } },
+  // --- RUTAS HIJAS DEL CIUDADANO ---
+  {
+    path: '',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { rolRequerido: RolUsuario.CIUDADANO },
+    children: [
+      { path: 'userHome', component: UserhomeComponent },
+      { path: 'crear-reclamo', component: CrearReclamoComponent },
+      { path: 'historial', component: HistorialComponent },
+      { path: 'estado-reclamo', component: EstadoReclamoComponent }
+    ]
+  },
 
-  // --- VISTAS EXCLUSIVAS DEL ADMINISTRADOR / AGENTE ---
-  { path: 'adminHome', component: AdminhomeComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.ADMINISTRADOR } },
-  { path: 'bandeja-reclamos', component: BandejaReclamosComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.ADMINISTRADOR } },
-  { path: 'modificar-reclamo', component: ModificarReclamoComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.ADMINISTRADOR } },
-  { path: 'reporteReclamo', component: ReporteReclamosComponent, canActivate: [AuthGuard, RoleGuard], data: { rolRequerido: RolUsuario.ADMINISTRADOR } },
-  // --- VISTA COMPARTIDA (cualquier usuario con sesión iniciada) ---
-  { path: 'perfil', component: PerfilComponent, canActivate: [AuthGuard] },
+  // --- RUTAS HIJAS DEL ADMINISTRADOR / AGENTE ---
+  {
+    path: '',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { rolRequerido: RolUsuario.ADMINISTRADOR },
+    children: [
+      { path: 'adminHome', component: AdminhomeComponent },
+      { path: 'bandeja-reclamos', component: BandejaReclamosComponent },
+      { path: 'modificar-reclamo', component: ModificarReclamoComponent },
+      { path: 'reporteReclamo', component: ReporteReclamosComponent }
+    ]
+  },
 
   { path: '**', redirectTo: 'login' }
 ];
