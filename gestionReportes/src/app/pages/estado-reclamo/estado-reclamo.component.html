@@ -1,0 +1,85 @@
+<app-header subtitulo="SEGUIMIENTO Y TRAZABILIDAD DE TRÁMITES"></app-header>
+
+<main class="estado-container">
+  <div class="search-card">
+    <h2>Consulta de Estado de Reclamos</h2>
+    <p>Ingrese el número de Folio o ID de solicitud para consultar el estado en tiempo real:</p>
+
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="busquedaFolio" 
+        placeholder="Ej: REC-2026-001 ó 101" 
+        (keyup.enter)="buscarReclamo()"
+      />
+      <button type="button" class="btn-search" (click)="buscarReclamo()">Buscar Trámite</button>
+    </div>
+  </div>
+
+  <!-- Resultado si se encuentra el reclamo -->
+  <div *ngIf="reclamoEncontrado" class="result-card">
+    <div class="result-header">
+      <div>
+        <h3>Folio: {{ reclamoEncontrado.folio }}</h3>
+        <span class="fecha-registro">Fecha de Registro: {{ reclamoEncontrado.fecha }}</span>
+      </div>
+      <app-status-badge [estado]="reclamoEncontrado.estado"></app-status-badge>
+    </div>
+
+    <div class="details-grid">
+      <div class="detail-item">
+        <strong>Categoría:</strong>
+        <p>{{ reclamoEncontrado.categoria }} — {{ reclamoEncontrado.subcategoria }}</p>
+      </div>
+      <div class="detail-item">
+        <strong>Ubicación:</strong>
+        <p>{{ reclamoEncontrado.ubicacion }}</p>
+      </div>
+      <div class="detail-item">
+        <strong>Agente / Unidad Asignada:</strong>
+        <p>{{ reclamoEncontrado.agenteAsignado }}</p>
+      </div>
+      <div class="detail-item">
+        <strong>Prioridad:</strong>
+        <p>{{ reclamoEncontrado.prioridad }}</p>
+      </div>
+    </div>
+
+    <div class="description-box">
+      <strong>Descripción del Problema:</strong>
+      <p>{{ reclamoEncontrado.descripcion }}</p>
+    </div>
+
+    <!-- Timeline / Línea de Tiempo -->
+    <div class="timeline-section">
+      <h4>Avance del Trámite</h4>
+      <div class="timeline">
+        <div 
+          *ngFor="let hito of timeline" 
+          class="timeline-item" 
+          [class.completado]="hito.completado"
+          [class.actual]="hito.actual"
+        >
+          <div class="timeline-icon">
+            <span class="material-symbols-outlined" *ngIf="hito.completado">check_circle</span>
+            <span class="material-symbols-outlined" *ngIf="!hito.completado">radio_button_unchecked</span>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <h5>{{ hito.titulo }}</h5>
+              <small>{{ hito.fecha }}</small>
+            </div>
+            <p>{{ hito.descripcion }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje de no encontrado -->
+  <div *ngIf="buscado && !reclamoEncontrado" class="error-card">
+    <p>No se encontró ningún reclamo registrado con el folio <strong>"{{ busquedaFolio }}"</strong>. Por favor verifique el código e intente nuevamente.</p>
+  </div>
+</main>
+
+<app-footer></app-footer>

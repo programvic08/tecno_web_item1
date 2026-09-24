@@ -1,0 +1,95 @@
+<app-header subtitulo="PANEL DE MODIFICACIÓN Y GESTIÓN OPERATIVA"></app-header>
+
+<main class="modificar-container">
+  <div class="search-card">
+    <h2>Modificar Estado y Asignación de Reclamos</h2>
+    <p>Ingrese el número de Folio o ID para cargar la información del caso:</p>
+
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="busquedaFolio" 
+        placeholder="Ej: REC-2026-101 ó 101" 
+        (keyup.enter)="buscarReclamo()"
+      />
+      <button type="button" class="btn-search" (click)="buscarReclamo()">Cargar Caso</button>
+    </div>
+  </div>
+
+  <!-- Formularios de Modificación -->
+  <div *ngIf="reclamo" class="edit-card">
+    <div class="edit-header">
+      <div>
+        <h3>Folio: {{ reclamo.folio }}</h3>
+        <span class="sub-text">Categoría: {{ reclamo.categoria }} — {{ reclamo.subcategoria }}</span>
+      </div>
+      <app-status-badge [estado]="reclamo.estado"></app-status-badge>
+    </div>
+
+    <div class="info-readonly">
+      <p><strong>Ubicación:</strong> {{ reclamo.ubicacion }}</p>
+      <p><strong>Descripción original:</strong> {{ reclamo.descripcion }}</p>
+      <p><strong>Fecha de Ingreso:</strong> {{ reclamo.fecha }}</p>
+    </div>
+
+    <hr class="divider" />
+
+    <form (ngSubmit)="guardarCambios()" #formEdit="ngForm">
+      <h4>Actualizar Datos de Gestión</h4>
+
+      <div class="form-grid">
+        <div class="campo">
+          <label for="estado">Estado del Trámite</label>
+          <select id="estado" name="estado" [(ngModel)]="nuevoEstado" required>
+            <option *ngFor="let est of estados" [value]="est">{{ est }}</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="prioridad">Nivel de Prioridad</label>
+          <select id="prioridad" name="prioridad" [(ngModel)]="nuevaPrioridad" required>
+            <option *ngFor="let prio of prioridades" [value]="prio">{{ prio }}</option>
+          </select>
+        </div>
+
+        <div class="campo full-width">
+          <label for="agente">Agente o Unidad Asignada</label>
+          <input 
+            type="text" 
+            id="agente" 
+            name="agente" 
+            [(ngModel)]="nuevoAgente" 
+            placeholder="Ej: Agente Pérez / Depto. Aseo y Ornato" 
+            required 
+          />
+        </div>
+
+        <div class="campo full-width">
+          <label for="observacion">Observación o Bitácora de Avance</label>
+          <textarea 
+            id="observacion" 
+            name="observacion" 
+            rows="3" 
+            [(ngModel)]="nuevaObservacion" 
+            placeholder="Describa las acciones realizadas o justificación del cambio de estado..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="acciones">
+        <button type="button" class="btn-cancelar" routerLink="/bandeja-reclamos">Volver a Bandeja</button>
+        <button type="submit" class="btn-guardar" [disabled]="!formEdit.valid">Guardar Cambios</button>
+      </div>
+    </form>
+
+    <div *ngIf="actualizadoExito" class="alerta-exito">
+      ¡Modificaciones guardadas con éxito! Redirigiendo a la bandeja...
+    </div>
+  </div>
+
+  <div *ngIf="buscado && !reclamo" class="error-card">
+    <p>No se encontró ningún reclamo con el folio <strong>"{{ busquedaFolio }}"</strong>. Verifique el código e intente de nuevo.</p>
+  </div>
+</main>
+
+<app-footer></app-footer>

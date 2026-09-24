@@ -1,0 +1,59 @@
+<div class="main-layout">
+  <app-header subtitulo="TRÁMITES Y SERVICIOS AL CIUDADANO"></app-header>
+
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>Portal de Reclamos y Sugerencias</h1>
+      <p>Gestione sus reportes ciudadanos, consulte el historial de solicitudes y revise el estado de sus trámites en tiempo real.</p>
+    </div>
+  </section>
+
+  <main class="claims-container">
+    <div class="section-title">
+      <h2>Opciones de Gestión</h2>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-item">
+        <div class="card-icon">
+          <span class="material-symbols-outlined">add_alert</span>
+        </div>
+        <div class="card-body">
+          <h3>Crear Reclamo</h3>
+          <p>Reporte problemas de alumbrado, aseo, áreas verdes, baches o seguridad en su sector.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" routerLink="/crear-reclamo">Iniciar Reporte &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card-item">
+        <div class="card-icon">
+          <span class="material-symbols-outlined">history</span>
+        </div>
+        <div class="card-body">
+          <h3>Historial de Reclamos</h3>
+          <p>Consulte el registro completo de todas las solicitudes presentadas anteriormente.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" routerLink="/historial">Ver Historial &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card-item">
+        <div class="card-icon">
+          <span class="material-symbols-outlined">analytics</span>
+        </div>
+        <div class="card-body">
+          <h3>Estado de los Reclamos</h3>
+          <p>Siga el avance en tiempo real de sus trámites activos y resoluciones asignadas.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" routerLink="/estado-reclamo">Revisar Estados &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+</div>

@@ -1,0 +1,137 @@
+.modificar-container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 16px;
+  min-height: 70vh;
+}
+
+.search-card, .edit-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--nyc-red);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.search-card h2, .edit-header h3, h4 {
+  font-family: 'Georgia', serif;
+  color: var(--primary-blue);
+}
+
+.search-card p, .sub-text {
+  color: var(--text-gray);
+  font-size: 14px;
+}
+
+.search-box {
+  display: flex;
+  gap: 12px;
+  max-width: 600px;
+  margin-top: 12px;
+}
+
+.search-box input, .campo input, .campo select, .campo textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.btn-search, .btn-guardar {
+  padding: 10px 20px;
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-search:hover, .btn-guardar:hover {
+  background: #173f65;
+}
+
+.edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.info-readonly {
+  background: var(--bg-color);
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 16px;
+}
+
+.info-readonly p {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.divider {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.campo label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-cancelar {
+  padding: 10px 20px;
+  background: #f0f0f0;
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.alerta-exito {
+  margin-top: 20px;
+  padding: 14px;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #b91c1c00;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.error-card {
+  padding: 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .search-box { flex-direction: column; }
+  .form-grid { grid-template-columns: 1fr; }
+  .full-width { grid-column: span 1; }
+}

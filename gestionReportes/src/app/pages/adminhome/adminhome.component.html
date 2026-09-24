@@ -1,0 +1,68 @@
+<div class="main-layout">
+  
+  <app-header subtitulo="GESTIÓN INTERNA Y ADMINISTRACIÓN"></app-header>
+
+  <!-- Hero Banner Azul (Modo Administrador) -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>Panel de Control de Administración</h1>
+      <p>Gestione las solicitudes entrantes de la ciudadanía, actualice el estado de los reclamos y genere reportes estadísticos del municipio.</p>
+    </div>
+  </section>
+
+  <!-- Sección Principal de Opciones (Rejilla / Grid) -->
+  <main class="claims-container">
+    <div class="section-title">
+      <h2>Módulos de Gestión</h2>
+    </div>
+
+    <div class="cards-grid">
+
+      <!-- Tarjeta 1: Bandeja de Reclamos -->
+      <div class="card-item">
+        <div class="card-icon">
+          <span class="material-symbols-outlined">inbox</span>
+        </div>
+        <div class="card-body">
+          <h3>Bandeja de Reclamos</h3>
+          <p>Revise, filtre y asigne los reclamos ingresados recientemente por los ciudadanos.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" routerLink="/bandeja-reclamos">Ver Bandeja &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2: Modificar Reclamos -->
+      <div class="card-item">
+        <div class="card-icon">
+          <span class="material-symbols-outlined">edit_note</span>
+        </div>
+        <div class="card-body">
+          <h3>Modificar Reclamos</h3>
+          <p>Actualice estados, cambie prioridades, añada observaciones o reasigne departamentos responsables.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" routerLink="/modificar-reclamo">Gestionar Reclamos &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3: Generar Reportes -->
+      <div class="card-item">
+        <div class="card-icon">
+          <span class="material-symbols-outlined">assessment</span>
+        </div>
+        <div class="card-body">
+          <h3>Generar Reportes</h3>
+          <p>Exporte métricas globales, tiempos de resolución y estadísticas en formato PDF o Excel.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn-action" routerLink="/reporteReclamo">Generar Informe &rarr;</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+
+</div>
