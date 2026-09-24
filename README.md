@@ -204,12 +204,6 @@ Los folios tienen el formato `REC-2026-XXX`.
 
 ---
 
-## 👥 Autores
-
-- **Nombre Apellido** — [@usuario-github](https://github.com/usuario-github)
-
----
-
 ## 📄 Licencia
 
-Proyecto de uso académico / educativo. *(Ajusta esta sección según corresponda.)*
+Proyecto de uso académico / educativo.
