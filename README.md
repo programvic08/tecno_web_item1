@@ -203,7 +203,3 @@ Los folios tienen el formato `REC-2026-XXX`.
 - [ ] Recuperación de contraseña.
 
 ---
-
-## 📄 Licencia
-
-Proyecto de uso académico / educativo.
