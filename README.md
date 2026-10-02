@@ -201,6 +201,7 @@ Los folios tienen el formato `REC-2026-XXX`.
 - [ ] Filtros funcionales en el reporte estadístico (fechas, categoría, estado).
 - [ ] Pantalla de detalle completo del reclamo en la bandeja.
 - [ ] Recuperación de contraseña.
+- [ ] sistema de notificaciones (comunicación agente-ciudadano)/posible pagina  extra
 
 ---
 
