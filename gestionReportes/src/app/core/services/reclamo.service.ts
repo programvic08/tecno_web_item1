@@ -87,22 +87,42 @@ export class ReclamoService {
     this.reclamosSubject.next(lista);
   }
 
-  obtenerReporte(): Observable<ReporteEstadistico> {
+  obtenerReporte(filtros?: {
+    fechaDesde?: string;
+    fechaHasta?: string;
+    categoria?: string;
+    estado?: string;
+  }): Observable<ReporteEstadistico> {
     return this.reclamos$.pipe(
       map(reclamos => {
+        let reclamosFiltrados = reclamos;
+
+        if (filtros?.fechaDesde) {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha >= filtros.fechaDesde!);
+        }
+        if (filtros?.fechaHasta) {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha <= filtros.fechaHasta!);
+        }
+        if (filtros?.categoria && filtros.categoria !== 'Todas') {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.categoria === filtros.categoria);
+        }
+        if (filtros?.estado && filtros.estado !== 'Todos') {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.estado === filtros.estado);
+        }
+
         const reclamosPorEstado = Object.values(EstadoReclamo).map(est => ({
           estado: est,
-          cantidad: reclamos.filter(r => r.estado === est).length
+          cantidad: reclamosFiltrados.filter(r => r.estado === est).length
         }));
 
-        const categorias = Array.from(new Set(reclamos.map(r => r.categoria)));
+        const categorias = Array.from(new Set(reclamosFiltrados.map(r => r.categoria)));
         const reclamosPorCategoria = categorias.map(cat => ({
           categoria: cat,
-          cantidad: reclamos.filter(r => r.categoria === cat).length
+          cantidad: reclamosFiltrados.filter(r => r.categoria === cat).length
         }));
 
         return {
-          totalReclamos: reclamos.length,
+          totalReclamos: reclamosFiltrados.length,
           tiempoPromedioResolucionDias: 3.5,
           reclamosPorEstado,
           reclamosPorCategoria
