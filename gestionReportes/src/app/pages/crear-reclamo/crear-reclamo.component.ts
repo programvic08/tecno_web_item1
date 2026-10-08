@@ -91,8 +91,26 @@ export class CrearReclamoComponent implements OnInit {
     }
   }
 
+  /** Fecha/hora actual (hora local) en formato 'YYYY-MM-DDTHH:mm', para el atributo [max] de un input datetime-local. */
+  get fechaMaxima(): string {
+    const ahora = new Date();
+    const local = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+  }
+
+  /** Fecha de hoy en formato 'YYYY-MM-DD', para el atributo [max] de un input date. */
+  get fechaMaximaDia(): string {
+    return this.fechaMaxima.slice(0, 10);
+  }
+
+  /** La fecha observada es opcional, pero si se ingresa no puede estar en el futuro. */
+  get fechaValida(): boolean {
+    if (!this.fechaHoraObservada) return true;
+    return this.fechaHoraObservada <= this.fechaMaxima;
+  }
+
   get formularioValido(): boolean {
-    return !!(this.categoria && this.descripcion && this.direccion);
+    return !!(this.categoria && this.descripcion && this.direccion) && this.fechaValida;
   }
 
   enviarReclamo(): void {
