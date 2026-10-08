@@ -1,8 +1,9 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { CategoriaReclamo } from '../../models/reclamo.model';
 import { PrioridadReclamo } from '../../models/reclamo.enums';
+import { EvidenciaStorageService } from '../../core/services/evidencia-storage.service';
 
 @Component({
   selector: 'app-crear-reclamo',
@@ -24,13 +25,16 @@ export class CrearReclamoComponent implements OnInit {
   ubicacionReferencia: string = '';
   sectorZona: string = '';
   evidenciaNombre: string = '';
+  evidenciaId: string = '';
+  errorEvidencia: string = '';
 
   datosCiudadanoTexto: string = 'adeyemi yamal — yamal@adeyemi.com';
   enviado: boolean = false;
 
   constructor(
     private reclamoService: ReclamoService,
-    private router: Router
+    private router: Router,
+    private evidenciaStorage: EvidenciaStorageService
   ) {}
 
   ngOnInit(): void {
@@ -46,9 +50,33 @@ export class CrearReclamoComponent implements OnInit {
   onArchivoSeleccionado(event: Event): void {
     const element = event.currentTarget as HTMLInputElement;
     const fileList: FileList | null = element.files;
-    if (fileList && fileList.length > 0) {
-      this.evidenciaNombre = fileList[0].name;
+    this.errorEvidencia = '';
+
+    if (!fileList || fileList.length === 0) return;
+
+    const archivo = fileList[0];
+    const validacion = this.evidenciaStorage.validar(archivo);
+
+    if (!validacion.valido) {
+      this.errorEvidencia = validacion.motivo;
+      this.evidenciaNombre = '';
+      this.evidenciaId = '';
+      element.value = ''; // permite volver a elegir el mismo archivo
+      return;
     }
+
+    // Guarda el PDF/JPG de forma local (localStorage)
+    this.evidenciaStorage.guardar(archivo)
+      .then(evidencia => {
+        this.evidenciaNombre = evidencia.nombre;
+        this.evidenciaId = evidencia.id;
+      })
+      .catch((err: Error) => {
+        this.errorEvidencia = err.message;
+        this.evidenciaNombre = '';
+        this.evidenciaId = '';
+        element.value = '';
+      });
   }
 
   continuar(esValido: boolean): void {
