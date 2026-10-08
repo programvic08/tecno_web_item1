@@ -9,7 +9,36 @@
   </section>
 
   <main class="claims-container">
+
+    <!-- Carrusel de reportes más utilizados -->
     <div class="section-title">
+      <h2>Reportes más utilizados</h2>
+    </div>
+
+    <div class="carrusel-reportes">
+      <button type="button" class="carrusel-flecha izquierda" aria-label="Anterior"
+              (click)="desplazarCarrusel(-1)">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+
+      <div class="carrusel-pista" #pistaCarrusel>
+        <article class="tarjeta-reporte" *ngFor="let reporte of reportesDestacados">
+          <div class="tarjeta-reporte-cuerpo">
+            <h3>{{ reporte.titulo }}</h3>
+            <p>{{ reporte.descripcion }}</p>
+          </div>
+          <button type="button" class="btn-action">{{ reporte.textoBoton }}</button>
+        </article>
+      </div>
+
+      <button type="button" class="carrusel-flecha derecha" aria-label="Siguiente"
+              (click)="desplazarCarrusel(1)">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- Opciones de gestión -->
+    <div class="section-title seccion-carrusel">
       <h2>Opciones de Gestión</h2>
     </div>
 

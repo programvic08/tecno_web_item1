@@ -23,6 +23,7 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { StatusBadgeComponent } from './shared/components/status-badge/status-badge.component';
 
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,7 +41,9 @@ import { StatusBadgeComponent } from './shared/components/status-badge/status-ba
     StatusBadgeComponent,
     EstadoReclamoComponent,
     ModificarReclamoComponent,
-    PerfilComponent
+    PerfilComponent,
+   
+    
   ],
   imports: [
     BrowserModule,
