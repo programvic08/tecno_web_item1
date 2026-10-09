@@ -17,6 +17,8 @@ export interface Reclamo {
   estado: EstadoReclamo;
   agenteAsignado: string;
   usuarioId?: number;
+  fechaResolucion?: string;
+  historialEstados?: CambioEstado[];
 }
 
 export interface CategoriaReclamo {
@@ -31,9 +33,23 @@ export interface FiltroBandeja {
   ubicacion: string;
 }
 
+export interface CambioEstado {
+  estadoAnterior: EstadoReclamo | null;
+  estadoNuevo: EstadoReclamo;
+  fechaHora: string;
+  motivo: string;
+  realizadoPor: string;
+}
+
 export interface ReporteEstadistico {
   totalReclamos: number;
-  tiempoPromedioResolucionDias: number;
-  reclamosPorEstado: { estado: string; cantidad: number }[];
-  reclamosPorCategoria: { categoria: string; cantidad: number }[];
+  tiempoPromedioResolucionDias: number | null;
+  reclamosPorEstado: {
+    estado: string;
+    cantidad: number;
+  }[];
+  reclamosPorCategoria: {
+    categoria: string;
+    cantidad: number;
+  }[];
 }

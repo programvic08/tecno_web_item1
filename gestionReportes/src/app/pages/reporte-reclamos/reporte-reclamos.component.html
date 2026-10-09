@@ -1,4 +1,6 @@
-<app-header subtitulo="SISTEMA DE REPORTES Y MÉTRICAS MUNICIPALES"></app-header>
+<app-header
+  subtitulo="SISTEMA DE REPORTES Y MÉTRICAS MUNICIPALES"
+></app-header>
 
 <div class="container mt-4">
   <h2>Reportes de Reclamos</h2>
@@ -7,27 +9,65 @@
   <div class="row mb-3">
     <div class="col-md-3">
       <label for="fechaDesde">Desde:</label>
-      <input type="date" id="fechaDesde" [(ngModel)]="filtroFechaDesde">
+      <input
+        type="date"
+        id="fechaDesde"
+        [(ngModel)]="filtroFechaDesde"
+      >
     </div>
+
     <div class="col-md-3">
       <label for="fechaHasta">Hasta:</label>
-      <input type="date" id="fechaHasta" [(ngModel)]="filtroFechaHasta">
+      <input
+        type="date"
+        id="fechaHasta"
+        [(ngModel)]="filtroFechaHasta"
+      >
     </div>
+
     <div class="col-md-3">
       <label for="categoria">Categoría:</label>
       <select id="categoria" [(ngModel)]="filtroCategoria">
-        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+        <option *ngFor="let cat of categorias" [value]="cat">
+          {{ cat }}
+        </option>
       </select>
     </div>
+
     <div class="col-md-3">
       <label for="estado">Estado:</label>
       <select id="estado" [(ngModel)]="filtroEstado">
-        <option *ngFor="let est of estados" [value]="est">{{ est }}</option>
+        <option *ngFor="let est of estados" [value]="est">
+          {{ est }}
+        </option>
       </select>
     </div>
   </div>
 
-  <button class="btn-filtrar" (click)="aplicarFiltros()">Filtrar</button>
+  <div class="mb-3 acciones-filtros">
+    <button
+      type="button"
+      class="btn-filtrar"
+      (click)="aplicarFiltros()"
+      [disabled]="isLoading"
+    >
+      Filtrar
+    </button>
+
+    <button
+      type="button"
+      class="btn-filtrar"
+      (click)="limpiarFiltros()"
+      [disabled]="isLoading"
+    >
+      Limpiar filtros
+    </button>
+  </div>
+
+  <p *ngIf="mensajeError" role="alert">
+  {{ mensajeError }}
+</p>
+
 
   <div *ngIf="isLoading" class="cargando">
     <p>Cargando datos...</p>
@@ -35,35 +75,69 @@
 
   <div *ngIf="!isLoading" class="reporte-content">
     <div class="metricas-resumen">
-      <p><strong>Total de Reclamos:</strong> {{ reporte.totalReclamos }}</p>
-      <p><strong>Tiempo Promedio de Resolución:</strong> {{ reporte.tiempoPromedioResolucionDias }} días</p>
+      <p>
+        <strong>Total de Reclamos:</strong>
+        {{ reporte.totalReclamos }}
+      </p>
+
+      <p>
+        <strong>Tiempo Promedio de Resolución:</strong>
+
+        <ng-container
+          *ngIf="
+            reporte.tiempoPromedioResolucionDias !== null;
+            else sinResoluciones
+          "
+        >
+          {{ reporte.tiempoPromedioResolucionDias | number:'1.2-2' }}
+          días
+        </ng-container>
+
+        <ng-template #sinResoluciones>
+          No hay reclamos resueltos con los filtros seleccionados.
+        </ng-template>
+      </p>
     </div>
 
-    <h4>Reclamos por Estado</h4>
-    <table>
-      <thead>
-        <tr><th>Estado</th><th>Cantidad</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of reporte.reclamosPorEstado">
-          <td>{{ item.estado }}</td>
-          <td>{{ item.cantidad }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <p *ngIf="reporte.totalReclamos === 0">
+      No hay reclamos con estos filtros.
+    </p>
 
-    <h4>Reclamos por Categoría</h4>
-    <table>
-      <thead>
-        <tr><th>Categoría</th><th>Cantidad</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of reporte.reclamosPorCategoria">
-          <td>{{ item.categoria }}</td>
-          <td>{{ item.cantidad }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <ng-container *ngIf="reporte.totalReclamos > 0">
+      <h4>Reclamos por Estado</h4>
+
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Estado</th>
+            <th scope="col">Cantidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of reporte.reclamosPorEstado">
+            <td>{{ item.estado }}</td>
+            <td>{{ item.cantidad }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Reclamos por Categoría</h4>
+
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Categoría</th>
+            <th scope="col">Cantidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of reporte.reclamosPorCategoria">
+            <td>{{ item.categoria }}</td>
+            <td>{{ item.cantidad }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
   </div>
 </div>
 
