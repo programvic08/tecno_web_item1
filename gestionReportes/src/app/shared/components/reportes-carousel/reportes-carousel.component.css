@@ -51,6 +51,8 @@
   padding-bottom: 2px;
 }
 
+.accion-seccion { background: transparent; border: none; border-bottom: 3px solid var(--cian); font: inherit; font-weight: 700; text-align: left; }
+
 .flecha {
   position: absolute;
   top: 50%;

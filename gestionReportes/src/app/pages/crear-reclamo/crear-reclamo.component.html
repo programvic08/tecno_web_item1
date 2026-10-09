@@ -99,6 +99,7 @@
   <!-- Paso 3: Revisión -->
   <section *ngIf="paso === 3">
     <h2>3. Revisión</h2>
+    <p *ngIf="esPlantilla">Reporte predefinido: completa la ubicación, la fecha y la evidencia antes de enviar.</p>
 
     <div class="campo">
       <label>Categoría</label>
@@ -120,6 +121,7 @@
       <p>{{ esRecurrente === true ? 'Sí' : (esRecurrente === false ? 'No' : 'No indicado') }}</p>
     </div>
 
+    <ng-container *ngIf="!esPlantilla; else datosPlantilla">
     <div class="campo">
       <label>Dirección</label>
       <p>{{ direccion }}</p>
@@ -144,6 +146,31 @@
       <label>Evidencia adjunta</label>
       <p>{{ evidenciaNombre || 'Sin evidencia adjunta.' }}</p>
     </div>
+    </ng-container>
+
+    <ng-template #datosPlantilla>
+      <div class="campo">
+        <label for="direccionPlantilla">Dirección</label>
+        <input id="direccionPlantilla" type="text" [(ngModel)]="direccion" required [disabled]="enviado" />
+      </div>
+      <div class="campo">
+        <label for="fechaPlantilla">Fecha y hora observada</label>
+        <input id="fechaPlantilla" type="datetime-local" [(ngModel)]="fechaHoraObservada" [disabled]="enviado" />
+      </div>
+      <div class="campo">
+        <label for="referenciaPlantilla">Ubicación o referencia</label>
+        <input id="referenciaPlantilla" type="text" [(ngModel)]="ubicacionReferencia" placeholder="Sin indicar" [disabled]="enviado" />
+      </div>
+      <div class="campo">
+        <label for="sectorPlantilla">Sector / zona</label>
+        <input id="sectorPlantilla" type="text" [(ngModel)]="sectorZona" placeholder="Sin indicar" [disabled]="enviado" />
+      </div>
+      <div class="campo">
+        <label for="evidenciaPlantilla">Evidencia adjunta</label>
+        <input id="evidenciaPlantilla" type="file" (change)="onArchivoSeleccionado($event)" [disabled]="enviado" />
+        <span *ngIf="evidenciaNombre">{{ evidenciaNombre }}</span>
+      </div>
+    </ng-template>
 
     <div class="campo">
       <label>Datos del ciudadano</label>
@@ -151,7 +178,7 @@
     </div>
 
     <div class="acciones" *ngIf="!enviado">
-      <button type="button" (click)="volver()">Volver</button>
+      <button *ngIf="!esPlantilla" type="button" (click)="volver()">Volver</button>
       <button type="button" [disabled]="!formularioValido" (click)="enviarReclamo()">Enviar Reclamo</button>
     </div>
 

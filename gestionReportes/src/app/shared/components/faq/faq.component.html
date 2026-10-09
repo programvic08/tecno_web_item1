@@ -1,0 +1,18 @@
+<section class="seccion" aria-label="Preguntas frecuentes">
+  <div class="contenedor">
+    <h2 class="titulo-seccion">Preguntas frecuentes</h2>
+    <p class="introduccion">Encuentra respuestas rápidas sobre el funcionamiento de tus reclamos.</p>
+    <details *ngFor="let pregunta of preguntas">
+      <summary>{{ pregunta.pregunta }}</summary>
+      <div class="pregunta">
+        <p class="respuesta" *ngIf="pregunta.respuesta">{{ pregunta.respuesta }}</p>
+        <dl *ngIf="pregunta.estados">
+          <ng-container *ngFor="let estado of pregunta.estados">
+            <dt>{{ estado.nombre }}</dt>
+            <dd class="respuesta">{{ estado.descripcion }}</dd>
+          </ng-container>
+        </dl>
+      </div>
+    </details>
+  </div>
+</section>

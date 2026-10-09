@@ -4,6 +4,7 @@ import { ReclamoService } from '../../core/services/reclamo.service';
 import { CategoriaReclamo } from '../../models/reclamo.model';
 import { PrioridadReclamo } from '../../models/reclamo.enums';
 import { RUTAS } from '../../core/config/navegacion.config';
+import { obtenerPlantilla } from '../../core/config/plantillas-reclamo.config';
 
 @Component({
   selector: 'app-crear-reclamo',
@@ -12,6 +13,7 @@ import { RUTAS } from '../../core/config/navegacion.config';
 })
 export class CrearReclamoComponent implements OnInit {
   paso: number = 1;
+  esPlantilla = false;
   categorias: CategoriaReclamo[] = [];
   subcategoriasDisponibles: string[] = [];
 
@@ -40,9 +42,21 @@ export class CrearReclamoComponent implements OnInit {
     this.precargarDesdeEnlace();
   }
 
-  // Los accesos de "Reportes más comunes" traen ?categoria=...&subcategoria=...
+  // Las plantillas abren Revisión; los enlaces anteriores conservan la precarga normal.
   private precargarDesdeEnlace(): void {
     const parametros = this.route.snapshot.queryParamMap;
+    const plantillaId = parametros.get('plantilla');
+    const plantilla = plantillaId ? obtenerPlantilla(plantillaId) : undefined;
+    if (plantilla) {
+      this.categoria = plantilla.categoria;
+      this.cambiarCategoria();
+      this.subcategoria = plantilla.subcategoria;
+      this.descripcion = plantilla.descripcion;
+      this.esRecurrente = plantilla.esRecurrente;
+      this.esPlantilla = true;
+      this.paso = 3;
+      return;
+    }
     const categoria = parametros.get('categoria');
     if (!categoria || !this.categorias.some(c => c.nombre === categoria)) {
       return;
@@ -77,13 +91,14 @@ export class CrearReclamoComponent implements OnInit {
   }
 
   volver(): void {
-    if (this.paso > 1) {
+    if (!this.esPlantilla && this.paso > 1) {
       this.paso--;
     }
   }
 
   get formularioValido(): boolean {
-    return !!(this.categoria && this.descripcion && this.direccion);
+    return !!(this.categoria && this.descripcion &&
+      (this.esPlantilla ? this.direccion.trim() : this.direccion));
   }
 
   enviarReclamo(): void {

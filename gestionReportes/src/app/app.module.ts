@@ -24,6 +24,7 @@ import { ReportesCarouselComponent } from './shared/components/reportes-carousel
 import { ComoHagoParaComponent } from './shared/components/como-hago-para/como-hago-para.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { StatusBadgeComponent } from './shared/components/status-badge/status-badge.component';
+import { FaqComponent } from './shared/components/faq/faq.component';
 
 
 @NgModule({
@@ -44,6 +45,7 @@ import { StatusBadgeComponent } from './shared/components/status-badge/status-ba
     ComoHagoParaComponent,
     FooterComponent,
     StatusBadgeComponent,
+    FaqComponent,
     EstadoReclamoComponent,
     ModificarReclamoComponent,
     PerfilComponent

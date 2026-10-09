@@ -1,0 +1,9 @@
+.introduccion { color: var(--meta); margin-bottom: 18px; }
+details { border: 1px solid var(--borde); border-radius: 6px; background: var(--blanco); margin-bottom: 10px; }
+summary { padding: 16px 20px; color: var(--navy); font-weight: 700; cursor: pointer; }
+summary:hover, details[open] summary { background: var(--celeste-claro); }
+summary:focus-visible { outline: 4px solid var(--cian); outline-offset: 2px; }
+.pregunta { padding: 20px; border-top: 1px solid var(--borde); }
+dt { color: var(--navy); font-weight: 700; margin-bottom: 6px; }
+dd + dt { margin-top: 18px; }
+.respuesta { color: var(--tx1); line-height: 1.6; }

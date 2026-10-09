@@ -1,10 +1,11 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ReclamoService } from '../../core/services/reclamo.service';
-import { RUTAS, TAREAS_CIUDADANO } from '../../core/config/navegacion.config';
-import { DiapositivaReporte, ReporteComun } from '../../models/reporte-comun.model';
-import { ReportesCarouselComponent } from '../../shared/components/reportes-carousel/reportes-carousel.component';
-import { crearDiapositivas } from '../../shared/utils/diapositivas-reportes';
+import { RUTAS } from '../../core/config/navegacion.config';
+import { ReporteComun } from '../../models/reporte-comun.model';
+import { DIAPOSITIVAS_HOME } from '../../core/config/diapositivas-home.config';
+import { PREGUNTAS_FRECUENTES } from '../../core/config/preguntas-frecuentes.config';
+import { buscarPlantilla } from '../../core/config/plantillas-reclamo.config';
 
 // Cuántos reportes comunes se muestran en las cartas deslizables
 const LIMITE_FRECUENTES = 6;
@@ -16,14 +17,13 @@ const LIMITE_FRECUENTES = 6;
 })
 export class UserhomeComponent implements OnInit, OnDestroy {
 
-  readonly tareas = TAREAS_CIUDADANO;
   readonly rutaCrear = RUTAS.crear;
 
-  diapositivas: DiapositivaReporte[] = [];
+  readonly diapositivas = DIAPOSITIVAS_HOME;
+  readonly preguntasFrecuentes = PREGUNTAS_FRECUENTES;
   frecuentes: ReporteComun[] = [];
 
-  // Referencia al carrusel hijo (técnica del curso: @ViewChild)
-  @ViewChild(ReportesCarouselComponent) carrusel?: ReportesCarouselComponent;
+  @ViewChild('reportesFrecuentes') reportesFrecuentes?: ElementRef<HTMLElement>;
 
   // Pista desplazable de las cartas
   @ViewChild('pista') pista?: ElementRef<HTMLDivElement>;
@@ -35,11 +35,6 @@ export class UserhomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.suscripciones.add(
       this.reclamoService.obtenerReportesComunes().subscribe(reportes => {
-        this.diapositivas = crearDiapositivas(reportes, {
-          ruta: RUTAS.crear,
-          etiqueta: 'Reportar un problema de esta categoría',
-          conCategoria: true
-        });
         this.frecuentes = reportes
           .filter(reporte => reporte.subcategoria !== '')
           .slice(0, LIMITE_FRECUENTES);
@@ -51,22 +46,25 @@ export class UserhomeComponent implements OnInit, OnDestroy {
     this.suscripciones.unsubscribe();
   }
 
+  parametrosReporte(reporte: ReporteComun): Record<string, string> {
+    const plantilla = buscarPlantilla(reporte.categoria, reporte.subcategoria);
+    return plantilla ? { plantilla: plantilla.id } : {
+      categoria: reporte.categoria,
+      subcategoria: reporte.subcategoria
+    };
+  }
+
   // Desplaza las cartas un paso a la izquierda (-1) o a la derecha (1)
   desplazar(direccion: number): void {
     this.pista?.nativeElement.scrollBy({ left: direccion * 320, behavior: 'smooth' });
   }
 
-  // Posición de la categoría de una carta dentro del carrusel (-1 si no está entre las láminas)
-  indiceDiapositiva(reporte: ReporteComun): number {
-    return this.diapositivas.findIndex(d => d.titulo === reporte.categoria);
-  }
-
-  verEnCarrusel(reporte: ReporteComun): void {
-    const indice = this.indiceDiapositiva(reporte);
-    if (indice < 0) {
-      return;
+  irASeccion(seccion: string): void {
+    if (seccion === 'reportes-frecuentes') {
+      const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.reportesFrecuentes?.nativeElement.scrollIntoView({
+        behavior: reducirMovimiento ? 'auto' : 'smooth', block: 'start'
+      });
     }
-    this.carrusel?.seleccionar(indice);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

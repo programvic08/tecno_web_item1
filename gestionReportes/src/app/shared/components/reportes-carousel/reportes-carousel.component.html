@@ -1,5 +1,5 @@
 <section class="carrusel" role="region" aria-roledescription="carrusel"
-         aria-label="Reportes más comunes"
+         aria-label="Funciones y accesos del sistema"
          (mouseenter)="pausar()" (mouseleave)="reanudar()"
          (focusin)="pausar()" (focusout)="reanudar()">
 
@@ -7,12 +7,14 @@
     <article class="lamina" *ngFor="let item of items; let i = index"
              [ngClass]="'fondo-' + item.tema" [attr.aria-hidden]="i !== indiceActual">
       <div class="caja">
-        <span class="chip" [class.chip--top]="item.destacada">{{ item.etiqueta }}</span>
+        <span class="chip">{{ item.etiqueta }}</span>
         <h2>{{ item.titulo }}</h2>
-        <p>{{ item.resumen }}</p>
-        <span class="detalle">{{ item.detalle }}</span><br>
-        <a class="mas" [routerLink]="item.ruta" [queryParams]="item.queryParams"
-           [attr.tabindex]="i === indiceActual ? null : -1">{{ item.enlaceEtiqueta }} →</a>
+        <p>{{ item.descripcion }}</p>
+        <a *ngIf="item.ruta" class="mas" [routerLink]="item.ruta"
+           [attr.tabindex]="i === indiceActual ? null : -1">{{ item.boton }} →</a>
+        <button *ngIf="item.seccionDestino" type="button" class="mas accion-seccion"
+                (click)="irASeccion.emit(item.seccionDestino)"
+                [attr.tabindex]="i === indiceActual ? null : -1">{{ item.boton }} →</button>
       </div>
     </article>
   </div>

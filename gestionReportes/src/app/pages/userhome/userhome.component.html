@@ -1,21 +1,11 @@
-<app-reportes-carousel [items]="diapositivas" [intervalMs]="6000"></app-reportes-carousel>
+<app-reportes-carousel [items]="diapositivas" [intervalMs]="6000" (irASeccion)="irASeccion($event)"></app-reportes-carousel>
 
-<app-como-hago-para [tareas]="tareas"></app-como-hago-para>
-
-<div class="contenedor aviso-fila">
-  <div class="aviso">
-    <b>Aviso</b>
-    <span>El lunes 12 de octubre las oficinas de atención presencial permanecerán cerradas por feriado.
-    Los reclamos en línea se reciben con normalidad.</span>
-  </div>
-</div>
-
-<section class="seccion" *ngIf="frecuentes.length > 0">
+<section class="seccion" id="reportes-frecuentes" #reportesFrecuentes>
   <div class="contenedor">
     <h2 class="titulo-seccion">Reportes más comunes</h2>
 
     <p class="intro">Esto es lo que más reportan los vecinos en los últimos 30 días. Pulsa <b>Reportar</b>
-      y el formulario se abre con la categoría ya elegida. ¿Es otro problema?
+      y completa un reporte predefinido con los datos del lugar, fecha y evidencia. ¿Es otro problema?
       <a [routerLink]="rutaCrear">Crea un reclamo</a>.</p>
 
     <div class="cartas-wrap">
@@ -34,10 +24,8 @@
             <div class="pie">
               <b class="puesto">N.º {{ i + 1 }}</b>
               <a class="btn-reportar" [routerLink]="rutaCrear"
-                 [queryParams]="{ categoria: reporte.categoria, subcategoria: reporte.subcategoria }">Reportar</a>
+                 [queryParams]="parametrosReporte(reporte)">Reportar</a>
             </div>
-            <button type="button" class="ver-carrusel" *ngIf="indiceDiapositiva(reporte) >= 0"
-                    (click)="verEnCarrusel(reporte)">Ver la categoría en el carrusel</button>
           </div>
         </article>
       </div>
@@ -47,3 +35,5 @@
     </div>
   </div>
 </section>
+
+<app-faq [preguntas]="preguntasFrecuentes"></app-faq>

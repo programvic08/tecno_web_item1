@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { DiapositivaReporte } from '../../../models/reporte-comun.model';
+import { Component, EventEmitter, Input, Output, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { DiapositivaHome } from '../../../models/diapositiva-home.model';
 
 @Component({
   selector: 'app-reportes-carousel',
@@ -8,8 +8,9 @@ import { DiapositivaReporte } from '../../../models/reporte-comun.model';
 })
 export class ReportesCarouselComponent implements OnInit, OnChanges, OnDestroy {
 
-  // Láminas entregadas por la página (más reportadas primero)
-  @Input() items: DiapositivaReporte[] = [];
+  // Información y accesos entregados por la página, independientes del ranking.
+  @Input() items: DiapositivaHome[] = [];
+  @Output() irASeccion = new EventEmitter<string>();
 
   // Autoavance en milisegundos (la guía indica 6 s)
   @Input() intervalMs = 6000;
