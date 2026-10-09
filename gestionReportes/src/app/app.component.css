@@ -1,4 +1,1 @@
-:host { display: flex; flex-direction: column; min-height: 100vh; }
-
-/* Empuja el footer al final cuando la página es corta */
-app-footer { margin-top: auto; }
+/* Estilos centralizados en src/styles.css. Consultar ESTILOS.md. */

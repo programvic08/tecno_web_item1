@@ -1,166 +1,1472 @@
-/* Design System municipal - basado en usa.gov (Guía de diseño y estructura del portal, oct 2026) */
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
+/* Estilos compartidos del equipo. Orden: tokens, base, estructura compartida y paginas.
+   Todas las reglas visuales se mantienen aqui; ver ESTILOS.md. */
 
 :root {
-  --navy: #112F4E;
-  --navy-hover: #1A4480;
-  --rojo: #D83933;
-  --cian: #00BDE3;
-  --celeste: #D2EBF1;
-  --celeste-claro: #E7F6F8;
-  --peligro: #B50909;
-  --exito: #2e8540;
-  --gris: #555555;
-  --borde: #d9d9d9;
-  --fondo-suave: #F4F7FA;
-  --blanco: #ffffff;
-  --tx1: #1b1b1b;
-  --tx2: #5c6a79;
-  --meta: #565C65;
-  --linea-2: var(--borde);
-  --fuente-texto: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
-  --fuente-titulo: 'Merriweather', Georgia, serif;
-
-  /* Alias de la versión anterior: las páginas que aún los usan heredan la paleta oficial */
-  --primary-blue: var(--navy);
-  --accent-blue: var(--navy);
-  --nyc-red: var(--rojo);
-  --text-dark: var(--tx1);
-  --text-gray: var(--meta);
-  --border-color: var(--borde);
-  --card-bg: var(--blanco);
-  --bg-color: var(--fondo-suave);
-  --bg-item: var(--celeste-claro);
+  --bg-color: #e8f4f8;
+  --primary-blue: #0f2c4b;
+  --accent-blue: #008ccb;
+  --nyc-red: #d9381e;
+  --text-dark: #1a1a1a;
+  --text-gray: #555555;
+  --border-color: #d1d9e0;
+  --card-bg: #ffffff;
+  --bg-item: #d2ebef;
+  --font-body: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: Georgia, serif;
+  --radius-sm: 4px;
+  --content-max-width: 1100px;
+  --primary-blue-hover: #173f65;
+  --surface-muted: #f3f8fa;
+  --surface-neutral: #f0f0f0;
+  --success-color: #15803d;
+  --success-bg: #dcfce7;
+  --error-color: #991b1b;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --focus-color: #00bde3;
+  --surface-info: #d2ebf1;
+  --surface-info-light: #e7f6f8;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  font-family: var(--fuente-texto);
-  color: var(--tx1);
-  background: var(--blanco);
+  background-color: var(--bg-color);
+  font-family: var(--font-body);
+  color: var(--text-dark);
   min-height: 100vh;
 }
 
-h1, h2, h3 { font-family: var(--fuente-titulo); color: var(--navy); }
-a { color: var(--navy); }
-button { font-family: inherit; cursor: pointer; }
+/* Componente compartido: footer */
 
-input, select, textarea {
-  font-family: inherit;
-  padding: 8px 10px;
-  border: 1px solid #b5bec7;
-  border-radius: 6px;
-}
-input:focus, select:focus, textarea:focus { outline: 2px solid var(--cian); }
-
-/* Foco visible: anillo cian de 4 px (guía, sección 4) */
-a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
-  outline: 4px solid var(--cian);
-  outline-offset: 2px;
+app-footer .site-footer {
+  background-color: var(--primary-blue);
+  color: var(--card-bg);
+  padding: 30px 20px;
+  margin-top: 40px;
 }
 
-/* ── Layout ───────────────────────────────────────── */
-.contenedor { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
-.contenedor--medio { max-width: 860px; }
-.seccion { padding: 28px 0 48px; }
-.fila { display: flex; align-items: center; gap: 10px; }
-.fila--envuelve { flex-wrap: wrap; }
-.fila--separada { justify-content: space-between; }
-.crece { flex: 1; }
-.grilla { display: grid; gap: 14px; }
-.grilla--2 { grid-template-columns: 1fr 1fr; }
-.grilla--3 { grid-template-columns: 1fr 1fr 1fr; }
-@media (max-width: 700px) { .grilla--2, .grilla--3 { grid-template-columns: 1fr; } }
+app-footer .footer-container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+app-footer .footer-info h4 {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+app-footer .footer-info p {
+  font-size: 12px;
+  color: #c0d0e0;
+}
+
+/* Componente compartido: indicador de estado */
+
+app-status-badge .badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+app-status-badge .recibido {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+app-status-badge .en-proceso {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+app-status-badge .resuelto {
+  background-color: var(--success-bg);
+  color: var(--success-color);
+}
+
+app-status-badge .cerrado {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Pagina: bandeja-reclamos */
+
+app-bandeja-reclamos > .container,
+app-reporte-reclamos > .container {
+  max-width: var(--content-max-width);
+  margin: 30px auto;
+  padding: 0 16px;
+  min-height: 70vh;
+}
+
+app-bandeja-reclamos > .container > :is(h1, h2),
+app-reporte-reclamos > .container > :is(h1, h2) {
+  border-top: 5px solid var(--nyc-red);
+  padding-top: 16px;
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+  font-size: 24px;
+}
+
+app-bandeja-reclamos > .container > p,
+app-reporte-reclamos > .container > p {
+  color: var(--text-gray);
+  margin-bottom: 24px;
+}
+
+app-bandeja-reclamos > :where(.container) .row,
+app-reporte-reclamos > :where(.container) .row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+app-bandeja-reclamos > :where(.container) .col-md-3 label,
+app-reporte-reclamos > :where(.container) .col-md-3 label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+app-bandeja-reclamos > :where(.container) .col-md-3 input,
+app-bandeja-reclamos > :where(.container) .col-md-3 select,
+app-reporte-reclamos > :where(.container) .col-md-3 input,
+app-reporte-reclamos > :where(.container) .col-md-3 select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 760px) {
+
+  app-bandeja-reclamos > :where(.container) .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+
+  app-bandeja-reclamos > :where(.container) .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+app-bandeja-reclamos > :where(.container) table,
+app-reporte-reclamos > :where(.container) table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  font-size: 14px;
+  text-align: left;
+}
+
+app-bandeja-reclamos > :where(.container) th,
+app-bandeja-reclamos > :where(.container) td,
+app-reporte-reclamos > :where(.container) th,
+app-reporte-reclamos > :where(.container) td {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+app-bandeja-reclamos > :where(.container) th,
+app-reporte-reclamos > :where(.container) th {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+}
+
+app-bandeja-reclamos > :where(.container) tbody tr:nth-child(even),
+app-reporte-reclamos > :where(.container) tbody tr:nth-child(even) {
+  background: var(--surface-muted);
+}
+
+app-bandeja-reclamos > :where(.container) .text-muted {
+  color: var(--text-gray);
+}
+
+app-bandeja-reclamos > :where(.container) .text-center {
+  text-align: center;
+}
+
+app-bandeja-reclamos > :where(.container) .btn {
+  width: 100%;
+  padding: 6px 12px;
+  border: 1px solid var(--primary-blue);
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+app-bandeja-reclamos > :where(.container) .btn + .btn {
+  margin-top: 8px;
+  background: var(--success-color);
+  border-color: var(--success-color);
+}
+
+/* Pagina: crear-reclamo */
+
+app-crear-reclamo > .reclamo-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 16px;
+  min-height: 70vh;
+}
+
+app-crear-reclamo > :where(.reclamo-container) h1,
+app-crear-reclamo > :where(.reclamo-container) h2 {
+  margin: 0 0 16px;
+  color: var(--primary-blue);
+  font-family: var(--font-heading);
+}
+
+app-crear-reclamo > :where(.reclamo-container) h1 {
+  border-top: 5px solid var(--nyc-red);
+  padding-top: 16px;
+  font-size: 28px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) h2 {
+  font-size: 24px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  list-style-position: inside;
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+app-crear-reclamo > :where(.reclamo-container) li {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  white-space: nowrap;
+}
+
+app-crear-reclamo > :where(.reclamo-container) li.activo {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+}
+
+app-crear-reclamo > :where(.reclamo-container) section {
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+}
+
+app-crear-reclamo > :where(.reclamo-container) .campo {
+  margin-bottom: 16px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .campo > label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .campo > input,
+app-crear-reclamo > :where(.reclamo-container) select,
+app-crear-reclamo > :where(.reclamo-container) textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-crear-reclamo > :where(.reclamo-container) textarea {
+  resize: vertical;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .campo p {
+  padding: 12px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-crear-reclamo > :where(.reclamo-container) .opciones-radio,
+app-crear-reclamo > :where(.reclamo-container) .acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) input[type="radio"] {
+  accent-color: var(--primary-blue);
+}
+
+app-crear-reclamo > :where(.reclamo-container) .acciones {
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) button {
+  padding: 10px 16px;
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--radius-sm);
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  cursor: pointer;
+}
+
+app-crear-reclamo > :where(.reclamo-container) button:disabled {
+  background: #d1d9e0;
+  border-color: #d1d9e0;
+  color: var(--text-gray);
+  cursor: default;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .confirmacion {
+  margin: 24px 0 0;
+  padding: 16px;
+  border: 1px solid #b9d5c1;
+  background: #edf5ef;
+  color: #285638;
+}
+
+@media (max-width: 480px) {
+
+  app-crear-reclamo > :where(.reclamo-container) section {
+    padding: 16px;
+  }
+}
+
+/* Pagina: estado-reclamo */
+
+app-estado-reclamo > .estado-container {
+  max-width: var(--content-max-width);
+  margin: 30px auto;
+  padding: 0 16px;
+  min-height: 70vh;
+}
+
+app-estado-reclamo > :where(.estado-container) .search-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--nyc-red);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+app-estado-reclamo > :where(.estado-container) .search-card h2 {
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+  margin-bottom: 8px;
+}
+
+app-estado-reclamo > :where(.estado-container) .search-card p {
+  color: var(--text-gray);
+  margin-bottom: 16px;
+}
+
+app-estado-reclamo > :where(.estado-container) .search-box {
+  display: flex;
+  gap: 12px;
+  max-width: 600px;
+}
+
+app-estado-reclamo > :where(.estado-container) .search-box input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+}
+
+app-estado-reclamo > :where(.estado-container) .btn-search {
+  padding: 10px 20px;
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+app-estado-reclamo > :where(.estado-container) .btn-search:hover {
+  background: var(--primary-blue-hover);
+}
+
+app-estado-reclamo > :where(.estado-container) .result-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+}
+
+app-estado-reclamo > :where(.estado-container) .result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+app-estado-reclamo > :where(.estado-container) .result-header h3 {
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+}
+
+app-estado-reclamo > :where(.estado-container) .fecha-registro {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+app-estado-reclamo > :where(.estado-container) .details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+app-estado-reclamo > :where(.estado-container) .detail-item strong {
+  display: block;
+  font-size: 13px;
+  color: var(--text-gray);
+  margin-bottom: 4px;
+}
+
+app-estado-reclamo > :where(.estado-container) .description-box {
+  background: var(--bg-color);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+}
+
+app-estado-reclamo > :where(.estado-container) .description-box strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--primary-blue);
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-section h4 {
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  padding-left: 10px;
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  opacity: 0.5;
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-item.completado {
+  opacity: 1;
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-icon {
+  color: var(--text-gray);
+  padding-top: 2px;
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-item.completado .timeline-icon {
+  color: var(--success-color);
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-item.actual .timeline-icon {
+  color: var(--accent-blue);
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-content {
+  flex: 1;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-item.actual .timeline-content {
+  border-left: 4px solid var(--accent-blue);
+  background: #f0f9ff;
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-header h5 {
+  font-size: 15px;
+  color: var(--primary-blue);
+}
+
+app-estado-reclamo > :where(.estado-container) .timeline-content p {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+app-estado-reclamo > :where(.estado-container) .error-card {
+  padding: 20px;
+  background: var(--error-bg);
+  border: 1px solid #fecaca;
+  color: var(--error-color);
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 600px) {
+
+  app-estado-reclamo > :where(.estado-container) .search-box {
+    flex-direction: column;
+  }
+
+  app-estado-reclamo > :where(.estado-container) .details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Pagina: historial */
+
+app-historial > :where(.page-layout) .historial-container {
+  max-width: var(--content-max-width);
+  margin: 30px auto;
+  padding: 0 16px;
+  min-height: 70vh;
+}
+
+app-historial > :where(.page-layout) .header-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--nyc-red);
+  border-radius: var(--radius-sm);
+}
+
+app-historial > :where(.page-layout) .header-bar h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+}
+
+app-historial > :where(.page-layout) .filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+app-historial > :where(.page-layout) .select-filter {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-historial > :where(.page-layout) .table-card {
+  overflow-x: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-historial > :where(.page-layout) table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+app-historial > :where(.page-layout) th,
+app-historial > :where(.page-layout) td {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+app-historial > :where(.page-layout) th {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+}
+
+app-historial > :where(.page-layout) tbody tr:nth-child(even) {
+  background: var(--surface-muted);
+}
+
+app-historial > :where(.page-layout) .cat-title {
+  font-weight: 600;
+}
+
+app-historial > :where(.page-layout) .sub-cat {
+  color: var(--text-gray);
+}
+
+app-historial > :where(.page-layout) .btn-action {
+  padding: 6px 12px;
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+app-historial > :where(.page-layout) .btn-action:hover {
+  background: var(--primary-blue-hover);
+}
+
+/* Pagina: login */
+
+app-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+app-login > .contenedor-login {
+  width: 100%;
+  max-width: 440px;
+}
+
+app-login > :where(.contenedor-login) .titulo-login {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--nyc-red);
+}
+
+app-login > :where(.contenedor-login) .titulo-login h1 {
+  margin-bottom: 16px;
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+}
+
+app-login > :where(.contenedor-login) .titulo-login p,
+app-login > :where(.contenedor-login) .usuario p,
+app-login > :where(.contenedor-login) .login-footer {
+  color: var(--text-gray);
+}
+
+app-login > :where(.contenedor-login) .formulario-login {
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+}
+
+app-login > :where(.contenedor-login) .form-elements {
+  margin-bottom: 16px;
+}
+
+app-login > :where(.contenedor-login) .form-elements label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+app-login > :where(.contenedor-login) .form-elements input,
+app-login > :where(.contenedor-login) .btn-ingresar {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-login > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched {
+  border-color: var(--nyc-red);
+}
+
+app-login > :where(.contenedor-login) .error-campo,
+app-login > :where(.contenedor-login) .mensaje-error {
+  color: var(--error-color);
+  font-size: 13px;
+}
+
+app-login > :where(.contenedor-login) .error-campo {
+  display: block;
+  margin-top: 4px;
+}
+
+app-login > :where(.contenedor-login) .mensaje-error {
+  margin-bottom: 16px;
+  padding: 10px;
+  background: var(--error-bg);
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+}
+
+app-login > :where(.contenedor-login) .btn-ingresar {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+app-login > :where(.contenedor-login) .btn-ingresar:hover,
+app-login > :where(.contenedor-login) .btn-user:hover {
+  background: var(--primary-blue-hover);
+}
+
+app-login > :where(.contenedor-login) .btn-ingresar:disabled,
+app-login > :where(.contenedor-login) .btn-user:disabled {
+  opacity: 0.6;
+}
+
+app-login > :where(.contenedor-login) .recuperar-contraseña {
+  margin-bottom: 24px;
+}
+
+app-login > :where(.contenedor-login) a {
+  color: var(--primary-blue);
+  text-decoration: underline;
+}
+
+app-login > :where(.contenedor-login) a:hover {
+  color: var(--primary-blue-hover);
+}
+
+app-login > :where(.contenedor-login) .divider {
+  margin: 24px 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+app-login > :where(.contenedor-login) .user-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+app-login > :where(.contenedor-login) .btn-user {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--radius-sm);
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  cursor: pointer;
+}
+
+app-login > :where(.contenedor-login) .login-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+
+  app-login > :where(.contenedor-login) .formulario-login {
+    padding: 16px;
+  }
+}
+
+/* Pagina: modificar-reclamo */
+
+app-modificar-reclamo > .modificar-container {
+  max-width: var(--content-max-width);
+  margin: 30px auto;
+  padding: 0 16px;
+  min-height: 70vh;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .search-card,
+app-modificar-reclamo > :where(.modificar-container) .edit-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--nyc-red);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .search-card h2,
+app-modificar-reclamo > :where(.modificar-container) .edit-header h3,
+app-modificar-reclamo > :where(.modificar-container) h4 {
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+}
+
+app-modificar-reclamo > :where(.modificar-container) .search-card p,
+app-modificar-reclamo > :where(.modificar-container) .sub-text {
+  color: var(--text-gray);
+  font-size: 14px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .search-box {
+  display: flex;
+  gap: 12px;
+  max-width: 600px;
+  margin-top: 12px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .search-box input,
+app-modificar-reclamo > :where(.modificar-container) .campo input,
+app-modificar-reclamo > :where(.modificar-container) .campo select,
+app-modificar-reclamo > :where(.modificar-container) .campo textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-modificar-reclamo > :where(.modificar-container) .btn-search,
+app-modificar-reclamo > :where(.modificar-container) .btn-guardar {
+  padding: 10px 20px;
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .btn-search:hover,
+app-modificar-reclamo > :where(.modificar-container) .btn-guardar:hover {
+  background: var(--primary-blue-hover);
+}
+
+app-modificar-reclamo > :where(.modificar-container) .edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .info-readonly {
+  background: var(--bg-color);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  margin-bottom: 16px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .info-readonly p {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .divider {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+app-modificar-reclamo > :where(.modificar-container) .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .full-width {
+  grid-column: span 2;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .campo label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .btn-cancelar {
+  padding: 10px 20px;
+  background: var(--surface-neutral);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .alerta-exito {
+  margin-top: 20px;
+  padding: 14px;
+  background: var(--success-bg);
+  color: var(--success-color);
+  border: 1px solid #b91c1c00;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-weight: 600;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .error-card {
+  padding: 20px;
+  background: var(--error-bg);
+  border: 1px solid #fecaca;
+  color: var(--error-color);
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 600px) {
+
+  app-modificar-reclamo > :where(.modificar-container) .search-box {
+    flex-direction: column;
+  }
+
+  app-modificar-reclamo > :where(.modificar-container) .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  app-modificar-reclamo > :where(.modificar-container) .full-width {
+    grid-column: span 1;
+  }
+}
+
+/* Pagina: perfil */
+
+app-perfil > .perfil-container {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 0 16px;
+}
+
+app-perfil > :where(.perfil-container) .perfil-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--nyc-red);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+}
+
+app-perfil > :where(.perfil-container) .perfil-card h2 {
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+}
+
+app-perfil > :where(.perfil-container) .perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+app-perfil > :where(.perfil-container) .avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+app-perfil > :where(.perfil-container) .rol-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-item);
+  color: var(--primary-blue);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+app-perfil > :where(.perfil-container) .datos {
+  border-top: 1px solid var(--border-color);
+}
+
+app-perfil > :where(.perfil-container) .dato {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+app-perfil > :where(.perfil-container) .dato dt {
+  width: 160px;
+  font-weight: 600;
+  color: var(--text-gray);
+}
+
+app-perfil > :where(.perfil-container) .campo {
+  margin-bottom: 16px;
+}
+
+app-perfil > :where(.perfil-container) .campo label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+app-perfil > :where(.perfil-container) .campo input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-perfil > :where(.perfil-container) .campo input.ng-invalid.ng-touched {
+  border-color: var(--nyc-red);
+}
+
+app-perfil > :where(.perfil-container) .error {
+  display: block;
+  margin-top: 4px;
+  color: var(--error-color);
+  font-size: 12px;
+}
+
+app-perfil > :where(.perfil-container) .acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+app-perfil > :where(.perfil-container) .btn-primario,
+app-perfil > :where(.perfil-container) .btn-cancelar {
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+app-perfil > :where(.perfil-container) .btn-primario {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  border: none;
+}
+
+app-perfil > :where(.perfil-container) .btn-primario:hover:not(:disabled) {
+  background: var(--primary-blue-hover);
+}
+
+app-perfil > :where(.perfil-container) .btn-primario:disabled {
+  opacity: 0.5;
+}
+
+app-perfil > :where(.perfil-container) .btn-cancelar {
+  background: var(--surface-neutral);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+}
+
+app-perfil > :where(.perfil-container) .alerta-exito {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--success-bg);
+  color: var(--success-color);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Pagina: reporte-reclamos */
+
+@media (max-width: 760px) {
+
+  app-reporte-reclamos > :where(.container) .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+
+  app-reporte-reclamos > :where(.container) .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+app-reporte-reclamos > :where(.container) .btn-filtrar {
+  margin-bottom: 24px;
+  padding: 10px 20px;
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+app-reporte-reclamos > :where(.container) .metricas-resumen {
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  margin-bottom: 24px;
+}
+
+app-reporte-reclamos > :where(.container) .metricas-resumen p {
+  margin-bottom: 8px;
+}
+
+app-reporte-reclamos > :where(.container) h4 {
+  margin: 24px 0 16px;
+  color: var(--primary-blue);
+  font-family: var(--font-heading);
+  font-size: 18px;
+}
+
+/* Estado vacio de la tabla de historial */
+
+app-historial > :where(.page-layout) .tabla-vacia {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Estructura global y foco compartido */
+app-root { display: flex; flex-direction: column; min-height: 100vh; }
+app-root > app-footer { margin-top: auto; }
+button, input, select, textarea { font-family: inherit; }
+:where(a, button, summary, input, select, textarea):focus-visible { outline: 3px solid var(--focus-color); outline-offset: 2px; }
+
+/* Estructura compartida de los homes y accesos nuevos */
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .contenedor { max-width: var(--content-max-width); margin: 0 auto; padding: 0 16px; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .contenedor--medio { max-width: 860px; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .seccion { padding: 28px 0 48px; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .grilla { display: grid; gap: 14px; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .grilla--2 { grid-template-columns: 1fr 1fr; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .grilla--3 { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 700px) { :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .grilla--2, :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .grilla--3 { grid-template-columns: 1fr; } }
 
 /* ── Títulos (guía, sección 2) ────────────────────── */
-.titulo-pagina { font-size: 30px; color: var(--navy); margin-bottom: 8px; }
-.titulo-seccion {
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .titulo-pagina { font-size: 30px; color: var(--primary-blue); margin-bottom: 8px; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .titulo-seccion {
   font-size: 26px;
-  color: var(--rojo);
+  color: var(--nyc-red);
   padding-bottom: 8px;
-  border-bottom: 5px solid var(--rojo);
+  border-bottom: 5px solid var(--nyc-red);
   margin-bottom: 18px;
 }
 
 /* ── Texto ────────────────────────────────────────── */
-.texto-suave { color: var(--tx2); }
-.texto-chico { font-size: 0.85rem; }
 
 /* ── Tarjetas ─────────────────────────────────────── */
-.tarjeta {
-  background: var(--blanco);
-  border: 1px solid var(--borde);
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .tarjeta {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   box-shadow: 0 1px 4px rgba(17, 47, 78, 0.08);
 }
-.tarjeta__cuerpo { padding: 20px; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .tarjeta__cuerpo { padding: 20px; }
 
 /* ── Formularios ──────────────────────────────────── */
-.campo-grupo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.etiqueta { font-weight: 600; font-size: 0.9rem; color: var(--navy); }
-.campo { width: 100%; }
 
 /* ── Botones: normal, hover, foco, deshabilitado ──── */
-.boton {
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton {
   display: inline-block;
-  background: var(--navy);
-  color: var(--blanco);
+  background: var(--primary-blue);
+  color: var(--card-bg);
   border: none;
   border-radius: 6px;
   padding: 10px 18px;
   font-weight: 700;
   text-decoration: none;
 }
-.boton:hover { background: var(--navy-hover); }
-.boton--contorno { background: var(--blanco); color: var(--navy); border: 2px solid var(--navy); }
-.boton--contorno:hover { background: var(--celeste-claro); }
-.boton--peligro { background: var(--peligro); }
-.boton--peligro:hover { background: #8f0707; }
-.boton[disabled] { opacity: 0.6; cursor: default; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton:hover { background: var(--primary-blue-hover); }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--contorno { background: var(--card-bg); color: var(--primary-blue); border: 2px solid var(--primary-blue); }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--contorno:hover { background: var(--surface-info-light); }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--peligro { background: var(--error-color); }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--peligro:hover { background: #8f0707; }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton[disabled] { opacity: 0.6; cursor: default; }
 
 /* ── Avisos ───────────────────────────────────────── */
-.alerta { padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; }
-.alerta--ok { background: #e7f4e4; border: 1px solid var(--exito); color: #205c2a; }
-.alerta--error { background: #fbe1e0; border: 1px solid var(--rojo); color: #8a1f1a; }
-.aviso {
-  background: var(--celeste-claro);
-  border-left: 4px solid var(--cian);
-  padding: 13px 17px;
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-}
-.aviso b { color: var(--navy); }
-.aviso span { color: var(--meta); font-size: 15px; }
 
 /* ── Estados de trámite: pills comunes a todo el portal ── */
-.pill {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-.pill--pendiente  { background: #fdf3d9; color: #936f38; }
-.pill--proceso    { background: var(--celeste-claro); color: var(--navy); }
-.pill--confirmada { background: #e7f4e4; color: var(--exito); }
-.pill--cancelada  { background: #eceef1; color: var(--tx2); }
-.pill--rechazada  { background: #fbe1e0; color: var(--rojo); }
-
-.insignia { display: inline-block; padding: 4px 12px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; }
-.insignia--gris { background: #eceef1; color: #3d4551; }
 
 /* ── Girador (spinner) ────────────────────────────── */
-.girador {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: var(--blanco);
-  border-radius: 50%;
-  margin-right: 6px;
-  vertical-align: -2px;
-  animation: girar 0.8s linear infinite;
+
+/* Pagina: adminhome */
+app-adminhome .modulo { display: flex; }
+app-adminhome .cuerpo { display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+app-adminhome .icono { font-size: 36px; color: var(--primary-blue); margin-bottom: 12px; }
+app-adminhome .modulo h3 { font-size: 18px; margin: 0 0 8px; }
+app-adminhome .modulo p { color: var(--text-gray); font-size: 15px; line-height: 1.45; margin: 0 0 18px; }
+app-adminhome .modulo .boton { margin-top: auto; }
+
+/* Pagina: userhome */
+app-userhome .intro { margin: 0 0 14px; color: var(--text-gray); font-size: 15px; }
+app-userhome .intro a { font-weight: 700; }
+app-userhome .intro b { color: var(--primary-blue); }
+
+/* Cartas deslizables: pista horizontal con desplazamiento suave */
+app-userhome .cartas-wrap { position: relative; }
+
+app-userhome .cartas {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px 2px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-blue) #e6e9ed;
 }
-@keyframes girar { to { transform: rotate(360deg); } }
+
+app-userhome .cartas::-webkit-scrollbar { height: 8px; }
+app-userhome .cartas::-webkit-scrollbar-track { background: #e6e9ed; border-radius: 4px; }
+app-userhome .cartas::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 4px; }
+
+app-userhome .flecha {
+  position: absolute;
+  top: 42%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--primary-blue);
+  background: var(--card-bg);
+  color: var(--primary-blue);
+  font-size: 20px;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(17, 47, 78, 0.25);
+}
+
+app-userhome .flecha:hover { background: var(--primary-blue); color: var(--card-bg); }
+app-userhome .flecha.prev { left: -14px; }
+app-userhome .flecha.next { right: -14px; }
+
+/* Cartas con las mismas proporciones y pie alineado abajo */
+app-userhome .carta {
+  flex: 0 0 290px;
+  scroll-snap-align: start;
+  border: 1px solid var(--primary-blue);
+  background: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+app-userhome .carta .cuerpo { padding: 14px; display: flex; flex-direction: column; flex: 1; }
+
+app-userhome .chips { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+
+app-userhome .chip-cat, app-userhome .chip-top {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+}
+
+app-userhome .chip-cat { background: var(--surface-info); color: var(--primary-blue); }
+app-userhome .chip-top { background: var(--primary-blue); color: var(--card-bg); }
+
+app-userhome .carta h3 { font-size: 16px; margin: 0 0 6px; min-height: 40px; }
+app-userhome .carta .meta { font-size: 13.5px; color: var(--text-gray); line-height: 1.45; margin: 0; }
+
+app-userhome .pie { margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+app-userhome .puesto { color: var(--primary-blue); font-size: 15px; }
+
+app-userhome .btn-reportar {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 9px 18px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+app-userhome .btn-reportar:hover { background: var(--primary-blue-hover); }
+
+
+@media (max-width: 700px) {
+  app-userhome .flecha { display: none; }
+  app-userhome .carta { flex-basis: 260px; }
+}
+
+/* Componente compartido: navbar */
+/* Cabecera compartida por todas las páginas con sesión. */
+app-navbar { display: flex; align-items: center; gap: 24px; padding: 0 24px; background: var(--primary-blue); color: var(--card-bg); }
+app-navbar .cabecera-portal { display: flex; align-items: center; gap: 14px; padding: 16px 0; color: var(--card-bg); }
+app-navbar .sello { display: grid; place-items: center; flex-shrink: 0; width: 72px; height: 60px; border-radius: 6px; background: var(--primary-blue); color: var(--card-bg); font-size: 28px; font-weight: 700; }
+app-navbar .identidad { display: flex; flex-direction: column; gap: 8px; }
+app-navbar .marca { font-family: var(--font-heading); font-size: 22px; font-weight: 700; }
+app-navbar .subtitulo { color: var(--surface-info); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+app-navbar .navbar { display: flex; flex: 1; min-width: 0; align-self: stretch; align-items: center; justify-content: space-between; gap: 20px; min-height: 68px; background: var(--primary-blue); color: var(--card-bg); }
+app-navbar .enlaces { display: flex; align-self: stretch; flex-wrap: wrap; gap: 4px; }
+app-navbar .enlaces a { display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 16px 24px; border-bottom: 4px solid transparent; color: var(--card-bg); font-size: 20px; font-weight: 600; text-decoration: none; }
+app-navbar .enlaces a:hover { background: var(--primary-blue-hover); }
+app-navbar .enlaces a > span { font-size: 16px; }
+app-navbar .enlaces a.activo { border-bottom-color: var(--nyc-red); }
+app-navbar .icono-nav { width: 22px; height: 22px; flex-shrink: 0; }
+app-navbar .enlaces .pronto { color: #6e8ca6; padding: 16px 24px; cursor: not-allowed; }
+@media (max-width: 1100px) {
+  app-navbar { gap: 16px; }
+  app-navbar .sello { display: none; }
+  app-navbar .marca { font-size: 20px; }
+  app-navbar .enlaces a { padding: 12px; font-size: 16px; gap: 8px; }
+  app-navbar .enlaces a > span { font-size: 14px; }
+}
+@media (max-width: 700px) {
+  app-navbar { flex-wrap: wrap; padding: 0 16px; gap: 0; }
+  app-navbar .cabecera-portal { width: 100%; padding: 16px 0 8px; gap: 12px; }
+  app-navbar .marca { font-size: 20px; }
+  app-navbar .subtitulo { font-size: 12px; }
+  app-navbar .sello { width: 56px; height: 56px; font-size: 24px; }
+  app-navbar .navbar { flex-basis: 100%; gap: 8px; }
+  app-navbar .enlaces { flex: 1; }
+  app-navbar .enlaces a { min-height: 54px; padding: 12px; font-size: 16px; gap: 8px; }
+  app-navbar .icono-nav { width: 18px; height: 18px; }
+}
+
+app-navbar .sesion { position: relative; flex-shrink: 0; }
+
+app-navbar .perfil-boton { background: none; border: none; padding: 0; }
+
+app-navbar .avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--focus-color);
+  color: var(--primary-blue);
+  font-weight: 700;
+  font-size: 0.95em;
+  border: 2px solid var(--card-bg);
+}
+
+app-navbar .perfil-boton:hover .avatar { background: var(--surface-info); }
+
+app-navbar .menu-fondo { position: fixed; inset: 0; z-index: 19; }
+
+app-navbar .menu-usuario {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 20;
+  min-width: 220px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(17, 47, 78, 0.25);
+  padding: 12px 0 6px;
+}
+
+app-navbar .menu-nombre { margin: 0 16px 2px; font-weight: 700; color: var(--primary-blue); }
+
+app-navbar .menu-correo {
+  margin: 0 16px 10px;
+  font-size: 0.82em;
+  color: var(--text-gray);
+  border-bottom: 1px solid #e6e9ed;
+  padding-bottom: 10px;
+}
+
+app-navbar .menu-usuario a,
+app-navbar .menu-usuario button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+app-navbar .menu-usuario a:hover,
+app-navbar .menu-usuario button:hover { background: var(--surface-info-light); }
+
+/* El rojo se reserva al botón Cerrar sesión (guía, sección 1) */
+app-navbar .menu-usuario .salir { color: var(--nyc-red); }
+
+/* Componente compartido: como-hago-para */
+/* Cabalga sobre el carrusel (guía, sección 5) */
+app-como-hago-para .tareas { position: relative; z-index: 2; margin-top: -50px; }
+app-como-hago-para .tareas--sin-carrusel { margin-top: 0; padding-top: 28px; padding-bottom: 28px; }
+
+app-como-hago-para .tareas-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 20px 26px 22px;
+}
+
+app-como-hago-para .fondo-tareas {
+  background:
+    linear-gradient(100deg, rgba(17, 47, 78, 0.18), transparent 75%),
+    repeating-linear-gradient(-45deg, #bfe3ee, #bfe3ee 18px, var(--surface-info) 18px, var(--surface-info) 36px);
+}
+
+app-como-hago-para .tareas--sin-carrusel .tareas-card {
+  box-shadow: 0 4px 16px rgba(17, 47, 78, 0.12);
+}
+
+app-como-hago-para .tareas-card h2 { font-size: 21px; color: var(--primary-blue); margin: 0 0 14px; }
+
+app-como-hago-para .lista { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+
+app-como-hago-para .lista a {
+  display: block;
+  padding: 4px 16px;
+  border-left: 4px solid var(--focus-color);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--primary-blue);
+}
+
+app-como-hago-para .lista a:hover { text-decoration: underline; }
+
+@media (max-width: 900px) { app-como-hago-para .lista { grid-template-columns: 1fr 1fr; row-gap: 10px; } }
+@media (max-width: 576px) { app-como-hago-para .lista { grid-template-columns: 1fr; } }
+
+/* Estado rechazado: se conserva el estado adicional de esta rama. */
+app-status-badge .rechazado { background: var(--error-bg); color: var(--error-color); }
+
+/* Navegacion secundaria disponible, sin instancias en las paginas. */
+app-subnav .subnav { border-bottom: 1px solid var(--border-color); background: var(--card-bg); }
+
+app-subnav .pestanas { display: flex; flex-wrap: wrap; gap: 4px; }
+
+app-subnav .pestanas a {
+  padding: 12px 16px 9px;
+  color: var(--text-gray);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+
+app-subnav .pestanas a:hover { color: var(--primary-blue); background: var(--surface-muted); }
+
+/* Pestaña activa: texto navy y filete inferior cian de 3 px */
+app-subnav .pestanas a.activa { color: var(--primary-blue); border-bottom-color: var(--focus-color); }

@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { EstadoReclamo } from '../../../models/reclamo.enums';
 
-// Muestra el estado con las pills comunes de todo el portal (definidas en styles.css)
+// Estilos compartidos del indicador definidos en styles.css.
 @Component({
   selector: 'app-status-badge',
-  template: `<span class="pill" [ngClass]="obtenerClase()">{{ estado }}</span>`
+  template: `<span class="badge" [ngClass]="obtenerClase()">{{ estado }}</span>`
 })
 export class StatusBadgeComponent {
   @Input() estado!: string;
@@ -13,15 +13,15 @@ export class StatusBadgeComponent {
     switch (this.estado) {
       case EstadoReclamo.RECIBIDO:
       case EstadoReclamo.EN_REVISION:
-        return 'pill--pendiente';
+        return 'recibido';
       case EstadoReclamo.EN_PROCESO:
-        return 'pill--proceso';
+        return 'en-proceso';
       case EstadoReclamo.RESUELTO:
-        return 'pill--confirmada';
+        return 'resuelto';
       case EstadoReclamo.RECHAZADO:
-        return 'pill--rechazada';
+        return 'rechazado';
       default:
-        return 'pill--cancelada';
+        return 'cerrado';
     }
   }
 }

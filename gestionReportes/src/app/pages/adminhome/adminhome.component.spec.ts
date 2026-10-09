@@ -25,8 +25,8 @@ describe('AdminhomeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('arma las láminas del carrusel con el ranking de reportes', () => {
-    expect(component.diapositivas.length).toBeGreaterThan(0);
-    expect(component.diapositivas[0].destacada).toBeTrue();
+  it('muestra los modulos de gestion sin carrusel', () => {
+    expect(fixture.nativeElement.querySelectorAll('.modulo').length).toBe(3);
+    expect(fixture.nativeElement.querySelector('app-reportes-carousel')).toBeNull();
   });
 });
