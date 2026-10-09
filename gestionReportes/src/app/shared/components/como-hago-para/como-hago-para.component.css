@@ -1,10 +1,21 @@
 /* Cabalga sobre el carrusel (guía, sección 5) */
 .tareas { position: relative; z-index: 2; margin-top: -50px; }
+.tareas--sin-carrusel { margin-top: 0; padding-top: 28px; padding-bottom: 28px; }
 
 .tareas-card {
   background: var(--blanco);
   border: 1px solid var(--borde);
   padding: 20px 26px 22px;
+}
+
+.fondo-tareas {
+  background:
+    linear-gradient(100deg, rgba(17, 47, 78, 0.18), transparent 75%),
+    repeating-linear-gradient(-45deg, #bfe3ee, #bfe3ee 18px, var(--celeste) 18px, var(--celeste) 36px);
+}
+
+.tareas--sin-carrusel .tareas-card {
+  box-shadow: 0 4px 16px rgba(17, 47, 78, 0.12);
 }
 
 .tareas-card h2 { font-size: 21px; color: var(--navy); margin: 0 0 14px; }

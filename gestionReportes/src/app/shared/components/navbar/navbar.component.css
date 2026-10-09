@@ -1,37 +1,38 @@
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  background: var(--navy);
-  color: var(--blanco);
-  padding: 10px 20px;
+/* Cabecera compartida por todas las páginas con sesión. */
+:host { display: flex; align-items: center; gap: 24px; padding: 0 24px; background: var(--navy); color: var(--blanco); }
+.cabecera-portal { display: flex; align-items: center; gap: 14px; padding: 16px 0; color: var(--blanco); }
+.sello { display: grid; place-items: center; flex-shrink: 0; width: 72px; height: 60px; border-radius: 6px; background: var(--navy); color: var(--blanco); font-size: 28px; font-weight: 700; }
+.identidad { display: flex; flex-direction: column; gap: 8px; }
+.marca { font-family: var(--fuente-titulo); font-size: 22px; font-weight: 700; }
+.subtitulo { color: var(--celeste); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.navbar { display: flex; flex: 1; min-width: 0; align-self: stretch; align-items: center; justify-content: space-between; gap: 20px; min-height: 68px; background: var(--navy); color: var(--blanco); }
+.enlaces { display: flex; align-self: stretch; flex-wrap: wrap; gap: 4px; }
+.enlaces a { display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 16px 24px; border-bottom: 4px solid transparent; color: var(--blanco); font-size: 20px; font-weight: 600; text-decoration: none; }
+.enlaces a:hover { background: var(--navy-hover); }
+.enlaces a > span { font-size: 16px; }
+.enlaces a.activo { border-bottom-color: var(--rojo); }
+.icono-nav { width: 22px; height: 22px; flex-shrink: 0; }
+.enlaces .pronto { color: #6e8ca6; padding: 16px 24px; cursor: not-allowed; }
+@media (max-width: 1100px) {
+  :host { gap: 16px; }
+  .sello { display: none; }
+  .marca { font-size: 20px; }
+  .enlaces a { padding: 12px; font-size: 16px; gap: 8px; }
+  .enlaces a > span { font-size: 14px; }
+}
+@media (max-width: 700px) {
+  :host { flex-wrap: wrap; padding: 0 16px; gap: 0; }
+  .cabecera-portal { width: 100%; padding: 16px 0 8px; gap: 12px; }
+  .marca { font-size: 20px; }
+  .subtitulo { font-size: 12px; }
+  .sello { width: 56px; height: 56px; font-size: 24px; }
+  .navbar { flex-basis: 100%; gap: 8px; }
+  .enlaces { flex: 1; }
+  .enlaces a { min-height: 54px; padding: 12px; font-size: 16px; gap: 8px; }
+  .icono-nav { width: 18px; height: 18px; }
 }
 
-.marca { font-family: var(--fuente-titulo); font-weight: 700; }
-
-.enlaces { display: flex; gap: 16px; flex-wrap: wrap; }
-
-.enlaces a {
-  color: var(--celeste);
-  text-decoration: none;
-  padding: 6px 4px;
-  border-bottom: 2px solid transparent;
-}
-
-.enlaces a:hover { color: var(--blanco); }
-.enlaces a.activo { color: var(--blanco); border-bottom-color: var(--cian); }
-
-.enlaces .pronto {
-  color: #6E8CA6;
-  padding: 6px 4px;
-  border-bottom: 2px solid transparent;
-  cursor: not-allowed;
-}
-
-/* ── Menú de usuario ─────────────────────────────── */
-.sesion { position: relative; }
+.sesion { position: relative; flex-shrink: 0; }
 
 .perfil-boton { background: none; border: none; padding: 0; }
 

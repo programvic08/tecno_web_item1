@@ -52,27 +52,23 @@ export function apartadosPortal(rol: RolUsuario | null): ApartadoPortal[] {
 
   const apartados: ApartadoPortal[] = [
     { etiqueta: 'Inicio', ruta: inicio, prefijos: [inicio] },
-    { etiqueta: 'Catálogo' },
-    { etiqueta: 'Permisos y patentes' },
-    { etiqueta: 'Pagos municipales' }
   ];
 
   if (rol === RolUsuario.CIUDADANO) {
-    apartados.push({
-      etiqueta: 'Reclamos',
-      ruta: RUTAS.historial,
-      prefijos: [RUTAS.crear, RUTAS.historial, RUTAS.estado]
-    });
+    apartados.push(
+      { etiqueta: 'Crear reclamo', ruta: RUTAS.crear, prefijos: [RUTAS.crear] },
+      { etiqueta: 'Historial', ruta: RUTAS.historial, prefijos: [RUTAS.historial] },
+      { etiqueta: 'Estado', ruta: RUTAS.estado, prefijos: [RUTAS.estado] }
+    );
   }
 
-  apartados.push({ etiqueta: 'Biblioteca y cultura' });
 
   if (esAdmin) {
-    apartados.push({
-      etiqueta: 'Administración',
-      ruta: RUTAS.bandeja,
-      prefijos: [RUTAS.bandeja, RUTAS.modificar, RUTAS.reportes]
-    });
+    apartados.push(
+      { etiqueta: 'Bandeja', ruta: RUTAS.bandeja, prefijos: [RUTAS.bandeja] },
+      { etiqueta: 'Modificar', ruta: RUTAS.modificar, prefijos: [RUTAS.modificar] },
+      { etiqueta: 'Reportes', ruta: RUTAS.reportes, prefijos: [RUTAS.reportes] }
+    );
   }
 
   return apartados;

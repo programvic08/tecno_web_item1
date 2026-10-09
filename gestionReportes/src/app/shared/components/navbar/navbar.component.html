@@ -1,12 +1,28 @@
-<nav class="navbar" aria-label="Navegación principal">
+<header class="cabecera-portal">
+  <span class="sello" aria-hidden="true">NY</span>
+  <div class="identidad">
+    <span class="marca">{{ marca }}</span>
+    <span class="subtitulo">Trámites y servicios al ciudadano</span>
+  </div>
+</header>
 
-  <span class="marca">{{ marca }}</span>
+<nav class="navbar" aria-label="Navegación principal">
 
   <div class="enlaces" *ngIf="apartados$ | async as apartados">
     <ng-container *ngFor="let apartado of apartados">
       <a *ngIf="apartado.ruta; else proximamente" [routerLink]="apartado.ruta"
          [class.activo]="activo(apartado)"
-         [attr.aria-current]="activo(apartado) ? 'page' : null">{{ apartado.etiqueta }}</a>
+         [attr.aria-current]="activo(apartado) ? 'page' : null">
+        <svg class="icono-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+             [ngSwitch]="apartado.etiqueta">
+          <path *ngSwitchCase="'Inicio'" d="M3 10 12 3l9 7v11h-6v-7H9v7H3Z" />
+          <path *ngSwitchCase="'Crear reclamo'" d="M6 17V9a6 6 0 0 1 12 0v8M4 17h16M10 21h4M12 2v2M12 8v4M12 15h.01" />
+          <path *ngSwitchCase="'Historial'" d="M3 4v6h6M3 10a9 9 0 1 1 1 8M12 7v5l4 2" />
+          <path *ngSwitchDefault d="M3 3h18v18H3ZM7 16v-4M12 16V8M17 16V6" />
+        </svg>
+        <span>{{ apartado.etiqueta }}</span>
+      </a>
       <ng-template #proximamente>
         <span class="pronto" title="Próximamente" aria-disabled="true">{{ apartado.etiqueta }}</span>
       </ng-template>

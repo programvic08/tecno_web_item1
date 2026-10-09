@@ -18,6 +18,3 @@
 .footer-info h4 { font-family: var(--fuente-titulo); font-size: 16px; margin-bottom: 6px; color: var(--blanco); }
 .footer-info p { font-size: 13.5px; color: var(--celeste); }
 
-.footer-links { display: flex; gap: 16px; }
-.footer-links a { color: var(--blanco); font-size: 13.5px; text-decoration: none; }
-.footer-links a:hover { text-decoration: underline; }

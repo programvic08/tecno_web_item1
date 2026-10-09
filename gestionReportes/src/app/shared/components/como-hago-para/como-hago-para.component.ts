@@ -8,6 +8,7 @@ import { TareaRapida } from '../../../models/navegacion.model';
   styleUrls: ['./como-hago-para.component.css']
 })
 export class ComoHagoParaComponent {
+  @Input() sobreCarrusel = true;
   @Input() titulo = '¿Cómo hago para…?';
   @Input() tareas: TareaRapida[] = [];
 }
