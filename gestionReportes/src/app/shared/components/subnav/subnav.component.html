@@ -1,0 +1,7 @@
+<ng-container *ngIf="pestanas$ | async as pestanas">
+  <nav class="subnav" *ngIf="pestanas.length > 0" aria-label="Subnavegación">
+    <div class="contenedor pestanas">
+      <a *ngFor="let pestana of pestanas" [routerLink]="pestana.ruta" routerLinkActive="activa">{{ pestana.etiqueta }}</a>
+    </div>
+  </nav>
+</ng-container>

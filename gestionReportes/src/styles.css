@@ -1,0 +1,166 @@
+/* Design System municipal - basado en usa.gov (Guía de diseño y estructura del portal, oct 2026) */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
+
+:root {
+  --navy: #112F4E;
+  --navy-hover: #1A4480;
+  --rojo: #D83933;
+  --cian: #00BDE3;
+  --celeste: #D2EBF1;
+  --celeste-claro: #E7F6F8;
+  --peligro: #B50909;
+  --exito: #2e8540;
+  --gris: #555555;
+  --borde: #d9d9d9;
+  --fondo-suave: #F4F7FA;
+  --blanco: #ffffff;
+  --tx1: #1b1b1b;
+  --tx2: #5c6a79;
+  --meta: #565C65;
+  --linea-2: var(--borde);
+  --fuente-texto: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+  --fuente-titulo: 'Merriweather', Georgia, serif;
+
+  /* Alias de la versión anterior: las páginas que aún los usan heredan la paleta oficial */
+  --primary-blue: var(--navy);
+  --accent-blue: var(--navy);
+  --nyc-red: var(--rojo);
+  --text-dark: var(--tx1);
+  --text-gray: var(--meta);
+  --border-color: var(--borde);
+  --card-bg: var(--blanco);
+  --bg-color: var(--fondo-suave);
+  --bg-item: var(--celeste-claro);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--fuente-texto);
+  color: var(--tx1);
+  background: var(--blanco);
+  min-height: 100vh;
+}
+
+h1, h2, h3 { font-family: var(--fuente-titulo); color: var(--navy); }
+a { color: var(--navy); }
+button { font-family: inherit; cursor: pointer; }
+
+input, select, textarea {
+  font-family: inherit;
+  padding: 8px 10px;
+  border: 1px solid #b5bec7;
+  border-radius: 6px;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--cian); }
+
+/* Foco visible: anillo cian de 4 px (guía, sección 4) */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 4px solid var(--cian);
+  outline-offset: 2px;
+}
+
+/* ── Layout ───────────────────────────────────────── */
+.contenedor { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
+.contenedor--medio { max-width: 860px; }
+.seccion { padding: 28px 0 48px; }
+.fila { display: flex; align-items: center; gap: 10px; }
+.fila--envuelve { flex-wrap: wrap; }
+.fila--separada { justify-content: space-between; }
+.crece { flex: 1; }
+.grilla { display: grid; gap: 14px; }
+.grilla--2 { grid-template-columns: 1fr 1fr; }
+.grilla--3 { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 700px) { .grilla--2, .grilla--3 { grid-template-columns: 1fr; } }
+
+/* ── Títulos (guía, sección 2) ────────────────────── */
+.titulo-pagina { font-size: 30px; color: var(--navy); margin-bottom: 8px; }
+.titulo-seccion {
+  font-size: 26px;
+  color: var(--rojo);
+  padding-bottom: 8px;
+  border-bottom: 5px solid var(--rojo);
+  margin-bottom: 18px;
+}
+
+/* ── Texto ────────────────────────────────────────── */
+.texto-suave { color: var(--tx2); }
+.texto-chico { font-size: 0.85rem; }
+
+/* ── Tarjetas ─────────────────────────────────────── */
+.tarjeta {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(17, 47, 78, 0.08);
+}
+.tarjeta__cuerpo { padding: 20px; }
+
+/* ── Formularios ──────────────────────────────────── */
+.campo-grupo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.etiqueta { font-weight: 600; font-size: 0.9rem; color: var(--navy); }
+.campo { width: 100%; }
+
+/* ── Botones: normal, hover, foco, deshabilitado ──── */
+.boton {
+  display: inline-block;
+  background: var(--navy);
+  color: var(--blanco);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.boton:hover { background: var(--navy-hover); }
+.boton--contorno { background: var(--blanco); color: var(--navy); border: 2px solid var(--navy); }
+.boton--contorno:hover { background: var(--celeste-claro); }
+.boton--peligro { background: var(--peligro); }
+.boton--peligro:hover { background: #8f0707; }
+.boton[disabled] { opacity: 0.6; cursor: default; }
+
+/* ── Avisos ───────────────────────────────────────── */
+.alerta { padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; }
+.alerta--ok { background: #e7f4e4; border: 1px solid var(--exito); color: #205c2a; }
+.alerta--error { background: #fbe1e0; border: 1px solid var(--rojo); color: #8a1f1a; }
+.aviso {
+  background: var(--celeste-claro);
+  border-left: 4px solid var(--cian);
+  padding: 13px 17px;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+.aviso b { color: var(--navy); }
+.aviso span { color: var(--meta); font-size: 15px; }
+
+/* ── Estados de trámite: pills comunes a todo el portal ── */
+.pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.pill--pendiente  { background: #fdf3d9; color: #936f38; }
+.pill--proceso    { background: var(--celeste-claro); color: var(--navy); }
+.pill--confirmada { background: #e7f4e4; color: var(--exito); }
+.pill--cancelada  { background: #eceef1; color: var(--tx2); }
+.pill--rechazada  { background: #fbe1e0; color: var(--rojo); }
+
+.insignia { display: inline-block; padding: 4px 12px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; }
+.insignia--gris { background: #eceef1; color: #3d4551; }
+
+/* ── Girador (spinner) ────────────────────────────── */
+.girador {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: var(--blanco);
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: -2px;
+  animation: girar 0.8s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }

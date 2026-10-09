@@ -1,0 +1,35 @@
+<nav class="navbar" aria-label="Navegación principal">
+
+  <span class="marca">{{ marca }}</span>
+
+  <div class="enlaces" *ngIf="apartados$ | async as apartados">
+    <ng-container *ngFor="let apartado of apartados">
+      <a *ngIf="apartado.ruta; else proximamente" [routerLink]="apartado.ruta"
+         [class.activo]="activo(apartado)"
+         [attr.aria-current]="activo(apartado) ? 'page' : null">{{ apartado.etiqueta }}</a>
+      <ng-template #proximamente>
+        <span class="pronto" title="Próximamente" aria-disabled="true">{{ apartado.etiqueta }}</span>
+      </ng-template>
+    </ng-container>
+  </div>
+
+  <div class="sesion" *ngIf="usuario$ | async as usuario">
+
+    <button type="button" class="perfil-boton" (click)="alternarMenu()"
+            aria-label="Menú de usuario" [attr.aria-expanded]="menuAbierto">
+      <span class="avatar">{{ iniciales(usuario.nombre) }}</span>
+    </button>
+
+    <!-- Fondo invisible: cierra el menú al hacer clic fuera -->
+    <div class="menu-fondo" *ngIf="menuAbierto" (click)="cerrarMenu()"></div>
+
+    <div class="menu-usuario" *ngIf="menuAbierto">
+      <p class="menu-nombre">{{ usuario.nombre }}</p>
+      <p class="menu-correo">{{ usuario.email }}</p>
+      <a [routerLink]="rutaPerfil" (click)="cerrarMenu()">Modificar perfil</a>
+      <button type="button" class="salir" (click)="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+  </div>
+
+</nav>

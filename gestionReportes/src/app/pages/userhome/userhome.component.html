@@ -1,0 +1,49 @@
+<app-reportes-carousel [items]="diapositivas" [intervalMs]="6000"></app-reportes-carousel>
+
+<app-como-hago-para [tareas]="tareas"></app-como-hago-para>
+
+<div class="contenedor aviso-fila">
+  <div class="aviso">
+    <b>Aviso</b>
+    <span>El lunes 12 de octubre las oficinas de atención presencial permanecerán cerradas por feriado.
+    Los reclamos en línea se reciben con normalidad.</span>
+  </div>
+</div>
+
+<section class="seccion" *ngIf="frecuentes.length > 0">
+  <div class="contenedor">
+    <h2 class="titulo-seccion">Reportes más comunes</h2>
+
+    <p class="intro">Esto es lo que más reportan los vecinos en los últimos 30 días. Pulsa <b>Reportar</b>
+      y el formulario se abre con la categoría ya elegida. ¿Es otro problema?
+      <a [routerLink]="rutaCrear">Crea un reclamo</a>.</p>
+
+    <div class="cartas-wrap">
+      <button type="button" class="flecha prev" (click)="desplazar(-1)"
+              aria-label="Ver reportes anteriores">‹</button>
+
+      <div class="cartas" #pista>
+        <article class="carta" *ngFor="let reporte of frecuentes; let i = index">
+          <div class="cuerpo">
+            <div class="chips">
+              <span class="chip-cat">{{ reporte.categoria }}</span>
+              <span class="chip-top" *ngIf="i === 0">★ Más reportado</span>
+            </div>
+            <h3>{{ reporte.subcategoria }}</h3>
+            <p class="meta">{{ reporte.cantidad }} reportes · últimos 30 días</p>
+            <div class="pie">
+              <b class="puesto">N.º {{ i + 1 }}</b>
+              <a class="btn-reportar" [routerLink]="rutaCrear"
+                 [queryParams]="{ categoria: reporte.categoria, subcategoria: reporte.subcategoria }">Reportar</a>
+            </div>
+            <button type="button" class="ver-carrusel" *ngIf="indiceDiapositiva(reporte) >= 0"
+                    (click)="verEnCarrusel(reporte)">Ver la categoría en el carrusel</button>
+          </div>
+        </article>
+      </div>
+
+      <button type="button" class="flecha next" (click)="desplazar(1)"
+              aria-label="Ver más reportes">›</button>
+    </div>
+  </div>
+</section>

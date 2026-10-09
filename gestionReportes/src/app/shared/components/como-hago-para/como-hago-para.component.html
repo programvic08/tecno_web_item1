@@ -1,0 +1,10 @@
+<div class="contenedor tareas">
+  <div class="tareas-card">
+    <h2>{{ titulo }}</h2>
+    <nav class="lista" [attr.aria-label]="titulo">
+      <a *ngFor="let tarea of tareas" [routerLink]="tarea.ruta" [queryParams]="tarea.queryParams">
+        {{ tarea.etiqueta }}
+      </a>
+    </nav>
+  </div>
+</div>

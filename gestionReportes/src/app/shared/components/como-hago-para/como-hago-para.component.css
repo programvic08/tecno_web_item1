@@ -1,0 +1,28 @@
+/* Cabalga sobre el carrusel (guía, sección 5) */
+.tareas { position: relative; z-index: 2; margin-top: -50px; }
+
+.tareas-card {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  padding: 20px 26px 22px;
+}
+
+.tareas-card h2 { font-size: 21px; color: var(--navy); margin: 0 0 14px; }
+
+.lista { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+
+.lista a {
+  display: block;
+  padding: 4px 16px;
+  border-left: 4px solid var(--cian);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--navy);
+}
+
+.lista a:hover { text-decoration: underline; }
+
+@media (max-width: 900px) { .lista { grid-template-columns: 1fr 1fr; row-gap: 10px; } }
+@media (max-width: 576px) { .lista { grid-template-columns: 1fr; } }

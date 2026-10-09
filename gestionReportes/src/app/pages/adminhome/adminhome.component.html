@@ -1,0 +1,40 @@
+<app-reportes-carousel [items]="diapositivas" [intervalMs]="6000"></app-reportes-carousel>
+
+<app-como-hago-para titulo="¿Cómo hago para…?" [tareas]="tareas"></app-como-hago-para>
+
+<section class="seccion">
+  <div class="contenedor">
+    <h2 class="titulo-seccion">Módulos de gestión</h2>
+
+    <div class="grilla grilla--3">
+
+      <article class="tarjeta modulo">
+        <div class="tarjeta__cuerpo cuerpo">
+          <span class="material-symbols-outlined icono">inbox</span>
+          <h3>Bandeja de reclamos</h3>
+          <p>Revise, filtre y asigne los reclamos ingresados recientemente por los ciudadanos.</p>
+          <a class="boton" [routerLink]="rutas.bandeja">Ver bandeja</a>
+        </div>
+      </article>
+
+      <article class="tarjeta modulo">
+        <div class="tarjeta__cuerpo cuerpo">
+          <span class="material-symbols-outlined icono">edit_note</span>
+          <h3>Modificar reclamos</h3>
+          <p>Actualice estados, cambie prioridades, añada observaciones o reasigne responsables.</p>
+          <a class="boton" [routerLink]="rutas.modificar">Gestionar reclamos</a>
+        </div>
+      </article>
+
+      <article class="tarjeta modulo">
+        <div class="tarjeta__cuerpo cuerpo">
+          <span class="material-symbols-outlined icono">assessment</span>
+          <h3>Reportes</h3>
+          <p>Consulte métricas globales, tiempos de resolución y reclamos por estado y categoría.</p>
+          <a class="boton" [routerLink]="rutas.reportes">Ver reportes</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>

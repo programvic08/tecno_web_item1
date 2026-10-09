@@ -1,0 +1,31 @@
+<section class="carrusel" role="region" aria-roledescription="carrusel"
+         aria-label="Reportes más comunes"
+         (mouseenter)="pausar()" (mouseleave)="reanudar()"
+         (focusin)="pausar()" (focusout)="reanudar()">
+
+  <div class="pista" [style.transform]="'translateX(-' + indiceActual * 100 + '%)'">
+    <article class="lamina" *ngFor="let item of items; let i = index"
+             [ngClass]="'fondo-' + item.tema" [attr.aria-hidden]="i !== indiceActual">
+      <div class="caja">
+        <span class="chip" [class.chip--top]="item.destacada">{{ item.etiqueta }}</span>
+        <h2>{{ item.titulo }}</h2>
+        <p>{{ item.resumen }}</p>
+        <span class="detalle">{{ item.detalle }}</span><br>
+        <a class="mas" [routerLink]="item.ruta" [queryParams]="item.queryParams"
+           [attr.tabindex]="i === indiceActual ? null : -1">{{ item.enlaceEtiqueta }} →</a>
+      </div>
+    </article>
+  </div>
+
+  <ng-container *ngIf="items.length > 1">
+    <button class="flecha prev" type="button" (click)="anterior()" aria-label="Anterior">‹</button>
+    <button class="flecha next" type="button" (click)="siguiente()" aria-label="Siguiente">›</button>
+
+    <div class="puntos">
+      <button *ngFor="let item of items; let i = index" type="button" class="punto"
+              [class.activo]="i === indiceActual" (click)="seleccionar(i)"
+              [attr.aria-label]="'Ir a la lámina ' + (i + 1)"></button>
+    </div>
+  </ng-container>
+
+</section>

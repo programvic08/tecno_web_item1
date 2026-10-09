@@ -1,0 +1,6 @@
+.modulo { display: flex; }
+.cuerpo { display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+.icono { font-size: 36px; color: var(--navy); margin-bottom: 12px; }
+.modulo h3 { font-size: 18px; margin: 0 0 8px; }
+.modulo p { color: var(--meta); font-size: 15px; line-height: 1.45; margin: 0 0 18px; }
+.modulo .boton { margin-top: auto; }
