@@ -12,6 +12,8 @@ export interface Reclamo {
   ubicacion: string; // Referencia o dirección
   sectorZona?: string;
   evidenciaNombre?: string;
+  evidenciaTipo?: string;     // 'application/pdf' | 'image/jpeg' | 'image/png' | 'image/webp'
+  evidenciaDataUrl?: string;  // contenido del archivo en base64 (data URL)
   fecha: string;
   prioridad: PrioridadReclamo;
   estado: EstadoReclamo;
