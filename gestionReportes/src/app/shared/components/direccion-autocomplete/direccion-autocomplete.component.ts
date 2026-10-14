@@ -1,16 +1,11 @@
-import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, forwardRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { DireccionSugerencia, GeocodingService } from '../../../core/services/geocoding.service';
 
-export interface CoordenadasDireccion {
-  lat: string;
-  lon: string;
-}
-
 // Autocompletado reutilizable de direcciones de New York.
-// Se usa con ngModel; emite las coordenadas cuando el usuario elige una sugerencia.
+// Se usa con ngModel; al elegir una sugerencia pone su texto en el input.
 @Component({
   selector: 'app-direccion-autocomplete',
   templateUrl: './direccion-autocomplete.component.html',
@@ -33,7 +28,6 @@ export class DireccionAutocompleteComponent implements OnInit, OnDestroy, Contro
   @Input() placeholder = 'Escribe una calle y número...';
   @Input() required = false;
   @Input() disabled = false;
-  @Output() coordenadasSeleccionadas = new EventEmitter<CoordenadasDireccion | null>();
 
   valor = '';
   sugerencias: DireccionSugerencia[] = [];
@@ -102,8 +96,6 @@ export class DireccionAutocompleteComponent implements OnInit, OnDestroy, Contro
     const input = event.target as HTMLInputElement;
     this.valor = input.value;
     this.onChange(this.valor);
-    // El texto manual invalida las coordenadas anteriores.
-    this.coordenadasSeleccionadas.emit(null);
     this.buscador.next(this.valor);
   }
 
@@ -147,7 +139,6 @@ export class DireccionAutocompleteComponent implements OnInit, OnDestroy, Contro
     this.valor = item.textoCorto;
     this.onChange(this.valor);
     this.onTouched();
-    this.coordenadasSeleccionadas.emit({ lat: item.lat, lon: item.lon });
     this.sugerencias = [];
     this.listaAbierta = false;
     this.indiceActivo = -1;

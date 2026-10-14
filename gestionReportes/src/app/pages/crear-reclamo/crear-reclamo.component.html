@@ -69,7 +69,6 @@
           inputId="direccion"
           name="direccion"
           [(ngModel)]="direccion"
-          (coordenadasSeleccionadas)="onCoordenadas($event)"
           [required]="true"></app-direccion-autocomplete>
       </div>
 
@@ -160,7 +159,6 @@
           inputId="direccionPlantilla"
           [(ngModel)]="direccion"
           [ngModelOptions]="{ standalone: true }"
-          (coordenadasSeleccionadas)="onCoordenadas($event)"
           [required]="true"
           [disabled]="enviado"></app-direccion-autocomplete>
       </div>
