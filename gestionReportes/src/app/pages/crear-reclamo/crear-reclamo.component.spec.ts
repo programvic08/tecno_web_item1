@@ -1,8 +1,11 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { of } from 'rxjs';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { CrearReclamoComponent } from './crear-reclamo.component';
 import { ReclamoService } from '../../core/services/reclamo.service';
+import { GeocodingService } from '../../core/services/geocoding.service';
+import { DireccionAutocompleteComponent } from '../../shared/components/direccion-autocomplete/direccion-autocomplete.component';
 import { PLANTILLAS_RECLAMO } from '../../core/config/plantillas-reclamo.config';
 import { RUTAS } from '../../core/config/navegacion.config';
 
@@ -16,11 +19,14 @@ describe('CrearReclamoComponent', () => {
   beforeEach(async () => {
     route = { snapshot: { queryParamMap: convertToParamMap({}) } };
     router = jasmine.createSpyObj('Router', ['navigate']);
+    const geocodingMock = jasmine.createSpyObj('GeocodingService', ['buscar']);
+    geocodingMock.buscar.and.returnValue(of([]));
     await TestBed.configureTestingModule({
-      declarations: [CrearReclamoComponent],
+      declarations: [CrearReclamoComponent, DireccionAutocompleteComponent],
       imports: [FormsModule],
       providers: [
         ReclamoService,
+        { provide: GeocodingService, useValue: geocodingMock },
         { provide: ActivatedRoute, useValue: route },
         { provide: Router, useValue: router }
       ]

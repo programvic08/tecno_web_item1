@@ -1,0 +1,34 @@
+<div class="direccion-autocomplete">
+  <input
+    [id]="inputId"
+    type="text"
+    [value]="valor"
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    (keydown)="onKeydown($event)"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    autocomplete="off"
+    role="combobox"
+    [attr.aria-expanded]="listaAbierta"
+    aria-autocomplete="list"
+    [attr.aria-controls]="inputId + '-lista'" />
+
+  <small *ngIf="cargando" class="texto-cargando">Buscando direcciones...</small>
+
+  <ul
+    *ngIf="listaAbierta && sugerencias.length > 0"
+    [id]="inputId + '-lista'"
+    class="sugerencias-lista"
+    role="listbox">
+    <li
+      *ngFor="let item of sugerencias; let i = index"
+      role="option"
+      [class.activa]="i === indiceActivo"
+      [attr.aria-selected]="i === indiceActivo"
+      (mousedown)="$event.preventDefault(); seleccionar(item)">
+       {{ item.textoCorto }}
+    </li>
+  </ul>
+</div>

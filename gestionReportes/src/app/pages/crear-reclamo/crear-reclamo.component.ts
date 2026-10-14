@@ -5,6 +5,7 @@ import { CategoriaReclamo } from '../../models/reclamo.model';
 import { PrioridadReclamo } from '../../models/reclamo.enums';
 import { RUTAS } from '../../core/config/navegacion.config';
 import { obtenerPlantilla } from '../../core/config/plantillas-reclamo.config';
+import { CoordenadasDireccion } from '../../shared/components/direccion-autocomplete/direccion-autocomplete.component';
 
 @Component({
   selector: 'app-crear-reclamo',
@@ -23,6 +24,7 @@ export class CrearReclamoComponent implements OnInit {
   esRecurrente: boolean | null = null;
 
   direccion: string = '';
+  coordenadas: CoordenadasDireccion | null = null;
   fechaHoraObservada: string = '';
   ubicacionReferencia: string = '';
   sectorZona: string = '';
@@ -74,6 +76,10 @@ export class CrearReclamoComponent implements OnInit {
     const catEncontrada = this.categorias.find(c => c.nombre === this.categoria);
     this.subcategoriasDisponibles = catEncontrada ? catEncontrada.subcategorias : [];
     this.subcategoria = '';
+  }
+
+  onCoordenadas(coordenadas: CoordenadasDireccion | null): void {
+    this.coordenadas = coordenadas;
   }
 
   onArchivoSeleccionado(event: Event): void {
