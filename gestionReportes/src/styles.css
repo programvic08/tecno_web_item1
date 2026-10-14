@@ -1470,3 +1470,45 @@ app-subnav .pestanas a:hover { color: var(--primary-blue); background: var(--sur
 
 /* Pestaña activa: texto navy y filete inferior cian de 3 px */
 app-subnav .pestanas a.activa { color: var(--primary-blue); border-bottom-color: var(--focus-color); }
+
+/* Componente compartido: direccion-autocomplete */
+/* Autocompletado de calles de New York, reutilizado en crear-reclamo (paso 2 y plantilla). */
+app-direccion-autocomplete { display: block; }
+app-direccion-autocomplete .direccion-autocomplete { position: relative; }
+app-direccion-autocomplete .direccion-autocomplete input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+app-direccion-autocomplete .texto-cargando {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-gray);
+}
+app-direccion-autocomplete .sugerencias-lista {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 22px rgba(17, 47, 78, 0.18);
+}
+app-direccion-autocomplete .sugerencias-lista li {
+  padding: 10px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+app-direccion-autocomplete .sugerencias-lista li:hover,
+app-direccion-autocomplete .sugerencias-lista li.activa {
+  background: var(--surface-info-light);
+}

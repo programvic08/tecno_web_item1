@@ -65,7 +65,11 @@
     <form #donde="ngForm" (ngSubmit)="continuar(donde.valid === true)">
       <div class="campo">
         <label for="direccion">Dirección</label>
-        <input id="direccion" type="text" name="direccion" [(ngModel)]="direccion" required />
+        <app-direccion-autocomplete
+          inputId="direccion"
+          name="direccion"
+          [(ngModel)]="direccion"
+          [required]="true"></app-direccion-autocomplete>
       </div>
 
       <div class="campo">
@@ -151,7 +155,12 @@
     <ng-template #datosPlantilla>
       <div class="campo">
         <label for="direccionPlantilla">Dirección</label>
-        <input id="direccionPlantilla" type="text" [(ngModel)]="direccion" required [disabled]="enviado" />
+        <app-direccion-autocomplete
+          inputId="direccionPlantilla"
+          [(ngModel)]="direccion"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true"
+          [disabled]="enviado"></app-direccion-autocomplete>
       </div>
       <div class="campo">
         <label for="fechaPlantilla">Fecha y hora observada</label>

@@ -5,6 +5,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+import { HttpClientModule } from '@angular/common/http';
+
 // Páginas
 import { LoginComponent } from './pages/login/login.component';
 import { UserhomeComponent } from './pages/userhome/userhome.component';
@@ -24,6 +26,7 @@ import { ReportesCarouselComponent } from './shared/components/reportes-carousel
 import { ComoHagoParaComponent } from './shared/components/como-hago-para/como-hago-para.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { StatusBadgeComponent } from './shared/components/status-badge/status-badge.component';
+import { DireccionAutocompleteComponent } from './shared/components/direccion-autocomplete/direccion-autocomplete.component';
 import { FaqComponent } from './shared/components/faq/faq.component';
 
 
@@ -45,6 +48,7 @@ import { FaqComponent } from './shared/components/faq/faq.component';
     ComoHagoParaComponent,
     FooterComponent,
     StatusBadgeComponent,
+    DireccionAutocompleteComponent,
     FaqComponent,
     EstadoReclamoComponent,
     ModificarReclamoComponent,
@@ -54,7 +58,8 @@ import { FaqComponent } from './shared/components/faq/faq.component';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
