@@ -1,3 +1,6 @@
+import { errorFechaNoFutura, fechaActualLocal } from '../../shared/utils/fechas';
+import { SECTORES_NY } from '../../core/config/sectores-ny.config';
+import { DireccionSugerencia } from '../../core/services/geocoding.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
@@ -26,7 +29,37 @@ export class CrearReclamoComponent implements OnInit {
   fechaHoraObservada: string = '';
   ubicacionReferencia: string = '';
   sectorZona: string = '';
+  readonly boroughs = SECTORES_NY;
+
+  completarSectorDesdeDireccion(direccion: DireccionSugerencia): void {
+    if (direccion.sectorZona && this.boroughs.includes(direccion.sectorZona)) {
+      this.sectorZona = direccion.sectorZona;
+    }
+  }
+
+  get boroughValido(): boolean {
+    return this.boroughs.includes(this.sectorZona);
+  }
+
+  // Fecha observada: solo se permiten fechas pasadas o el momento actual
+  fechaMaxima: string = '';
+  errorFecha: string = '';
+
+  // Evidencia adjunta (solo PDF o imágenes)
+  readonly tiposPermitidos: string[] = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/webp'
+  ];
+  readonly tamanoMaximoMB = 5;
+
   evidenciaNombre: string = '';
+  evidenciaTipo: string = '';
+  evidenciaDataUrl: string = '';
+  errorArchivo: string = '';
+  leyendoEvidencia = false;
+  private lectorEvidencia: FileReader | null = null;
 
   datosCiudadanoTexto: string = 'adeyemi yamal — yamal@adeyemi.com';
   enviado: boolean = false;
@@ -39,7 +72,19 @@ export class CrearReclamoComponent implements OnInit {
 
   ngOnInit(): void {
     this.categorias = this.reclamoService.getCategorias();
+    this.actualizarFechaMaxima();
+    this.fechaHoraObservada = this.fechaMaxima;
     this.precargarDesdeEnlace();
+  }
+
+  private actualizarFechaMaxima(): void {
+    this.fechaMaxima = fechaActualLocal();
+  }
+
+  validarFecha(): boolean {
+    this.actualizarFechaMaxima();
+    this.errorFecha = errorFechaNoFutura(this.fechaHoraObservada);
+    return !this.errorFecha;
   }
 
   // Las plantillas abren Revisión; los enlaces anteriores conservan la precarga normal.
@@ -77,17 +122,71 @@ export class CrearReclamoComponent implements OnInit {
   }
 
   onArchivoSeleccionado(event: Event): void {
-    const element = event.currentTarget as HTMLInputElement;
-    const fileList: FileList | null = element.files;
-    if (fileList && fileList.length > 0) {
-      this.evidenciaNombre = fileList[0].name;
+    const input = (event.target ?? event.currentTarget) as HTMLInputElement;
+    const archivo = input.files?.[0];
+    this.errorArchivo = '';
+    this.limpiarEvidencia();
+
+    if (!archivo) {
+      this.limpiarEvidencia();
+      return;
     }
+
+    if (!this.tiposPermitidos.includes(archivo.type)) {
+      this.errorArchivo = 'Formato no permitido. Solo se aceptan PDF o imágenes (JPG, PNG, WEBP).';
+      this.limpiarEvidencia();
+      input.value = '';
+      return;
+    }
+
+    if (archivo.size > this.tamanoMaximoMB * 1024 * 1024) {
+      this.errorArchivo = `El archivo supera el máximo de ${this.tamanoMaximoMB} MB.`;
+      this.limpiarEvidencia();
+      input.value = '';
+      return;
+    }
+
+    const lector = new FileReader();
+    this.lectorEvidencia = lector;
+    this.leyendoEvidencia = true;
+    lector.onload = () => {
+      if (this.lectorEvidencia !== lector) return;
+      this.leyendoEvidencia = false;
+      this.lectorEvidencia = null;
+      this.evidenciaNombre = archivo.name;
+      this.evidenciaTipo = archivo.type;
+      this.evidenciaDataUrl = lector.result as string;
+    };
+    lector.onerror = () => {
+      if (this.lectorEvidencia !== lector) return;
+      this.errorArchivo = 'No se pudo leer el archivo. Intenta nuevamente.';
+      this.limpiarEvidencia();
+      input.value = '';
+    };
+    lector.readAsDataURL(archivo);
+  }
+
+  quitarEvidencia(input: HTMLInputElement): void {
+    input.value = '';
+    this.errorArchivo = '';
+    this.limpiarEvidencia();
+  }
+
+  private limpiarEvidencia(): void {
+    if (this.lectorEvidencia) {
+      this.lectorEvidencia.abort();
+      this.lectorEvidencia = null;
+    }
+    this.leyendoEvidencia = false;
+    this.evidenciaNombre = '';
+    this.evidenciaTipo = '';
+    this.evidenciaDataUrl = '';
   }
 
   continuar(esValido: boolean): void {
-    if (esValido) {
-      this.paso++;
-    }
+    if (!esValido) return;
+    if (this.paso === 2 && (!this.validarFecha() || !this.boroughValido)) return;
+    this.paso++;
   }
 
   volver(): void {
@@ -97,12 +196,12 @@ export class CrearReclamoComponent implements OnInit {
   }
 
   get formularioValido(): boolean {
-    return !!(this.categoria && this.descripcion &&
+    return !!(this.categoria && this.subcategoria && this.descripcion && this.boroughValido &&
       (this.esPlantilla ? this.direccion.trim() : this.direccion));
   }
 
   enviarReclamo(): void {
-    if (!this.formularioValido) return;
+    if (!this.formularioValido || !this.validarFecha() || this.leyendoEvidencia || this.enviado) return;
 
     this.reclamoService.crearReclamo({
       categoria: this.categoria,
@@ -114,7 +213,9 @@ export class CrearReclamoComponent implements OnInit {
       ubicacion: this.direccion + (this.ubicacionReferencia ? ` (${this.ubicacionReferencia})` : ''),
       sectorZona: this.sectorZona,
       evidenciaNombre: this.evidenciaNombre,
-      prioridad: PrioridadReclamo.MEDIA // <-- Agregas esta línea aquí
+      evidenciaTipo: this.evidenciaTipo,
+      evidenciaDataUrl: this.evidenciaDataUrl,
+      prioridad: PrioridadReclamo.MEDIA
     }).subscribe(() => {
       this.enviado = true;
       setTimeout(() => {

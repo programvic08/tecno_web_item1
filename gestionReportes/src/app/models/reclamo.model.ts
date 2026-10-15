@@ -12,7 +12,10 @@ export interface Reclamo {
   ubicacion: string; // Referencia o dirección
   sectorZona?: string;
   evidenciaNombre?: string;
+  evidenciaTipo?: string;     // 'application/pdf' | 'image/jpeg' | 'image/png' | 'image/webp'
+  evidenciaDataUrl?: string;  // contenido del archivo en base64 (data URL)
   fecha: string;
+  fechaResolucion?: string;
   prioridad: PrioridadReclamo;
   estado: EstadoReclamo;
   agenteAsignado: string;
@@ -33,7 +36,7 @@ export interface FiltroBandeja {
 
 export interface ReporteEstadistico {
   totalReclamos: number;
-  tiempoPromedioResolucionDias: number;
+  tiempoPromedioResolucionDias: number | null;
   reclamosPorEstado: { estado: string; cantidad: number }[];
   reclamosPorCategoria: { categoria: string; cantidad: number }[];
 }

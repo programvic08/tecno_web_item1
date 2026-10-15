@@ -1,3 +1,6 @@
+import { FechaNoFuturaDirective } from './shared/directives/fecha-no-futura.directive';
+import { HttpClientModule } from '@angular/common/http';
+import { DireccionAutocompleteComponent } from './shared/components/direccion-autocomplete/direccion-autocomplete.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -30,6 +33,7 @@ import { FaqComponent } from './shared/components/faq/faq.component';
 @NgModule({
   declarations: [
     AppComponent,
+    FechaNoFuturaDirective,
     LoginComponent,
     UserhomeComponent,
     AdminhomeComponent,
@@ -45,6 +49,7 @@ import { FaqComponent } from './shared/components/faq/faq.component';
     ComoHagoParaComponent,
     FooterComponent,
     StatusBadgeComponent,
+    DireccionAutocompleteComponent,
     FaqComponent,
     EstadoReclamoComponent,
     ModificarReclamoComponent,
@@ -52,6 +57,7 @@ import { FaqComponent } from './shared/components/faq/faq.component';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule
