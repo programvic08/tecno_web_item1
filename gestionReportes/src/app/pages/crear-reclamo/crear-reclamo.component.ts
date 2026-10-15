@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { CategoriaReclamo } from '../../models/reclamo.model';
 import { PrioridadReclamo } from '../../models/reclamo.enums';
+import { RUTAS } from '../../core/config/navegacion.config';
+import { obtenerPlantilla } from '../../core/config/plantillas-reclamo.config';
 
 @Component({
   selector: 'app-crear-reclamo',
@@ -11,6 +13,7 @@ import { PrioridadReclamo } from '../../models/reclamo.enums';
 })
 export class CrearReclamoComponent implements OnInit {
   paso: number = 1;
+  esPlantilla = false;
   categorias: CategoriaReclamo[] = [];
   subcategoriasDisponibles: string[] = [];
 
@@ -41,18 +44,23 @@ export class CrearReclamoComponent implements OnInit {
   evidenciaTipo: string = '';
   evidenciaDataUrl: string = '';
   errorArchivo: string = '';
+  leyendoEvidencia = false;
+  private lectorEvidencia: FileReader | null = null;
 
   datosCiudadanoTexto: string = 'adeyemi yamal — yamal@adeyemi.com';
   enviado: boolean = false;
 
   constructor(
     private reclamoService: ReclamoService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.categorias = this.reclamoService.getCategorias();
     this.actualizarFechaMaxima();
+    this.fechaHoraObservada = this.fechaMaxima;
+    this.precargarDesdeEnlace();
   }
 
   // Devuelve la fecha y hora actual en hora local con formato 'YYYY-MM-DDTHH:mm'
@@ -84,6 +92,34 @@ export class CrearReclamoComponent implements OnInit {
     return true;
   }
 
+  // Las plantillas abren Revisión; los enlaces anteriores conservan la precarga normal.
+  private precargarDesdeEnlace(): void {
+    const parametros = this.route.snapshot.queryParamMap;
+    const plantillaId = parametros.get('plantilla');
+    const plantilla = plantillaId ? obtenerPlantilla(plantillaId) : undefined;
+    if (plantilla) {
+      this.categoria = plantilla.categoria;
+      this.cambiarCategoria();
+      this.subcategoria = plantilla.subcategoria;
+      this.descripcion = plantilla.descripcion;
+      this.esRecurrente = plantilla.esRecurrente;
+      this.esPlantilla = true;
+      this.paso = 3;
+      return;
+    }
+    const categoria = parametros.get('categoria');
+    if (!categoria || !this.categorias.some(c => c.nombre === categoria)) {
+      return;
+    }
+    this.categoria = categoria;
+    this.cambiarCategoria();
+
+    const subcategoria = parametros.get('subcategoria');
+    if (subcategoria && this.subcategoriasDisponibles.includes(subcategoria)) {
+      this.subcategoria = subcategoria;
+    }
+  }
+
   cambiarCategoria(): void {
     const catEncontrada = this.categorias.find(c => c.nombre === this.categoria);
     this.subcategoriasDisponibles = catEncontrada ? catEncontrada.subcategorias : [];
@@ -91,9 +127,10 @@ export class CrearReclamoComponent implements OnInit {
   }
 
   onArchivoSeleccionado(event: Event): void {
-    const input = event.target as HTMLInputElement;
+    const input = (event.target ?? event.currentTarget) as HTMLInputElement;
     const archivo = input.files?.[0];
     this.errorArchivo = '';
+    this.limpiarEvidencia();
 
     if (!archivo) {
       this.limpiarEvidencia();
@@ -115,12 +152,18 @@ export class CrearReclamoComponent implements OnInit {
     }
 
     const lector = new FileReader();
+    this.lectorEvidencia = lector;
+    this.leyendoEvidencia = true;
     lector.onload = () => {
+      if (this.lectorEvidencia !== lector) return;
+      this.leyendoEvidencia = false;
+      this.lectorEvidencia = null;
       this.evidenciaNombre = archivo.name;
       this.evidenciaTipo = archivo.type;
       this.evidenciaDataUrl = lector.result as string;
     };
     lector.onerror = () => {
+      if (this.lectorEvidencia !== lector) return;
       this.errorArchivo = 'No se pudo leer el archivo. Intenta nuevamente.';
       this.limpiarEvidencia();
       input.value = '';
@@ -135,6 +178,11 @@ export class CrearReclamoComponent implements OnInit {
   }
 
   private limpiarEvidencia(): void {
+    if (this.lectorEvidencia) {
+      this.lectorEvidencia.abort();
+      this.lectorEvidencia = null;
+    }
+    this.leyendoEvidencia = false;
     this.evidenciaNombre = '';
     this.evidenciaTipo = '';
     this.evidenciaDataUrl = '';
@@ -147,17 +195,18 @@ export class CrearReclamoComponent implements OnInit {
   }
 
   volver(): void {
-    if (this.paso > 1) {
+    if (!this.esPlantilla && this.paso > 1) {
       this.paso--;
     }
   }
 
   get formularioValido(): boolean {
-    return !!(this.categoria && this.descripcion && this.direccion);
+    return !!(this.categoria && this.subcategoria && this.descripcion &&
+      (this.esPlantilla ? this.direccion.trim() : this.direccion));
   }
 
   enviarReclamo(): void {
-    if (!this.formularioValido) return;
+    if (!this.formularioValido || !this.validarFecha() || this.leyendoEvidencia || this.enviado) return;
 
     this.reclamoService.crearReclamo({
       categoria: this.categoria,
@@ -175,7 +224,7 @@ export class CrearReclamoComponent implements OnInit {
     }).subscribe(() => {
       this.enviado = true;
       setTimeout(() => {
-        this.router.navigate(['/historial']);
+        this.router.navigate([RUTAS.historial]);
       }, 2000);
     });
   }

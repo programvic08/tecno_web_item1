@@ -1,5 +1,3 @@
-<app-header subtitulo="FORMULARIO DE ATENCIÓN CIUDADANA"></app-header>
-
 <div class="reclamo-container">
   <h1>Crear Reclamo</h1>
 
@@ -12,16 +10,15 @@
   <!-- Paso 1: El qué -->
   <section *ngIf="paso === 1">
     <h2>1. El qué</h2>
-    <p><span style="color: #c62828;" aria-hidden="true">*</span> Campo obligatorio</p>
+    <p><span class="obligatorio" aria-hidden="true">*</span> Campo obligatorio</p>
 
     <form #elQue="ngForm" (ngSubmit)="continuar(elQue.valid === true)">
       <div class="campo">
-        <label for="categoria">Categoría <span style="color: #c62828;" aria-hidden="true">*</span></label>
+        <label for="categoria">Categoría</label>
         <select
           id="categoria"
           name="categoria"
-          #categoriaCtrl="ngModel"
-          [style.border-color]="categoriaCtrl.invalid ? '#c62828' : null"
+
           [(ngModel)]="categoria"
           (ngModelChange)="cambiarCategoria()"
           required>
@@ -32,20 +29,24 @@
 
       <div class="campo" *ngIf="categoria">
         <label for="subcategoria">Subcategoría</label>
-        <select id="subcategoria" name="subcategoria" [(ngModel)]="subcategoria">
+        <select
+          id="subcategoria"
+          name="subcategoria"
+
+          [(ngModel)]="subcategoria"
+          required>
           <option value="" disabled>Selecciona una subcategoría</option>
           <option *ngFor="let sub of subcategoriasDisponibles" [value]="sub">{{ sub }}</option>
         </select>
       </div>
 
       <div class="campo">
-        <label for="descripcion">Descripción <span style="color: #c62828;" aria-hidden="true">*</span></label>
+        <label for="descripcion">Descripción</label>
         <textarea
           id="descripcion"
           name="descripcion"
           rows="3"
-          #descripcionCtrl="ngModel"
-          [style.border-color]="descripcionCtrl.invalid ? '#c62828' : null"
+
           [(ngModel)]="descripcion"
           required></textarea>
       </div>
@@ -73,17 +74,16 @@
   <!-- Paso 2: Dónde -->
   <section *ngIf="paso === 2">
     <h2>2. Dónde</h2>
-    <p><span style="color: #c62828;" aria-hidden="true">*</span> Campo obligatorio</p>
+    <p><span class="obligatorio" aria-hidden="true">*</span> Campo obligatorio</p>
 
     <form #donde="ngForm" (ngSubmit)="continuar(donde.valid === true)">
       <div class="campo">
-        <label for="direccion">Dirección <span style="color: #c62828;" aria-hidden="true">*</span></label>
+        <label for="direccion">Dirección</label>
         <input
           id="direccion"
           type="text"
           name="direccion"
-          #direccionCtrl="ngModel"
-          [style.border-color]="direccionCtrl.invalid ? '#c62828' : null"
+
           [(ngModel)]="direccion"
           required />
       </div>
@@ -98,7 +98,7 @@
           [(ngModel)]="fechaHoraObservada"
           (change)="validarFecha()" />
         <small>Solo se permiten fechas pasadas o la fecha y hora actual.</small>
-        <p *ngIf="errorFecha" class="error" style="color: #c62828; font-size: 0.85rem;">{{ errorFecha }}</p>
+        <p *ngIf="errorFecha" class="error" role="alert">{{ errorFecha }}</p>
       </div>
 
       <div class="campo">
@@ -121,7 +121,7 @@
           (change)="onArchivoSeleccionado($event)" />
         <small>Formatos permitidos: PDF, JPG, PNG o WEBP (máx. {{ tamanoMaximoMB }} MB)</small>
 
-        <p *ngIf="errorArchivo" class="error" style="color: #c62828; font-size: 0.85rem;">{{ errorArchivo }}</p>
+        <p *ngIf="errorArchivo" class="error" role="alert">{{ errorArchivo }}</p>
 
         <div *ngIf="evidenciaNombre">
           <span>{{ evidenciaNombre }}</span>
@@ -130,7 +130,7 @@
             *ngIf="evidenciaTipo.startsWith('image/')"
             [src]="evidenciaDataUrl"
             alt="Vista previa de la evidencia"
-            style="max-width: 200px; display: block; margin-top: 8px;" />
+            class="evidencia-preview" />
         </div>
       </div>
 
@@ -144,6 +144,7 @@
   <!-- Paso 3: Revisión -->
   <section *ngIf="paso === 3">
     <h2>3. Revisión</h2>
+    <p *ngIf="esPlantilla">Reporte predefinido: completa la ubicación, la fecha y la evidencia antes de enviar.</p>
 
     <div class="campo">
       <label>Categoría</label>
@@ -165,6 +166,7 @@
       <p>{{ esRecurrente === true ? 'Sí' : (esRecurrente === false ? 'No' : 'No indicado') }}</p>
     </div>
 
+    <ng-container *ngIf="!esPlantilla; else datosPlantilla">
     <div class="campo">
       <label>Dirección</label>
       <p>{{ direccion }}</p>
@@ -192,8 +194,51 @@
         *ngIf="evidenciaTipo.startsWith('image/')"
         [src]="evidenciaDataUrl"
         alt="Evidencia"
-        style="max-width: 200px;" />
+        class="evidencia-preview" />
     </div>
+
+    </ng-container>
+    <ng-template #datosPlantilla>
+      <div class="campo">
+        <label for="direccionPlantilla">Dirección</label>
+        <input id="direccionPlantilla" type="text" [(ngModel)]="direccion" required [disabled]="enviado" />
+      </div>
+      <div class="campo">
+        <label for="fechaPlantilla">Fecha y hora observada</label>
+        <input id="fechaPlantilla" type="datetime-local" [(ngModel)]="fechaHoraObservada" [max]="fechaMaxima" (ngModelChange)="validarFecha()" [disabled]="enviado" />
+      </div>
+      <p *ngIf="errorFecha" class="error" role="alert">{{ errorFecha }}</p>
+      <div class="campo">
+        <label for="referenciaPlantilla">Ubicación o referencia</label>
+        <input id="referenciaPlantilla" type="text" [(ngModel)]="ubicacionReferencia" placeholder="Sin indicar" [disabled]="enviado" />
+      </div>
+      <div class="campo">
+        <label for="sectorPlantilla">Sector / zona</label>
+        <input id="sectorPlantilla" type="text" [(ngModel)]="sectorZona" placeholder="Sin indicar" [disabled]="enviado" />
+      </div>
+      <div class="campo">
+        <label for="evidenciaPlantilla">Evidencia adjunta</label>
+        <input
+          #archivoPlantilla
+          id="evidenciaPlantilla"
+          type="file" [disabled]="enviado"
+          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+          (change)="onArchivoSeleccionado($event)" />
+        <small>Formatos permitidos: PDF, JPG, PNG o WEBP (máx. {{ tamanoMaximoMB }} MB)</small>
+
+        <p *ngIf="errorArchivo" class="error" role="alert">{{ errorArchivo }}</p>
+
+        <div *ngIf="evidenciaNombre">
+          <span>{{ evidenciaNombre }}</span>
+          <button type="button" [disabled]="enviado" (click)="quitarEvidencia(archivoPlantilla)">Quitar</button>
+          <img
+            *ngIf="evidenciaTipo.startsWith('image/')"
+            [src]="evidenciaDataUrl"
+            alt="Vista previa de la evidencia"
+            class="evidencia-preview" />
+        </div>
+      </div>
+    </ng-template>
 
     <div class="campo">
       <label>Datos del ciudadano</label>
@@ -201,8 +246,8 @@
     </div>
 
     <div class="acciones" *ngIf="!enviado">
-      <button type="button" (click)="volver()">Volver</button>
-      <button type="button" [disabled]="!formularioValido" (click)="enviarReclamo()">Enviar Reclamo</button>
+      <button *ngIf="!esPlantilla" type="button" (click)="volver()">Volver</button>
+      <button type="button" [disabled]="!formularioValido || !!errorFecha || leyendoEvidencia" (click)="enviarReclamo()">Enviar Reclamo</button>
     </div>
 
     <p *ngIf="enviado" class="confirmacion">
@@ -210,5 +255,3 @@
     </p>
   </section>
 </div>
-
-<app-footer></app-footer>
