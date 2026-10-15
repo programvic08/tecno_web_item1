@@ -1,3 +1,6 @@
+import { errorFechaNoFutura, fechaActualLocal } from '../../shared/utils/fechas';
+import { SECTORES_NY } from '../../core/config/sectores-ny.config';
+import { DireccionSugerencia } from '../../core/services/geocoding.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
@@ -26,6 +29,17 @@ export class CrearReclamoComponent implements OnInit {
   fechaHoraObservada: string = '';
   ubicacionReferencia: string = '';
   sectorZona: string = '';
+  readonly boroughs = SECTORES_NY;
+
+  completarSectorDesdeDireccion(direccion: DireccionSugerencia): void {
+    if (direccion.sectorZona && this.boroughs.includes(direccion.sectorZona)) {
+      this.sectorZona = direccion.sectorZona;
+    }
+  }
+
+  get boroughValido(): boolean {
+    return this.boroughs.includes(this.sectorZona);
+  }
 
   // Fecha observada: solo se permiten fechas pasadas o el momento actual
   fechaMaxima: string = '';
@@ -63,33 +77,14 @@ export class CrearReclamoComponent implements OnInit {
     this.precargarDesdeEnlace();
   }
 
-  // Devuelve la fecha y hora actual en hora local con formato 'YYYY-MM-DDTHH:mm'
   private actualizarFechaMaxima(): void {
-    const ahora = new Date();
-    const local = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000);
-    this.fechaMaxima = local.toISOString().slice(0, 16);
+    this.fechaMaxima = fechaActualLocal();
   }
 
   validarFecha(): boolean {
-    this.errorFecha = '';
-    if (!this.fechaHoraObservada) {
-      return true; // el campo es opcional
-    }
-
     this.actualizarFechaMaxima();
-    const fechaIngresada = new Date(this.fechaHoraObservada);
-
-    if (isNaN(fechaIngresada.getTime())) {
-      this.errorFecha = 'La fecha ingresada no es válida.';
-      return false;
-    }
-
-    if (fechaIngresada.getTime() > new Date().getTime()) {
-      this.errorFecha = 'La fecha y hora observada no puede ser posterior al momento actual.';
-      return false;
-    }
-
-    return true;
+    this.errorFecha = errorFechaNoFutura(this.fechaHoraObservada);
+    return !this.errorFecha;
   }
 
   // Las plantillas abren Revisión; los enlaces anteriores conservan la precarga normal.
@@ -190,7 +185,7 @@ export class CrearReclamoComponent implements OnInit {
 
   continuar(esValido: boolean): void {
     if (!esValido) return;
-    if (this.paso === 2 && !this.validarFecha()) return;
+    if (this.paso === 2 && (!this.validarFecha() || !this.boroughValido)) return;
     this.paso++;
   }
 
@@ -201,7 +196,7 @@ export class CrearReclamoComponent implements OnInit {
   }
 
   get formularioValido(): boolean {
-    return !!(this.categoria && this.subcategoria && this.descripcion &&
+    return !!(this.categoria && this.subcategoria && this.descripcion && this.boroughValido &&
       (this.esPlantilla ? this.direccion.trim() : this.direccion));
   }
 

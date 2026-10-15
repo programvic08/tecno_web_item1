@@ -1,3 +1,4 @@
+import { errorFechaNoFutura } from '../../shared/utils/fechas';
 import { Component, OnInit } from '@angular/core';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { ReporteEstadistico } from '../../models/reclamo.model';
@@ -19,7 +20,7 @@ export class ReporteReclamosComponent implements OnInit {
   isLoading: boolean = false;
   reporte: ReporteEstadistico = {
     totalReclamos: 0,
-    tiempoPromedioResolucionDias: 0,
+    tiempoPromedioResolucionDias: null,
     reclamosPorEstado: [],
     reclamosPorCategoria: []
   };
@@ -31,8 +32,14 @@ export class ReporteReclamosComponent implements OnInit {
   }
 
   cargarDatos(): void {
+    if (errorFechaNoFutura(this.filtroFechaDesde, 'date') || errorFechaNoFutura(this.filtroFechaHasta, 'date')) return;
     this.isLoading = true;
-    this.reclamoService.obtenerReporte().subscribe(datos => {
+    this.reclamoService.obtenerReporte({
+      fechaDesde: this.filtroFechaDesde,
+      fechaHasta: this.filtroFechaHasta,
+      categoria: this.filtroCategoria,
+      estado: this.filtroEstado
+    }).subscribe(datos => {
       this.reporte = datos;
       this.isLoading = false;
     });

@@ -71,7 +71,15 @@ export class ReclamoService {
   actualizarReclamo(folio: string, cambios: Partial<Reclamo>): void {
     const listaActualizada = this.reclamosSubject.value.map(r => {
       if (r.folio === folio) {
-        return { ...r, ...cambios };
+        const actualizado = { ...r, ...cambios };
+        if (cambios.estado === EstadoReclamo.RESUELTO) {
+          const yaResuelto = r.estado === EstadoReclamo.RESUELTO || r.estado === EstadoReclamo.CERRADO;
+          actualizado.fechaResolucion = yaResuelto && r.fechaResolucion
+            ? r.fechaResolucion : new Date().toISOString().slice(0, 10);
+        } else if (cambios.estado && cambios.estado !== EstadoReclamo.CERRADO) {
+          actualizado.fechaResolucion = undefined;
+        }
+        return actualizado;
       }
       return r;
     });
@@ -132,27 +140,69 @@ export class ReclamoService {
     );
   }
 
-  obtenerReporte(): Observable<ReporteEstadistico> {
+  obtenerReporte(filtros?: {
+    fechaDesde?: string;
+    fechaHasta?: string;
+    categoria?: string;
+    estado?: string;
+  }): Observable<ReporteEstadistico> {
     return this.reclamos$.pipe(
       map(reclamos => {
+        let reclamosFiltrados = reclamos;
+
+        if (filtros?.fechaDesde) {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha >= filtros.fechaDesde!);
+        }
+        if (filtros?.fechaHasta) {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha <= filtros.fechaHasta!);
+        }
+        if (filtros?.categoria && filtros.categoria !== 'Todas') {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.categoria === filtros.categoria);
+        }
+        if (filtros?.estado && filtros.estado !== 'Todos') {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.estado === filtros.estado);
+        }
+
         const reclamosPorEstado = Object.values(EstadoReclamo).map(est => ({
           estado: est,
-          cantidad: reclamos.filter(r => r.estado === est).length
+          cantidad: reclamosFiltrados.filter(r => r.estado === est).length
         }));
 
-        const categorias = Array.from(new Set(reclamos.map(r => r.categoria)));
+        const categorias = Array.from(new Set(reclamosFiltrados.map(r => r.categoria)));
         const reclamosPorCategoria = categorias.map(cat => ({
           categoria: cat,
-          cantidad: reclamos.filter(r => r.categoria === cat).length
+          cantidad: reclamosFiltrados.filter(r => r.categoria === cat).length
         }));
 
+        const duraciones = reclamosFiltrados
+          .filter(r => r.estado === EstadoReclamo.RESUELTO || r.estado === EstadoReclamo.CERRADO)
+          .map(r => this.diasHastaResolucion(r))
+          .filter((dias): dias is number => dias !== null);
+        const promedio = duraciones.length
+          ? duraciones.reduce((total, dias) => total + dias, 0) / duraciones.length
+          : null;
+
         return {
-          totalReclamos: reclamos.length,
-          tiempoPromedioResolucionDias: 3.5,
+          totalReclamos: reclamosFiltrados.length,
+          tiempoPromedioResolucionDias: promedio,
           reclamosPorEstado,
           reclamosPorCategoria
         };
       })
     );
+  }
+
+  private diasHastaResolucion(reclamo: Reclamo): number | null {
+    // Comparar fechas calendario en UTC evita diferencias por horario de verano.
+    const convertir = (fecha: string | undefined): number | null => {
+      if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return null;
+      const instante = Date.parse(fecha + 'T00:00:00Z');
+      return Number.isFinite(instante) && new Date(instante).toISOString().slice(0, 10) === fecha
+        ? instante : null;
+    };
+    const inicio = convertir(reclamo.fecha);
+    const fin = convertir(reclamo.fechaResolucion);
+    if (inicio === null || fin === null || fin < inicio || fin > Date.now()) return null;
+    return (fin - inicio) / 86400000;
   }
 }

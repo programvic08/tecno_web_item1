@@ -79,36 +79,32 @@
     <form #donde="ngForm" (ngSubmit)="continuar(donde.valid === true)">
       <div class="campo">
         <label for="direccion">Dirección</label>
-        <input
-          id="direccion"
-          type="text"
-          name="direccion"
-
-          [(ngModel)]="direccion"
-          required />
+        <app-direccion-autocomplete
+          (direccionSeleccionada)="completarSectorDesdeDireccion($event)"
+          inputId="direccion" name="direccion" [(ngModel)]="direccion"
+          [required]="true"></app-direccion-autocomplete>
       </div>
 
+      <div class="campo">
+        <label for="sectorZona">Sector/Zona</label>
+        <select id="sectorZona" name="sectorZona" [(ngModel)]="sectorZona" required>
+          <option value="" disabled>Selecciona un sector/zona</option>
+          <option *ngFor="let borough of boroughs" [value]="borough">{{ borough }}</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="ubicacion">Referencia adicional</label>
+        <input id="ubicacion" type="text" name="ubicacion" [(ngModel)]="ubicacionReferencia" placeholder="Ej: frente a Central Park, esquina con 5th Avenue" />
+      </div>
       <div class="campo">
         <label for="fechaHora">Fecha y hora observada</label>
         <input
           id="fechaHora"
           type="datetime-local"
           name="fechaHora"
-          [max]="fechaMaxima"
           [(ngModel)]="fechaHoraObservada"
           (change)="validarFecha()" />
         <small>Solo se permiten fechas pasadas o la fecha y hora actual.</small>
-        <p *ngIf="errorFecha" class="error" role="alert">{{ errorFecha }}</p>
-      </div>
-
-      <div class="campo">
-        <label for="ubicacion">Ubicación o referencia</label>
-        <input id="ubicacion" type="text" name="ubicacion" [(ngModel)]="ubicacionReferencia" placeholder="Sin indicar" />
-      </div>
-
-      <div class="campo">
-        <label for="sectorZona">Sector / zona</label>
-        <input id="sectorZona" type="text" name="sectorZona" [(ngModel)]="sectorZona" placeholder="Sin indicar" />
       </div>
 
       <div class="campo">
@@ -178,12 +174,12 @@
     </div>
 
     <div class="campo">
-      <label>Ubicación o referencia</label>
+      <label>Referencia adicional</label>
       <p>{{ ubicacionReferencia || 'Sin indicar' }}</p>
     </div>
 
     <div class="campo">
-      <label>Sector / zona</label>
+      <label>Sector/Zona</label>
       <p>{{ sectorZona || 'Sin indicar' }}</p>
     </div>
 
@@ -201,20 +197,26 @@
     <ng-template #datosPlantilla>
       <div class="campo">
         <label for="direccionPlantilla">Dirección</label>
-        <input id="direccionPlantilla" type="text" [(ngModel)]="direccion" required [disabled]="enviado" />
+        <app-direccion-autocomplete
+          (direccionSeleccionada)="completarSectorDesdeDireccion($event)"
+          inputId="direccionPlantilla" [(ngModel)]="direccion"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true" [disabled]="enviado"></app-direccion-autocomplete>
+      </div>
+      <div class="campo">
+        <label for="sectorPlantilla">Sector/Zona</label>
+        <select id="sectorPlantilla" [(ngModel)]="sectorZona" required [disabled]="enviado">
+          <option value="" disabled>Selecciona un sector/zona</option>
+          <option *ngFor="let borough of boroughs" [value]="borough">{{ borough }}</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="referenciaPlantilla">Referencia adicional</label>
+        <input id="referenciaPlantilla" type="text" [(ngModel)]="ubicacionReferencia" placeholder="Ej: frente a Central Park, esquina con 5th Avenue" [disabled]="enviado" />
       </div>
       <div class="campo">
         <label for="fechaPlantilla">Fecha y hora observada</label>
-        <input id="fechaPlantilla" type="datetime-local" [(ngModel)]="fechaHoraObservada" [max]="fechaMaxima" (ngModelChange)="validarFecha()" [disabled]="enviado" />
-      </div>
-      <p *ngIf="errorFecha" class="error" role="alert">{{ errorFecha }}</p>
-      <div class="campo">
-        <label for="referenciaPlantilla">Ubicación o referencia</label>
-        <input id="referenciaPlantilla" type="text" [(ngModel)]="ubicacionReferencia" placeholder="Sin indicar" [disabled]="enviado" />
-      </div>
-      <div class="campo">
-        <label for="sectorPlantilla">Sector / zona</label>
-        <input id="sectorPlantilla" type="text" [(ngModel)]="sectorZona" placeholder="Sin indicar" [disabled]="enviado" />
+        <input id="fechaPlantilla" type="datetime-local" [(ngModel)]="fechaHoraObservada" (ngModelChange)="validarFecha()" [disabled]="enviado" />
       </div>
       <div class="campo">
         <label for="evidenciaPlantilla">Evidencia adjunta</label>
