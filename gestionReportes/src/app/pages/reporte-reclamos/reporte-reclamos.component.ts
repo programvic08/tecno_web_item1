@@ -15,11 +15,11 @@ export class ReporteReclamosComponent implements OnInit {
 
   categorias: string[] = ['Todas', 'Aseo y Ornato', 'Alumbrado Público', 'Infraestructura Urbana', 'Seguridad y Ruidos'];
   estados: string[] = ['Todos', 'Recibido', 'En proceso', 'Resuelto', 'Cerrado'];
-
+// aqui se probaran los cambios a realizar
   isLoading: boolean = false;
   reporte: ReporteEstadistico = {
     totalReclamos: 0,
-    tiempoPromedioResolucionDias: 0,
+    tiempoPromedioResolucionDias: 0, 
     reclamosPorEstado: [],
     reclamosPorCategoria: []
   };
