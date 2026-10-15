@@ -32,7 +32,12 @@ export class ReporteReclamosComponent implements OnInit {
 
   cargarDatos(): void {
     this.isLoading = true;
-    this.reclamoService.obtenerReporte().subscribe(datos => {
+    this.reclamoService.obtenerReporte({
+      fechaDesde: this.filtroFechaDesde,
+      fechaHasta: this.filtroFechaHasta,
+      categoria: this.filtroCategoria,
+      estado: this.filtroEstado
+    }).subscribe(datos => {
       this.reporte = datos;
       this.isLoading = false;
     });

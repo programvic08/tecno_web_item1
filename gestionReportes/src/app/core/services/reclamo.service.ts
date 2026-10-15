@@ -88,66 +88,69 @@ export class ReclamoService {
     this.reclamosSubject.next(lista);
   }
 
-  // Estadística base de los últimos 30 días (datos de demostración hasta tener backend).
-  // A ella se suman los reclamos que existan en memoria, así el ranking se mueve al crear uno.
-  private readonly estadisticaBase: ReporteComun[] = [
-    { id: 1, categoria: 'Aseo y Ornato', subcategoria: 'Microbasural', cantidad: 42 },
-    { id: 2, categoria: 'Alumbrado Público', subcategoria: 'Luminaria Apagada', cantidad: 37 },
-    { id: 3, categoria: 'Infraestructura Urbana', subcategoria: 'Bache / Evento', cantidad: 31 },
-    { id: 4, categoria: 'Seguridad y Ruidos', subcategoria: 'Ruido Molesto', cantidad: 24 },
-    { id: 5, categoria: 'Infraestructura Urbana', subcategoria: 'Vereda Rota', cantidad: 19 },
-    { id: 6, categoria: 'Aseo y Ornato', subcategoria: 'Escombros', cantidad: 17 },
-    { id: 7, categoria: 'Alumbrado Público', subcategoria: 'Foco Parpadeando', cantidad: 14 },
-    { id: 8, categoria: 'Alumbrado Público', subcategoria: 'Poste Dañado', cantidad: 11 },
-    { id: 9, categoria: 'Seguridad y Ruidos', subcategoria: 'Vehículo Abandonado', cantidad: 9 },
-    { id: 10, categoria: 'Aseo y Ornato', subcategoria: 'Corte de césped', cantidad: 8 },
-    { id: 11, categoria: 'Infraestructura Urbana', subcategoria: 'Señallética Caída', cantidad: 6 },
-    { id: 12, categoria: 'Seguridad y Ruidos', subcategoria: 'Inseguridad', cantidad: 5 }
-  ];
-
-  // Ranking de reportes más comunes por subcategoría, de mayor a menor.
+  // Ranking de subcategorías con más reclamos (lo usa la portada del ciudadano).
+  // Devuelve la lista ordenada de mayor a menor cantidad.
   obtenerReportesComunes(): Observable<ReporteComun[]> {
     return this.reclamos$.pipe(
       map(reclamos => {
         const conteo = new Map<string, ReporteComun>();
-        for (const base of this.estadisticaBase) {
-          conteo.set(`${base.categoria}|${base.subcategoria}`, { ...base });
-        }
-        for (const reclamo of reclamos) {
-          const clave = `${reclamo.categoria}|${reclamo.subcategoria}`;
+
+        for (const r of reclamos) {
+          const clave = `${r.categoria}|${r.subcategoria}`;
           const existente = conteo.get(clave);
           if (existente) {
             existente.cantidad++;
           } else {
             conteo.set(clave, {
-              id: 100 + conteo.size,
-              categoria: reclamo.categoria,
-              subcategoria: reclamo.subcategoria,
+              id: conteo.size + 1,
+              categoria: r.categoria,
+              subcategoria: r.subcategoria,
               cantidad: 1
             });
           }
         }
+
         return Array.from(conteo.values()).sort((a, b) => b.cantidad - a.cantidad);
       })
     );
   }
 
-  obtenerReporte(): Observable<ReporteEstadistico> {
+  obtenerReporte(filtros?: {
+    fechaDesde?: string;
+    fechaHasta?: string;
+    categoria?: string;
+    estado?: string;
+  }): Observable<ReporteEstadistico> {
     return this.reclamos$.pipe(
       map(reclamos => {
+        let reclamosFiltrados = reclamos;
+
+        if (filtros?.fechaDesde) {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha >= filtros.fechaDesde!);
+        }
+        if (filtros?.fechaHasta) {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha <= filtros.fechaHasta!);
+        }
+        if (filtros?.categoria && filtros.categoria !== 'Todas') {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.categoria === filtros.categoria);
+        }
+        if (filtros?.estado && filtros.estado !== 'Todos') {
+          reclamosFiltrados = reclamosFiltrados.filter(r => r.estado === filtros.estado);
+        }
+
         const reclamosPorEstado = Object.values(EstadoReclamo).map(est => ({
           estado: est,
-          cantidad: reclamos.filter(r => r.estado === est).length
+          cantidad: reclamosFiltrados.filter(r => r.estado === est).length
         }));
 
-        const categorias = Array.from(new Set(reclamos.map(r => r.categoria)));
+        const categorias = Array.from(new Set(reclamosFiltrados.map(r => r.categoria)));
         const reclamosPorCategoria = categorias.map(cat => ({
           categoria: cat,
-          cantidad: reclamos.filter(r => r.categoria === cat).length
+          cantidad: reclamosFiltrados.filter(r => r.categoria === cat).length
         }));
 
         return {
-          totalReclamos: reclamos.length,
+          totalReclamos: reclamosFiltrados.length,
           tiempoPromedioResolucionDias: 3.5,
           reclamosPorEstado,
           reclamosPorCategoria
