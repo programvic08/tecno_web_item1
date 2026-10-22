@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map } from 'rxjs';
-import { Reclamo, CategoriaReclamo, ReporteEstadistico } from '../../models/reclamo.model';
+import { BehaviorSubject, Observable, map, of } from 'rxjs';
+import { Reclamo, CategoriaReclamo, EntradaBitacora, ReporteEstadistico } from '../../models/reclamo.model';
 import { ReporteComun } from '../../models/reporte-comun.model';
 import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
 
@@ -21,7 +21,8 @@ export class ReclamoService {
       fecha: '2026-09-10',
       prioridad: PrioridadReclamo.ALTA,
       estado: EstadoReclamo.EN_PROCESO,
-      agenteAsignado: 'Agente Pérez'
+      agenteAsignado: 'Agente Pérez',
+      usuarioId: 1
     },
     {
       id: 102,
@@ -35,7 +36,8 @@ export class ReclamoService {
       fecha: '2026-09-12',
       prioridad: PrioridadReclamo.MEDIA,
       estado: EstadoReclamo.RECIBIDO,
-      agenteAsignado: 'Sin asignar'
+      agenteAsignado: 'Sin asignar',
+      usuarioId: 1
     }
   ];
 
@@ -46,17 +48,17 @@ export class ReclamoService {
     return [
       { nombre: 'Aseo y Ornato', subcategorias: ['Microbasural', 'Corte de césped', 'Escombros'] },
       { nombre: 'Alumbrado Público', subcategorias: ['Luminaria Apagada', 'Poste Dañado', 'Foco Parpadeando'] },
-      { nombre: 'Infraestructura Urbana', subcategorias: ['Bache / Evento', 'Vereda Rota', 'Señallética Caída'] },
+      { nombre: 'Infraestructura Urbana', subcategorias: ['Bache / Evento', 'Vereda Rota', 'Señalética Caída'] },
       { nombre: 'Seguridad y Ruidos', subcategorias: ['Ruido Molesto', 'Vehículo Abandonado', 'Inseguridad'] }
     ];
   }
 
   crearReclamo(nuevoReclamo: Omit<Reclamo, 'id' | 'folio' | 'estado' | 'agenteAsignado' | 'fecha'>): Observable<Reclamo> {
-    const id = Math.floor(Math.random() * 900) + 100;
+    const id = this.generarId();
     const reclamoCompleto: Reclamo = {
       ...nuevoReclamo,
       id,
-      folio: `REC-2026-${id}`,
+      folio: `REC-${new Date().getFullYear()}-${String(id).padStart(3, '0')}`,
       estado: EstadoReclamo.RECIBIDO,
       prioridad: PrioridadReclamo.MEDIA,
       agenteAsignado: 'Sin asignar',
@@ -65,10 +67,22 @@ export class ReclamoService {
 
     const listaActual = this.reclamosSubject.value;
     this.reclamosSubject.next([reclamoCompleto, ...listaActual]);
-    return new BehaviorSubject(reclamoCompleto).asObservable();
+    return of(reclamoCompleto);
   }
 
-  actualizarReclamo(folio: string, cambios: Partial<Reclamo>): void {
+  // El próximo id es el mayor existente + 1: nunca se repite, así dos reclamos no comparten folio.
+  private generarId(): number {
+    return this.reclamosSubject.value.reduce((maximo, r) => Math.max(maximo, r.id), 0) + 1;
+  }
+
+  // Solo los reclamos creados por ese usuario (el historial y la consulta de estado muestran los propios).
+  obtenerReclamosDeUsuario(usuarioId: number | undefined): Observable<Reclamo[]> {
+    return this.reclamos$.pipe(
+      map(lista => lista.filter(r => usuarioId !== undefined && r.usuarioId === usuarioId))
+    );
+  }
+
+  actualizarReclamo(folio: string, cambios: Partial<Reclamo>, observacion?: string, autor?: string): void {
     const listaActualizada = this.reclamosSubject.value.map(r => {
       if (r.folio === folio) {
         const actualizado = { ...r, ...cambios };
@@ -78,6 +92,17 @@ export class ReclamoService {
             ? r.fechaResolucion : new Date().toISOString().slice(0, 10);
         } else if (cambios.estado && cambios.estado !== EstadoReclamo.CERRADO) {
           actualizado.fechaResolucion = undefined;
+        }
+
+        const texto = observacion?.trim();
+        if (texto) {
+          const entrada: EntradaBitacora = {
+            fecha: new Date().toISOString().slice(0, 10),
+            autor: autor?.trim() || 'Agente Municipal',
+            estado: actualizado.estado,
+            observacion: texto
+          };
+          actualizado.bitacora = [...(r.bitacora ?? []), entrada];
         }
         return actualizado;
       }
@@ -109,7 +134,7 @@ export class ReclamoService {
     { id: 8, categoria: 'Alumbrado Público', subcategoria: 'Poste Dañado', cantidad: 11 },
     { id: 9, categoria: 'Seguridad y Ruidos', subcategoria: 'Vehículo Abandonado', cantidad: 9 },
     { id: 10, categoria: 'Aseo y Ornato', subcategoria: 'Corte de césped', cantidad: 8 },
-    { id: 11, categoria: 'Infraestructura Urbana', subcategoria: 'Señallética Caída', cantidad: 6 },
+    { id: 11, categoria: 'Infraestructura Urbana', subcategoria: 'Señalética Caída', cantidad: 6 },
     { id: 12, categoria: 'Seguridad y Ruidos', subcategoria: 'Inseguridad', cantidad: 5 }
   ];
 
