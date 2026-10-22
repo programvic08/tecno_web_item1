@@ -34,11 +34,20 @@
   padding: 0;
 }
 
+html {
+  /* El color del canvas evita que el rebote del trackpad muestre una franja
+     celeste por encima del navbar o por debajo del footer (Safari ignora
+     overscroll-behavior en el documento, pero si respeta este fondo). */
+  background-color: var(--primary-blue);
+  overscroll-behavior-y: none;
+}
+
 body {
   background-color: var(--bg-color);
   font-family: var(--font-body);
   color: var(--text-dark);
   min-height: 100vh;
+  overscroll-behavior-y: contain;
 }
 
 /* Componente compartido: footer */

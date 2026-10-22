@@ -12,12 +12,13 @@ import { ModificarReclamoComponent } from './pages/modificar-reclamo/modificar-r
 import { PerfilComponent } from './pages/perfil/perfil.component';
 
 import { AuthGuard } from './core/guards/auth.guard';
+import { GuestGuard } from './core/guards/guest.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { RolUsuario } from './models/reclamo.enums';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
 
   // --- RUTAS HIJAS DEL CIUDADANO ---
   {
