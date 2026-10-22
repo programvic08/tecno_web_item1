@@ -60,7 +60,10 @@ export class LoginComponent {
     this.authService.iniciarSesion({ email: this.email, password: this.password }).subscribe({
       next: usuario => {
         this.cargando = false;
-        this.router.navigate([this.authService.obtenerRutaInicio(usuario.rol)]);
+        this.router.navigate(
+          [this.authService.obtenerRutaInicio(usuario.rol)],
+          { replaceUrl: true }
+        );
       },
       error: (error: unknown) => {
         this.cargando = false;
