@@ -23,6 +23,21 @@ export interface LoginDto {
   password: string;
 }
 
+// DTO de registro: lo que envía el formulario de "Crear cuenta".
+// No incluye el rol a propósito: las cuentas nuevas son siempre de ciudadano.
+export interface RegistroDto {
+  nombre: string;
+  email: string;
+  password: string;
+}
+
+// Cuenta creada desde el registro, tal como se guarda en localStorage
+// (simula la tabla de usuarios de un backend). No guarda el rol: al leerla,
+// el servicio siempre la trata como ciudadano.
+export interface UsuarioRegistrado extends Omit<Usuario, 'rol'> {
+  password: string;
+}
+
 // Cuenta de demostración (solo para simular el backend)
 export interface CuentaPrueba extends LoginDto {
   rol: RolUsuario;

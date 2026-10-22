@@ -659,7 +659,8 @@ app-historial > :where(.page-layout) .btn-action:hover {
 
 /* Pagina: login */
 
-app-login {
+app-login,
+app-registro {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -667,19 +668,22 @@ app-login {
   padding: 24px 16px;
 }
 
-app-login > .contenedor-login {
+app-login > .contenedor-login,
+app-registro > .contenedor-login {
   width: 100%;
   max-width: 440px;
 }
 
-app-login > :where(.contenedor-login) .titulo-login {
+app-login > :where(.contenedor-login) .titulo-login,
+app-registro > :where(.contenedor-login) .titulo-login {
   text-align: center;
   margin-bottom: 24px;
   padding-top: 16px;
   border-top: 1px solid var(--nyc-red);
 }
 
-app-login > :where(.contenedor-login) .titulo-login h1 {
+app-login > :where(.contenedor-login) .titulo-login h1,
+app-registro > :where(.contenedor-login) .titulo-login h1 {
   margin-bottom: 16px;
   font-family: var(--font-heading);
   color: var(--primary-blue);
@@ -687,51 +691,64 @@ app-login > :where(.contenedor-login) .titulo-login h1 {
 
 app-login > :where(.contenedor-login) .titulo-login p,
 app-login > :where(.contenedor-login) .usuario p,
-app-login > :where(.contenedor-login) .login-footer {
+app-login > :where(.contenedor-login) .login-footer,
+app-registro > :where(.contenedor-login) .titulo-login p,
+app-registro > :where(.contenedor-login) .usuario p,
+app-registro > :where(.contenedor-login) .login-footer {
   color: var(--text-gray);
 }
 
-app-login > :where(.contenedor-login) .formulario-login {
+app-login > :where(.contenedor-login) .formulario-login,
+app-registro > :where(.contenedor-login) .formulario-login {
   padding: 24px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   background: var(--card-bg);
 }
 
-app-login > :where(.contenedor-login) .form-elements {
+app-login > :where(.contenedor-login) .form-elements,
+app-registro > :where(.contenedor-login) .form-elements {
   margin-bottom: 16px;
 }
 
-app-login > :where(.contenedor-login) .form-elements label {
+app-login > :where(.contenedor-login) .form-elements label,
+app-registro > :where(.contenedor-login) .form-elements label {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
 }
 
 app-login > :where(.contenedor-login) .form-elements input,
-app-login > :where(.contenedor-login) .btn-ingresar {
+app-login > :where(.contenedor-login) .btn-ingresar,
+app-registro > :where(.contenedor-login) .form-elements input,
+app-registro > :where(.contenedor-login) .btn-ingresar {
   width: 100%;
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
 }
 
-app-login > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched {
+app-login > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched,
+app-registro > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched {
   border-color: var(--nyc-red);
 }
 
 app-login > :where(.contenedor-login) .error-campo,
-app-login > :where(.contenedor-login) .mensaje-error {
+app-login > :where(.contenedor-login) .mensaje-error,
+app-registro > :where(.contenedor-login) .error-campo,
+app-registro > :where(.contenedor-login) .mensaje-error {
   color: var(--error-color);
   font-size: 13px;
 }
 
-app-login > :where(.contenedor-login) .error-campo {
+app-login > :where(.contenedor-login) .error-campo,
+app-registro > :where(.contenedor-login) .error-campo {
   display: block;
   margin-top: 4px;
 }
 
-app-login > :where(.contenedor-login) .mensaje-error {
+app-login > :where(.contenedor-login) .mensaje-error,
+app-registro > :where(.contenedor-login) .mensaje-error {
   margin-bottom: 16px;
   padding: 10px;
   background: var(--error-bg);
@@ -739,7 +756,8 @@ app-login > :where(.contenedor-login) .mensaje-error {
   border-radius: var(--radius-sm);
 }
 
-app-login > :where(.contenedor-login) .btn-ingresar {
+app-login > :where(.contenedor-login) .btn-ingresar,
+app-registro > :where(.contenedor-login) .btn-ingresar {
   background: var(--primary-blue);
   color: var(--card-bg);
   cursor: pointer;
@@ -747,16 +765,21 @@ app-login > :where(.contenedor-login) .btn-ingresar {
 }
 
 app-login > :where(.contenedor-login) .btn-ingresar:hover,
-app-login > :where(.contenedor-login) .btn-user:hover {
+app-login > :where(.contenedor-login) .btn-user:hover,
+app-registro > :where(.contenedor-login) .btn-ingresar:hover,
+app-registro > :where(.contenedor-login) .btn-user:hover {
   background: var(--primary-blue-hover);
 }
 
 app-login > :where(.contenedor-login) .btn-ingresar:disabled,
-app-login > :where(.contenedor-login) .btn-user:disabled {
+app-login > :where(.contenedor-login) .btn-user:disabled,
+app-registro > :where(.contenedor-login) .btn-ingresar:disabled,
+app-registro > :where(.contenedor-login) .btn-user:disabled {
   opacity: 0.6;
 }
 
-app-login > :where(.contenedor-login) .recuperar-contraseña {
+app-login > :where(.contenedor-login) .recuperar-contraseña,
+app-registro > :where(.contenedor-login) .recuperar-contraseña {
   margin-bottom: 24px;
 }
 
@@ -766,28 +789,33 @@ app-login > :where(.contenedor-login) .enlace-pronto {
   cursor: not-allowed;
 }
 
-app-login > :where(.contenedor-login) a {
+app-login > :where(.contenedor-login) a,
+app-registro > :where(.contenedor-login) a {
   color: var(--primary-blue);
   text-decoration: underline;
 }
 
-app-login > :where(.contenedor-login) a:hover {
+app-login > :where(.contenedor-login) a:hover,
+app-registro > :where(.contenedor-login) a:hover {
   color: var(--primary-blue-hover);
 }
 
-app-login > :where(.contenedor-login) .divider {
+app-login > :where(.contenedor-login) .divider,
+app-registro > :where(.contenedor-login) .divider {
   margin: 24px 0;
   border: 0;
   border-top: 1px solid var(--border-color);
 }
 
-app-login > :where(.contenedor-login) .user-buttons {
+app-login > :where(.contenedor-login) .user-buttons,
+app-registro > :where(.contenedor-login) .user-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
 }
 
-app-login > :where(.contenedor-login) .btn-user {
+app-login > :where(.contenedor-login) .btn-user,
+app-registro > :where(.contenedor-login) .btn-user {
   flex: 1;
   padding: 10px;
   border: 1px solid var(--primary-blue);
@@ -797,7 +825,8 @@ app-login > :where(.contenedor-login) .btn-user {
   cursor: pointer;
 }
 
-app-login > :where(.contenedor-login) .login-footer {
+app-login > :where(.contenedor-login) .login-footer,
+app-registro > :where(.contenedor-login) .login-footer {
   margin-top: 24px;
   text-align: center;
   font-size: 14px;
@@ -805,7 +834,8 @@ app-login > :where(.contenedor-login) .login-footer {
 
 @media (max-width: 480px) {
 
-  app-login > :where(.contenedor-login) .formulario-login {
+  app-login > :where(.contenedor-login) .formulario-login,
+  app-registro > :where(.contenedor-login) .formulario-login {
     padding: 16px;
   }
 }

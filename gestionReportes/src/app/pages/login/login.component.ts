@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService, MOTIVO_SESION_EXPIRADA } from '../../core/services/auth.service';
+import { AuthService, MOTIVO_CUENTA_CREADA, MOTIVO_SESION_EXPIRADA } from '../../core/services/auth.service';
 import { CuentaPrueba } from '../../models/usuario.model';
 
 @Component({
@@ -13,6 +13,7 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
   errorMessage: string = '';
+  mensajeExito: string = '';
   cargando: boolean = false;
   cuentasPrueba: CuentaPrueba[];
 
@@ -23,9 +24,12 @@ export class LoginComponent {
   ) {
     this.cuentasPrueba = this.authService.obtenerCuentasPrueba();
 
-    // Si llegó aquí porque la sesión venció, se lo avisamos (snapshot: no hay suscripción)
-    if (this.route.snapshot.queryParamMap.get('motivo') === MOTIVO_SESION_EXPIRADA) {
+    // Avisos según de dónde llegó el usuario (snapshot: no hay suscripción)
+    const motivo = this.route.snapshot.queryParamMap.get('motivo');
+    if (motivo === MOTIVO_SESION_EXPIRADA) {
       this.errorMessage = 'Tu sesión expiró. Vuelve a iniciar sesión.';
+    } else if (motivo === MOTIVO_CUENTA_CREADA) {
+      this.mensajeExito = 'Cuenta creada con éxito. Ya puedes iniciar sesión.';
     }
   }
 
@@ -53,6 +57,7 @@ export class LoginComponent {
     }
 
     this.errorMessage = '';
+    this.mensajeExito = '';
     this.cargando = true;
 
     // El Observable emite una sola vez y termina (o falla), así que no

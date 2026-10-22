@@ -30,6 +30,7 @@
         <a href="#">¿Olvidaste tu contraseña?</a>
       </div>
 
+      <p class="mensaje-exito" *ngIf="mensajeExito" role="status">{{ mensajeExito }}</p>
       <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
 
       <button type="submit" class="btn-ingresar" [disabled]="cargando">
@@ -51,6 +52,6 @@
   </div>
 
   <div class="login-footer">
-    <p>¿No tienes cuenta? <a href="#">Crear una</a></p>
+    <p>¿No tienes cuenta? <a routerLink="/registro">Crear una</a></p>
   </div>
 </div>

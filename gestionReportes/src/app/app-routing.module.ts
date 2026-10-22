@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
+import { RegistroComponent } from './pages/register/registro.component';
 import { UserhomeComponent } from './pages/userhome/userhome.component';
 import { AdminhomeComponent } from './pages/adminhome/adminhome.component';
 import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
@@ -19,6 +20,7 @@ import { RolUsuario } from './models/reclamo.enums';
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
+  { path: 'registro', component: RegistroComponent, canActivate: [GuestGuard] },
 
   // --- RUTAS HIJAS DEL CIUDADANO ---
   {
