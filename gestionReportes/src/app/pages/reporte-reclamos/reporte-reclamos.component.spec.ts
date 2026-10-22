@@ -1,5 +1,6 @@
 import { FechaNoFuturaDirective } from '../../shared/directives/fecha-no-futura.directive';
 import { FormsModule } from '@angular/forms';
+import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
@@ -11,7 +12,7 @@ describe('ReporteReclamosComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ReporteReclamosComponent, FechaNoFuturaDirective ],
+      declarations: [ ReporteReclamosComponent, FechaNoFuturaDirective, StatusBadgeComponent ],
       imports: [FormsModule]
     })
     .compileComponents();
