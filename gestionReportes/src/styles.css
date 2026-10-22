@@ -760,6 +760,12 @@ app-login > :where(.contenedor-login) .recuperar-contraseña {
   margin-bottom: 24px;
 }
 
+/* Enlaces que aún no tienen pantalla: se ven apagados en lugar de apuntar a "#" */
+app-login > :where(.contenedor-login) .enlace-pronto {
+  color: var(--text-gray);
+  cursor: not-allowed;
+}
+
 app-login > :where(.contenedor-login) a {
   color: var(--primary-blue);
   text-decoration: underline;
@@ -832,6 +838,13 @@ app-modificar-reclamo > :where(.modificar-container) h4 {
 
 app-modificar-reclamo > :where(.modificar-container) .search-card p,
 app-modificar-reclamo > :where(.modificar-container) .sub-text {
+  color: var(--text-gray);
+  font-size: 14px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .bitacora {
+  margin: 4px 0 0;
+  padding-left: 20px;
   color: var(--text-gray);
   font-size: 14px;
 }

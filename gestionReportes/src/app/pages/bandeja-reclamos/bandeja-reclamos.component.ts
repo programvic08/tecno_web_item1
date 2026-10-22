@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Reclamo } from '../../models/reclamo.model';
+import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
 
 @Component({
   selector: 'app-bandeja-reclamos',
@@ -16,14 +17,17 @@ export class BandejaReclamosComponent implements OnInit {
   filtroPrioridad: string = 'Todas';
   filtroUbicacion: string = '';
 
-  estados: string[] = ['Todos', 'Recibido', 'En revisión', 'En proceso', 'Resuelto', 'Rechazado', 'Cerrado'];
-  categorias: string[] = ['Todas', 'Aseo y Ornato', 'Alumbrado Público', 'Infraestructura Urbana', 'Seguridad y Ruidos'];
-  prioridades: string[] = ['Todas', 'Baja', 'Media', 'Alta', 'Urgente'];
+  // Las listas se derivan de los enums y del servicio: si se agrega un estado o categoría, aparece sola.
+  estados: string[] = ['Todos', ...Object.values(EstadoReclamo)];
+  categorias: string[] = ['Todas'];
+  prioridades: string[] = ['Todas', ...Object.values(PrioridadReclamo)];
 
   constructor(
     private reclamoService: ReclamoService,
     private authService: AuthService
-  ) {}
+  ) {
+    this.categorias = ['Todas', ...this.reclamoService.getCategorias().map(c => c.nombre)];
+  }
 
   ngOnInit(): void {
     this.reclamoService.reclamos$.subscribe(data => {
@@ -43,12 +47,8 @@ export class BandejaReclamosComponent implements OnInit {
   }
 
   asignarme(folio: string): void {
-    const usuario = this.authService.obtenerRolActual();
-    const agenteNombre = usuario ? 'Agente Activo' : 'Agente Municipal';
+    // Se asigna con el nombre del agente que tiene la sesión abierta
+    const agenteNombre = this.authService.obtenerUsuarioActual()?.nombre ?? 'Agente Municipal';
     this.reclamoService.asignarAgente(folio, agenteNombre);
-  }
-
-  verDetalle(folio: string): void {
-    alert(`Visualizando detalle del reclamo: ${folio}`);
   }
 }

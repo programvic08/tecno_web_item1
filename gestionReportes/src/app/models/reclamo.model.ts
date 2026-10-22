@@ -1,5 +1,13 @@
 import { EstadoReclamo, PrioridadReclamo } from './reclamo.enums';
 
+// Registro de una observación dejada por un agente al gestionar el reclamo
+export interface EntradaBitacora {
+  fecha: string;
+  autor: string;
+  estado: string;
+  observacion: string;
+}
+
 export interface Reclamo {
   id: number;
   folio: string;
@@ -20,6 +28,7 @@ export interface Reclamo {
   estado: EstadoReclamo;
   agenteAsignado: string;
   usuarioId?: number;
+  bitacora?: EntradaBitacora[];
 }
 
 export interface CategoriaReclamo {
