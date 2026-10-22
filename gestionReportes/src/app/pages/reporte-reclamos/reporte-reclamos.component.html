@@ -44,7 +44,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let item of reporte.reclamosPorEstado">
-          <td>{{ item.estado }}</td>
+          <td><app-status-badge [estado]="item.estado"></app-status-badge></td>
           <td>{{ item.cantidad }}</td>
         </tr>
       </tbody>
