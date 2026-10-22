@@ -1,28 +1,47 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router'; // Importar Router
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { ReclamoService } from '../../core/services/reclamo.service';
+import { AuthService } from '../../core/services/auth.service';
+import { RUTAS } from '../../core/config/navegacion.config';
 import { Reclamo } from '../../models/reclamo.model';
+import { EstadoReclamo } from '../../models/reclamo.enums';
 
 @Component({
   selector: 'app-historial',
   templateUrl: './historial.component.html',
   styleUrls: ['./historial.component.css']
 })
-export class HistorialComponent implements OnInit {
+export class HistorialComponent implements OnInit, OnDestroy {
   reclamos: Reclamo[] = [];
   reclamosFiltrados: Reclamo[] = [];
   filtroEstado: string = '';
 
+  // Todos los estados posibles (antes faltaban "En revisión" y "Rechazado")
+  readonly estados: string[] = Object.values(EstadoReclamo);
+
+  private destruir$ = new Subject<void>();
+
   constructor(
     private reclamoService: ReclamoService,
-    private router: Router // Inyectar Router
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.reclamoService.reclamos$.subscribe(datos => {
-      this.reclamos = datos;
-      this.aplicarFiltro();
-    });
+    // Solo los reclamos del ciudadano con sesión activa
+    const usuarioId = this.authService.obtenerUsuarioActual()?.id;
+    this.reclamoService.obtenerReclamosDeUsuario(usuarioId)
+      .pipe(takeUntil(this.destruir$))
+      .subscribe(datos => {
+        this.reclamos = datos;
+        this.aplicarFiltro();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destruir$.next();
+    this.destruir$.complete();
   }
 
   onFiltroChange(event: Event): void {
@@ -41,8 +60,8 @@ export class HistorialComponent implements OnInit {
     }
   }
 
-  // Método para redirigir a la vista de estado con el folio
+  // Redirige a la vista de estado con el folio
   verDetalle(folio: string): void {
-    this.router.navigate(['/estado-reclamo'], { queryParams: { folio } });
+    this.router.navigate([RUTAS.estado], { queryParams: { folio } });
   }
 }

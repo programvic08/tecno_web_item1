@@ -51,7 +51,7 @@ export class AuthService {
     { email: 'admin@gmail.com', password: '123456', rol: RolUsuario.ADMINISTRADOR }
   ];
 
-  // Duración de la sesión: 30 minutos. Para probar la expiración rápido,
+  // Duración de la sesión: 20 minutos. Para probar la expiración rápido, bajar este valor.
   private readonly duracionSesionSeg = 20 * 60;
 
   // El token se guarda en sessionStorage: se borra al cerrar la pestaña.

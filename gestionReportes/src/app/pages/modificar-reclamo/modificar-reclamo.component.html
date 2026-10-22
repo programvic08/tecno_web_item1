@@ -28,6 +28,15 @@
       <p><strong>Ubicación:</strong> {{ reclamo.ubicacion }}</p>
       <p><strong>Descripción original:</strong> {{ reclamo.descripcion }}</p>
       <p><strong>Fecha de Ingreso:</strong> {{ reclamo.fecha }}</p>
+
+      <ng-container *ngIf="reclamo.bitacora?.length">
+        <p><strong>Bitácora de avance:</strong></p>
+        <ul class="bitacora">
+          <li *ngFor="let entrada of reclamo.bitacora">
+            {{ entrada.fecha }} · {{ entrada.autor }} ({{ entrada.estado }}): {{ entrada.observacion }}
+          </li>
+        </ul>
+      </ng-container>
     </div>
 
     <hr class="divider" />

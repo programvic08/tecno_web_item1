@@ -1,9 +1,10 @@
-import { errorFechaNoFutura, fechaActualLocal } from '../../shared/utils/fechas';
+﻿import { errorFechaNoFutura, fechaActualLocal } from '../../shared/utils/fechas';
 import { SECTORES_NY } from '../../core/config/sectores-ny.config';
 import { DireccionSugerencia } from '../../core/services/geocoding.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
+import { AuthService } from '../../core/services/auth.service';
 import { CategoriaReclamo } from '../../models/reclamo.model';
 import { PrioridadReclamo } from '../../models/reclamo.enums';
 import { RUTAS } from '../../core/config/navegacion.config';
@@ -61,11 +62,17 @@ export class CrearReclamoComponent implements OnInit {
   leyendoEvidencia = false;
   private lectorEvidencia: FileReader | null = null;
 
-  datosCiudadanoTexto: string = 'adeyemi yamal — yamal@adeyemi.com';
   enviado: boolean = false;
+
+  // Datos del ciudadano con sesión activa (se muestran en la revisión del reclamo)
+  get datosCiudadanoTexto(): string {
+    const usuario = this.authService.obtenerUsuarioActual();
+    return usuario ? `${usuario.nombre} — ${usuario.email}` : 'Sin datos de usuario';
+  }
 
   constructor(
     private reclamoService: ReclamoService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -215,7 +222,8 @@ export class CrearReclamoComponent implements OnInit {
       evidenciaNombre: this.evidenciaNombre,
       evidenciaTipo: this.evidenciaTipo,
       evidenciaDataUrl: this.evidenciaDataUrl,
-      prioridad: PrioridadReclamo.MEDIA
+      prioridad: PrioridadReclamo.MEDIA,
+      usuarioId: this.authService.obtenerUsuarioActual()?.id
     }).subscribe(() => {
       this.enviado = true;
       setTimeout(() => {

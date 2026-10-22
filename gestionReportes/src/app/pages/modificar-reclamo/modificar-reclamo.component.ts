@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Reclamo } from '../../models/reclamo.model';
 import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
 import { take } from 'rxjs/operators';
@@ -27,7 +28,8 @@ export class ModificarReclamoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private reclamoService: ReclamoService
+    private reclamoService: ReclamoService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -66,12 +68,19 @@ export class ModificarReclamoComponent implements OnInit {
   guardarCambios(): void {
     if (!this.reclamo) return;
 
-    // Delegamos la actualización de datos directamente al servicio
-    this.reclamoService.actualizarReclamo(this.reclamo.folio, {
-      estado: this.nuevoEstado,
-      prioridad: this.nuevaPrioridad,
-      agenteAsignado: this.nuevoAgente
-    });
+    // Delegamos la actualización al servicio. La observación queda en la bitácora del reclamo
+    // (antes se escribía en el formulario pero nunca se guardaba).
+    this.reclamoService.actualizarReclamo(
+      this.reclamo.folio,
+      {
+        estado: this.nuevoEstado,
+        prioridad: this.nuevaPrioridad,
+        agenteAsignado: this.nuevoAgente
+      },
+      this.nuevaObservacion,
+      this.authService.obtenerUsuarioActual()?.nombre
+    );
+    this.nuevaObservacion = '';
 
     this.actualizadoExito = true;
 
