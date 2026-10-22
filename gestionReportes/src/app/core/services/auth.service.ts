@@ -3,10 +3,21 @@ import { Router, UrlTree } from '@angular/router';
 import { BehaviorSubject, Observable, map, tap, timer } from 'rxjs';
 import { RolUsuario } from '../../models/reclamo.enums';
 import { RUTAS } from '../config/navegacion.config';
-import { ActualizarPerfilDto, CuentaPrueba, LoginDto, TokenPayload, Usuario } from '../../models/usuario.model';
+import {
+  ActualizarPerfilDto,
+  CuentaPrueba,
+  LoginDto,
+  RegistroDto,
+  TokenPayload,
+  Usuario,
+  UsuarioRegistrado
+} from '../../models/usuario.model';
 
 // Valor del query param con el que se avisa en el login que la sesión venció
 export const MOTIVO_SESION_EXPIRADA = 'sesion-expirada';
+
+// Valor del query param con el que se avisa en el login que la cuenta se creó
+export const MOTIVO_CUENTA_CREADA = 'cuenta-creada';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +56,10 @@ export class AuthService {
 
   // El token se guarda en sessionStorage: se borra al cerrar la pestaña.
   private readonly claveToken = 'auth_token';
+
+  // Cuentas creadas desde la pantalla de registro (localStorage: persisten
+  // entre sesiones). Debe declararse antes de los BehaviorSubject.
+  private readonly claveUsuarios = 'usuarios_registrados';
   private temporizadorExpiracion: ReturnType<typeof setTimeout> | null = null;
 
   private loggedInSubject = new BehaviorSubject<boolean>(this.estaAutenticado());
@@ -67,23 +82,49 @@ export class AuthService {
     }
   }
 
-  // Valida las credenciales. Simula una llamada al servidor (pequeña espera) y
-  // emite el usuario si son correctas o un error si no lo son.
+  // Valida las credenciales (cuentas de prueba o cuentas registradas). Simula
+  // una llamada al servidor (pequeña espera) y emite el usuario si son
+  // correctas o un error si no lo son.
   iniciarSesion(credenciales: LoginDto): Observable<Usuario> {
     return timer(400).pipe(
       map(() => {
         const email = credenciales.email.trim().toLowerCase();
-        const cuenta = this.credencialesMock.find(
-          c => c.email === email && c.password === credenciales.password
-        );
+        const id = this.buscarIdPorCredenciales(email, credenciales.password);
+        const usuario = id !== null ? this.leerPerfil(id) : null;
 
-        if (!cuenta) {
+        if (!usuario) {
           throw new Error('Correo o contraseña incorrectos.');
         }
-        return cuenta.rol;
+        return usuario;
       }),
-      tap(rol => this.abrirSesion(rol)),
-      map(rol => this.leerPerfil(rol))
+      tap(usuario => this.abrirSesion(usuario))
+    );
+  }
+
+  // Crea una cuenta nueva. El rol NO viene del formulario: el registro público
+  // solo crea ciudadanos. Las cuentas de administrador existen únicamente
+  // como cuentas de prueba (o, con backend, las crearía otro administrador).
+  registrarCiudadano(datos: RegistroDto): Observable<void> {
+    return timer(400).pipe(
+      map(() => {
+        const email = datos.email.trim().toLowerCase();
+
+        if (this.correoYaRegistrado(email)) {
+          throw new Error('Ya existe una cuenta con ese correo.');
+        }
+
+        const registrados = this.leerRegistrados();
+        const nueva: UsuarioRegistrado = {
+          id: this.siguienteId(registrados),
+          nombre: datos.nombre.trim(),
+          email,
+          password: datos.password,
+          telefono: '',
+          direccion: ''
+        };
+
+        localStorage.setItem(this.claveUsuarios, JSON.stringify([...registrados, nueva]));
+      })
     );
   }
 
@@ -106,14 +147,13 @@ export class AuthService {
 
   // Al abrir sesión, generamos un token JWT simulado (con fecha de expiración)
   // y lo guardamos en sessionStorage.
-  private abrirSesion(rol: RolUsuario): void {
-    const usuario = this.leerPerfil(rol);
+  private abrirSesion(usuario: Usuario): void {
     const iat = this.ahoraEnSegundos();
     const exp = iat + this.duracionSesionSeg;
 
     // El payload no incluye el nombre: es editable y btoa falla con
     // caracteres fuera de Latin-1 (por ejemplo, emojis).
-    const payload: TokenPayload = { sub: String(usuario.id), rol, iat, exp };
+    const payload: TokenPayload = { sub: String(usuario.id), rol: usuario.rol, iat, exp };
 
     const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
     const signature = "signature_simulada_sprint1";
@@ -123,13 +163,13 @@ export class AuthService {
 
     // Actualizamos los BehaviorSubjects en memoria
     this.loggedInSubject.next(true);
-    this.currentUserRoleSubject.next(rol);
+    this.currentUserRoleSubject.next(usuario.rol);
     this.usuarioSubject.next(usuario);
 
     this.programarExpiracion(exp);
   }
 
-  // Al cerrar sesión borramos el token. El perfil editado (user_profile_<rol>,
+  // Al cerrar sesión borramos el token. El perfil editado (user_profile_<id>,
   // en localStorage) se conserva para el próximo inicio de sesión.
   logout(): void {
     sessionStorage.removeItem(this.claveToken);
@@ -140,8 +180,8 @@ export class AuthService {
     this.usuarioSubject.next(null);
   }
 
-  // Hay sesión solo si el token existe, es legible, tiene un rol válido
-  // y todavía no venció.
+  // Hay sesión solo si el token existe, es legible, pertenece a una cuenta
+  // que existe y todavía no venció.
   estaAutenticado(): boolean {
     return this.obtenerSesionValida() !== null;
   }
@@ -180,7 +220,7 @@ export class AuthService {
     }
 
     const actualizado: Usuario = { ...actual, ...cambios };
-    localStorage.setItem(this.clavePerfil(actual.rol), JSON.stringify(actualizado));
+    localStorage.setItem(this.clavePerfil(actual.id), JSON.stringify(actualizado));
     this.usuarioSubject.next(actualizado);
   }
 
@@ -235,36 +275,113 @@ export class AuthService {
     }
   }
 
-  // Payload solo si el token es legible, no venció y su rol existe
+  // Payload solo si el token es legible, no venció, la cuenta existe y el rol
+  // del token coincide con el de la cuenta.
   private obtenerSesionValida(): TokenPayload | null {
     const payload = this.leerPayload();
-    if (!payload || payload.exp <= this.ahoraEnSegundos() || !this.usuariosMock[payload.rol]) {
+    if (!payload || payload.exp <= this.ahoraEnSegundos()) {
+      return null;
+    }
+
+    const base = this.obtenerUsuarioBase(Number(payload.sub));
+    if (!base || base.rol !== payload.rol) {
       return null;
     }
     return payload;
+  }
+
+  // --- Cuentas ---
+
+  // Busca el id de la cuenta cuyo correo y contraseña coinciden (null si ninguna)
+  private buscarIdPorCredenciales(email: string, password: string): number | null {
+    const prueba = this.credencialesMock.find(c => c.email === email && c.password === password);
+    if (prueba) {
+      return this.usuariosMock[prueba.rol].id;
+    }
+
+    const registrada = this.leerRegistrados().find(u => u.email === email && u.password === password);
+    return registrada ? registrada.id : null;
+  }
+
+  private correoYaRegistrado(email: string): boolean {
+    return this.credencialesMock.some(c => c.email === email)
+      || this.leerRegistrados().some(u => u.email === email);
+  }
+
+  private siguienteId(registrados: UsuarioRegistrado[]): number {
+    const ids = [
+      ...Object.values(this.usuariosMock).map(u => u.id),
+      ...registrados.map(u => u.id)
+    ];
+    return Math.max(...ids) + 1;
+  }
+
+  private leerRegistrados(): UsuarioRegistrado[] {
+    try {
+      const datos = JSON.parse(localStorage.getItem(this.claveUsuarios) ?? '[]');
+      return Array.isArray(datos) ? datos : [];
+    } catch {
+      // JSON corrupto en localStorage: se ignora
+      return [];
+    }
+  }
+
+  // Cuenta sin contraseña. Las cuentas registradas son SIEMPRE ciudadanos,
+  // aunque alguien edite el localStorage a mano.
+  private aUsuario(registrada: UsuarioRegistrado): Usuario {
+    return {
+      id: registrada.id,
+      nombre: registrada.nombre,
+      email: registrada.email,
+      rol: RolUsuario.CIUDADANO,
+      telefono: registrada.telefono ?? '',
+      direccion: registrada.direccion ?? ''
+    };
+  }
+
+  // Datos base de una cuenta (de prueba o registrada), sin los cambios de perfil
+  private obtenerUsuarioBase(id: number): Usuario | null {
+    const prueba = Object.values(this.usuariosMock).find(u => u.id === id);
+    if (prueba) {
+      return prueba;
+    }
+
+    const registrada = this.leerRegistrados().find(u => u.id === id);
+    return registrada ? this.aUsuario(registrada) : null;
   }
 
   // --- Perfil ---
 
   private getStoredUser(): Usuario | null {
     const sesion = this.obtenerSesionValida();
-    return sesion ? this.leerPerfil(sesion.rol) : null;
+    return sesion ? this.leerPerfil(Number(sesion.sub)) : null;
   }
 
-  private clavePerfil(rol: RolUsuario): string {
-    return `user_profile_${rol}`;
+  private clavePerfil(id: number): string {
+    return `user_profile_${id}`;
   }
 
-  private leerPerfil(rol: RolUsuario): Usuario {
-    const base = this.usuariosMock[rol];
-    const guardado = localStorage.getItem(this.clavePerfil(rol));
+  // Cuenta con los cambios de perfil guardados (nombre, teléfono, dirección)
+  private leerPerfil(id: number): Usuario | null {
+    const base = this.obtenerUsuarioBase(id);
+    if (!base) {
+      return null;
+    }
 
+    const guardado = localStorage.getItem(this.clavePerfil(id));
     if (!guardado) {
       return base;
     }
 
     try {
-      return { ...base, ...(JSON.parse(guardado) as Partial<Usuario>), rol };
+      // id, correo y rol no se editan: siempre mandan los de la cuenta
+      return {
+        ...base,
+        ...(JSON.parse(guardado) as Partial<Usuario>),
+        id: base.id,
+        email: base.email,
+        rol: base.rol
+      };
     } catch {
       // JSON corrupto en localStorage: se ignora y se usa el perfil base
       return base;

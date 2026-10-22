@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 
 // Páginas
 import { LoginComponent } from './pages/login/login.component';
+import { RegistroComponent } from './pages/register/registro.component';
 import { UserhomeComponent } from './pages/userhome/userhome.component';
 import { AdminhomeComponent } from './pages/adminhome/adminhome.component';
 import { CrearReclamoComponent } from './pages/crear-reclamo/crear-reclamo.component';
@@ -35,6 +36,7 @@ import { FaqComponent } from './shared/components/faq/faq.component';
     AppComponent,
     FechaNoFuturaDirective,
     LoginComponent,
+    RegistroComponent,
     UserhomeComponent,
     AdminhomeComponent,
     CrearReclamoComponent,
