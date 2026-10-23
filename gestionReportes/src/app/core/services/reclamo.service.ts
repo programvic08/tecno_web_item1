@@ -205,12 +205,12 @@ export class ReclamoService {
         if (cambios.estado === EstadoReclamo.RESUELTO) {
 
           const yaResuelto =
-            reclamo.estado === EstadoReclamo.RESUELTO ||
-            reclamo.estado === EstadoReclamo.CERRADO;
+            r.estado === EstadoReclamo.RESUELTO ||
+            r.estado === EstadoReclamo.CERRADO;
 
           actualizado.fechaResolucion =
-            yaResuelto && reclamo.fechaResolucion
-              ? reclamo.fechaResolucion
+            yaResuelto && r.fechaResolucion
+              ? r.fechaResolucion
               : new Date().toISOString().slice(0, 10);
 
         } else if (
@@ -233,14 +233,15 @@ export class ReclamoService {
           };
 
           actualizado.bitacora = [
-            ...(reclamo.bitacora ?? []),
+            ...(r.bitacora ?? []),
             entrada
           ];
         }
 
         return actualizado;
       }
-    );
+      return r;
+    });
 
     this.reclamosSubject.next(listaActualizada);
     return true;
@@ -262,7 +263,7 @@ export class ReclamoService {
         };
       }
 
-      return reclamo;
+      return r;
     });
 
     this.reclamosSubject.next(lista);

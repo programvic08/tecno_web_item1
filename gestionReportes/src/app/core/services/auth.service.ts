@@ -3,7 +3,7 @@ import { Router, UrlTree } from '@angular/router';
 import { BehaviorSubject, Observable, map, tap, timer } from 'rxjs';
 import { RolUsuario } from '../../models/reclamo.enums';
 import { RUTAS } from '../config/navegacion.config';
-import { ActualizarPerfilDto, AgenteAsignable, CuentaPrueba, LoginDto, TokenPayload, Usuario } from '../../models/usuario.model';
+import { ActualizarPerfilDto, AgenteAsignable, CuentaPrueba, LoginDto, RegistroDto, TokenPayload, Usuario, UsuarioRegistrado } from '../../models/usuario.model';
 
 // Valor del query param con el que se avisa en el login que la sesión venció
 export const MOTIVO_SESION_EXPIRADA = 'sesion-expirada';
@@ -138,7 +138,8 @@ export class AuthService {
   // es agente, así que aparece en la lista (el nombre sale del perfil vigente, que es editable).
   obtenerAgentes(): AgenteAsignable[] {
     return [RolUsuario.AGENTE, RolUsuario.ADMINISTRADOR].map(rol => {
-      const perfil = this.leerPerfil(rol);
+      const base = this.usuariosMock[rol];
+      const perfil = this.leerPerfil(base.id) ?? base;
       return { id: perfil.id, nombre: perfil.nombre };
     });
   }
