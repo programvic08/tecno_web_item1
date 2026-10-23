@@ -1,6 +1,14 @@
+
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map, of } from 'rxjs';
-import { Reclamo, CategoriaReclamo, EntradaBitacora, ReporteEstadistico } from '../../models/reclamo.model';
+
+import {
+  Reclamo,
+  CategoriaReclamo,
+  EntradaBitacora,
+  ReporteEstadistico
+} from '../../models/reclamo.model';
+
 import { ReporteComun } from '../../models/reporte-comun.model';
 import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
 
@@ -8,6 +16,11 @@ import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
   providedIn: 'root'
 })
 export class ReclamoService {
+
+  // ==========================================
+  // 1. DATOS DE PRUEBA
+  // ==========================================
+
   private reclamosMock: Reclamo[] = [
     {
       id: 101,
@@ -41,20 +54,67 @@ export class ReclamoService {
     }
   ];
 
-  private reclamosSubject = new BehaviorSubject<Reclamo[]>(this.reclamosMock);
-  public reclamos$: Observable<Reclamo[]> = this.reclamosSubject.asObservable();
+  private reclamosSubject = new BehaviorSubject<Reclamo[]>(
+    this.reclamosMock
+  );
+
+  public reclamos$: Observable<Reclamo[]> =
+    this.reclamosSubject.asObservable();
+
+  // ==========================================
+  // 2. CATEGORÍAS
+  // ==========================================
 
   getCategorias(): CategoriaReclamo[] {
     return [
-      { nombre: 'Aseo y Ornato', subcategorias: ['Microbasural', 'Corte de césped', 'Escombros'] },
-      { nombre: 'Alumbrado Público', subcategorias: ['Luminaria Apagada', 'Poste Dañado', 'Foco Parpadeando'] },
-      { nombre: 'Infraestructura Urbana', subcategorias: ['Bache / Evento', 'Vereda Rota', 'Señalética Caída'] },
-      { nombre: 'Seguridad y Ruidos', subcategorias: ['Ruido Molesto', 'Vehículo Abandonado', 'Inseguridad'] }
+      {
+        nombre: 'Aseo y Ornato',
+        subcategorias: [
+          'Microbasural',
+          'Corte de césped',
+          'Escombros'
+        ]
+      },
+      {
+        nombre: 'Alumbrado Público',
+        subcategorias: [
+          'Luminaria Apagada',
+          'Poste Dañado',
+          'Foco Parpadeando'
+        ]
+      },
+      {
+        nombre: 'Infraestructura Urbana',
+        subcategorias: [
+          'Bache / Evento',
+          'Vereda Rota',
+          'Señalética Caída'
+        ]
+      },
+      {
+        nombre: 'Seguridad y Ruidos',
+        subcategorias: [
+          'Ruido Molesto',
+          'Vehículo Abandonado',
+          'Inseguridad'
+        ]
+      }
     ];
   }
 
-  crearReclamo(nuevoReclamo: Omit<Reclamo, 'id' | 'folio' | 'estado' | 'agenteAsignado' | 'fecha'>): Observable<Reclamo> {
+  // ==========================================
+  // 3. CREAR RECLAMO
+  // ==========================================
+
+  crearReclamo(
+    nuevoReclamo: Omit<
+      Reclamo,
+      'id' | 'folio' | 'estado' | 'agenteAsignado' | 'fecha'
+    >
+  ): Observable<Reclamo> {
+
     const id = this.generarId();
+
     const reclamoCompleto: Reclamo = {
       ...nuevoReclamo,
       id,
@@ -62,39 +122,91 @@ export class ReclamoService {
       estado: EstadoReclamo.RECIBIDO,
       prioridad: PrioridadReclamo.MEDIA,
       agenteAsignado: 'Sin asignar',
-      fecha: new Date().toISOString().split('T')[0]
+      fecha: new Date().toISOString().slice(0, 10)
     };
 
     const listaActual = this.reclamosSubject.value;
-    this.reclamosSubject.next([reclamoCompleto, ...listaActual]);
+
+    this.reclamosSubject.next([
+      reclamoCompleto,
+      ...listaActual
+    ]);
+
     return of(reclamoCompleto);
   }
 
-  // El próximo id es el mayor existente + 1: nunca se repite, así dos reclamos no comparten folio.
   private generarId(): number {
-    return this.reclamosSubject.value.reduce((maximo, r) => Math.max(maximo, r.id), 0) + 1;
+    return this.reclamosSubject.value.reduce(
+      (maximo, reclamo) => Math.max(maximo, reclamo.id),
+      0
+    ) + 1;
   }
 
-  // Solo los reclamos creados por ese usuario (el historial y la consulta de estado muestran los propios).
-  obtenerReclamosDeUsuario(usuarioId: number | undefined): Observable<Reclamo[]> {
+  // ==========================================
+  // 4. RECLAMOS POR USUARIO
+  // ==========================================
+
+  obtenerReclamosDeUsuario(
+    usuarioId: number | undefined
+  ): Observable<Reclamo[]> {
+
     return this.reclamos$.pipe(
-      map(lista => lista.filter(r => usuarioId !== undefined && r.usuarioId === usuarioId))
+      map(lista =>
+        lista.filter(
+          reclamo =>
+            usuarioId !== undefined &&
+            reclamo.usuarioId === usuarioId
+        )
+      )
     );
   }
 
-  actualizarReclamo(folio: string, cambios: Partial<Reclamo>, observacion?: string, autor?: string): void {
-    const listaActualizada = this.reclamosSubject.value.map(r => {
-      if (r.folio === folio) {
-        const actualizado = { ...r, ...cambios };
+  // ==========================================
+  // 5. ACTUALIZAR RECLAMO
+  // ==========================================
+
+  actualizarReclamo(
+    folio: string,
+    cambios: Partial<Reclamo>,
+    observacion?: string,
+    autor?: string
+  ): void {
+
+    const listaActualizada = this.reclamosSubject.value.map(
+      reclamo => {
+
+        if (reclamo.folio !== folio) {
+          return reclamo;
+        }
+
+        const actualizado: Reclamo = {
+          ...reclamo,
+          ...cambios
+        };
+
+        // Registrar la fecha cuando se resuelve.
         if (cambios.estado === EstadoReclamo.RESUELTO) {
-          const yaResuelto = r.estado === EstadoReclamo.RESUELTO || r.estado === EstadoReclamo.CERRADO;
-          actualizado.fechaResolucion = yaResuelto && r.fechaResolucion
-            ? r.fechaResolucion : new Date().toISOString().slice(0, 10);
-        } else if (cambios.estado && cambios.estado !== EstadoReclamo.CERRADO) {
+
+          const yaResuelto =
+            reclamo.estado === EstadoReclamo.RESUELTO ||
+            reclamo.estado === EstadoReclamo.CERRADO;
+
+          actualizado.fechaResolucion =
+            yaResuelto && reclamo.fechaResolucion
+              ? reclamo.fechaResolucion
+              : new Date().toISOString().slice(0, 10);
+
+        } else if (
+          cambios.estado &&
+          cambios.estado !== EstadoReclamo.CERRADO
+        ) {
+          // Si se reabre, deja de estar resuelto.
           actualizado.fechaResolucion = undefined;
         }
 
+        // Registrar observación en la bitácora.
         const texto = observacion?.trim();
+
         if (texto) {
           const entrada: EntradaBitacora = {
             fecha: new Date().toISOString().slice(0, 10),
@@ -102,27 +214,46 @@ export class ReclamoService {
             estado: actualizado.estado,
             observacion: texto
           };
-          actualizado.bitacora = [...(r.bitacora ?? []), entrada];
+
+          actualizado.bitacora = [
+            ...(reclamo.bitacora ?? []),
+            entrada
+          ];
         }
+
         return actualizado;
       }
-      return r;
-    });
+    );
+
     this.reclamosSubject.next(listaActualizada);
   }
-  
+
+  // ==========================================
+  // 6. ASIGNAR AGENTE
+  // ==========================================
+
   asignarAgente(folio: string, agente: string): void {
-    const lista = this.reclamosSubject.value.map(r => {
-      if (r.folio === folio) {
-        return { ...r, agenteAsignado: agente, estado: EstadoReclamo.EN_REVISION };
+
+    const lista = this.reclamosSubject.value.map(reclamo => {
+
+      if (reclamo.folio === folio) {
+        return {
+          ...reclamo,
+          agenteAsignado: agente,
+          estado: EstadoReclamo.EN_REVISION
+        };
       }
-      return r;
+
+      return reclamo;
     });
+
     this.reclamosSubject.next(lista);
   }
 
-  // Estadística base de los últimos 30 días (datos de demostración hasta tener backend).
-  // A ella se suman los reclamos que existan en memoria, así el ranking se mueve al crear uno.
+  // ==========================================
+  // 7. ESTADÍSTICAS BASE
+  // ==========================================
+
   private readonly estadisticaBase: ReporteComun[] = [
     { id: 1, categoria: 'Aseo y Ornato', subcategoria: 'Microbasural', cantidad: 42 },
     { id: 2, categoria: 'Alumbrado Público', subcategoria: 'Luminaria Apagada', cantidad: 37 },
@@ -138,17 +269,31 @@ export class ReclamoService {
     { id: 12, categoria: 'Seguridad y Ruidos', subcategoria: 'Inseguridad', cantidad: 5 }
   ];
 
-  // Ranking de reportes más comunes por subcategoría, de mayor a menor.
+  // ==========================================
+  // 8. REPORTES MÁS COMUNES
+  // ==========================================
+
   obtenerReportesComunes(): Observable<ReporteComun[]> {
+
     return this.reclamos$.pipe(
       map(reclamos => {
+
         const conteo = new Map<string, ReporteComun>();
+
         for (const base of this.estadisticaBase) {
-          conteo.set(`${base.categoria}|${base.subcategoria}`, { ...base });
+          conteo.set(
+            `${base.categoria}|${base.subcategoria}`,
+            { ...base }
+          );
         }
+
         for (const reclamo of reclamos) {
-          const clave = `${reclamo.categoria}|${reclamo.subcategoria}`;
+
+          const clave =
+            `${reclamo.categoria}|${reclamo.subcategoria}`;
+
           const existente = conteo.get(clave);
+
           if (existente) {
             existente.cantidad++;
           } else {
@@ -160,10 +305,17 @@ export class ReclamoService {
             });
           }
         }
-        return Array.from(conteo.values()).sort((a, b) => b.cantidad - a.cantidad);
+
+        return Array.from(conteo.values()).sort(
+          (a, b) => b.cantidad - a.cantidad
+        );
       })
     );
   }
+
+  // ==========================================
+  // 9. REPORTE ESTADÍSTICO GENERAL
+  // ==========================================
 
   obtenerReporte(filtros?: {
     fechaDesde?: string;
@@ -171,63 +323,268 @@ export class ReclamoService {
     categoria?: string;
     estado?: string;
   }): Observable<ReporteEstadistico> {
+
     return this.reclamos$.pipe(
       map(reclamos => {
-        let reclamosFiltrados = reclamos;
 
-        if (filtros?.fechaDesde) {
-          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha >= filtros.fechaDesde!);
-        }
-        if (filtros?.fechaHasta) {
-          reclamosFiltrados = reclamosFiltrados.filter(r => r.fecha <= filtros.fechaHasta!);
-        }
-        if (filtros?.categoria && filtros.categoria !== 'Todas') {
-          reclamosFiltrados = reclamosFiltrados.filter(r => r.categoria === filtros.categoria);
-        }
-        if (filtros?.estado && filtros.estado !== 'Todos') {
-          reclamosFiltrados = reclamosFiltrados.filter(r => r.estado === filtros.estado);
+        let seleccionados = reclamos;
+
+        // Filtrar por categoría.
+        if (
+          filtros?.categoria &&
+          filtros.categoria !== 'Todas'
+        ) {
+          seleccionados = seleccionados.filter(
+            r => r.categoria === filtros.categoria
+          );
         }
 
-        const reclamosPorEstado = Object.values(EstadoReclamo).map(est => ({
-          estado: est,
-          cantidad: reclamosFiltrados.filter(r => r.estado === est).length
+        // Filtrar por estado.
+        if (
+          filtros?.estado &&
+          filtros.estado !== 'Todos'
+        ) {
+          seleccionados = seleccionados.filter(
+            r => r.estado === filtros.estado
+          );
+        }
+
+        // Filtrar por fecha de ingreso.
+        const reclamosFiltrados = seleccionados.filter(r => {
+
+          const fecha = r.fecha.slice(0, 10);
+
+          return (
+            (!filtros?.fechaDesde ||
+              fecha >= filtros.fechaDesde) &&
+            (!filtros?.fechaHasta ||
+              fecha <= filtros.fechaHasta)
+          );
+        });
+
+        // Cantidad de reclamos por estado.
+        const reclamosPorEstado = Object.values(
+          EstadoReclamo
+        ).map(estado => ({
+          estado,
+          cantidad: reclamosFiltrados.filter(
+            r => r.estado === estado
+          ).length
         }));
 
-        const categorias = Array.from(new Set(reclamosFiltrados.map(r => r.categoria)));
-        const reclamosPorCategoria = categorias.map(cat => ({
-          categoria: cat,
-          cantidad: reclamosFiltrados.filter(r => r.categoria === cat).length
-        }));
+        // Cantidad de reclamos por categoría.
+        const categorias = Array.from(
+          new Set(
+            reclamosFiltrados.map(r => r.categoria)
+          )
+        );
 
+        const reclamosPorCategoria = categorias.map(
+          categoria => ({
+            categoria,
+            cantidad: reclamosFiltrados.filter(
+              r => r.categoria === categoria
+            ).length
+          })
+        );
+
+        // Tiempo promedio de resolución.
         const duraciones = reclamosFiltrados
-          .filter(r => r.estado === EstadoReclamo.RESUELTO || r.estado === EstadoReclamo.CERRADO)
+          .filter(r =>
+            r.estado === EstadoReclamo.RESUELTO ||
+            r.estado === EstadoReclamo.CERRADO
+          )
           .map(r => this.diasHastaResolucion(r))
-          .filter((dias): dias is number => dias !== null);
-        const promedio = duraciones.length
-          ? duraciones.reduce((total, dias) => total + dias, 0) / duraciones.length
+          .filter(
+            (dias): dias is number => dias !== null
+          );
+
+        const promedio = duraciones.length > 0
+          ? duraciones.reduce(
+              (total, dias) => total + dias,
+              0
+            ) / duraciones.length
           : null;
 
+        // Construir reporte completo.
         return {
           totalReclamos: reclamosFiltrados.length,
           tiempoPromedioResolucionDias: promedio,
           reclamosPorEstado,
-          reclamosPorCategoria
+          reclamosPorCategoria,
+          reclamosPorMes: this.agruparCantidadPorMes(
+            reclamosFiltrados,
+            filtros?.fechaDesde,
+            filtros?.fechaHasta
+          )
         };
       })
     );
   }
 
-  private diasHastaResolucion(reclamo: Reclamo): number | null {
-    // Comparar fechas calendario en UTC evita diferencias por horario de verano.
-    const convertir = (fecha: string | undefined): number | null => {
-      if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return null;
-      const instante = Date.parse(fecha + 'T00:00:00Z');
-      return Number.isFinite(instante) && new Date(instante).toISOString().slice(0, 10) === fecha
-        ? instante : null;
+  // ==========================================
+  // 10. CANTIDAD DE RECLAMOS POR MES
+  // ==========================================
+
+  private agruparCantidadPorMes(
+    reclamos: Reclamo[],
+    fechaDesde?: string,
+    fechaHasta?: string
+  ): { mes: string; cantidad: number }[] {
+
+    const ahora = new Date();
+
+    // Si no hay fechas, mostrar el año actual.
+    const anioActual = ahora.getFullYear();
+
+    const inicio = fechaDesde
+      ? fechaDesde.slice(0, 7)
+      : fechaHasta
+        ? `${fechaHasta.slice(0, 4)}-01`
+        : `${anioActual}-01`;
+
+    const fin = fechaHasta
+      ? fechaHasta.slice(0, 7)
+      : fechaDesde
+        ? `${fechaDesde.slice(0, 4)}-12`
+        : `${anioActual}-12`;
+
+    const validarMes = (valor: string): boolean => {
+      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(valor)) {
+        return false;
+      }
+
+      return true;
     };
+
+    if (
+      !validarMes(inicio) ||
+      !validarMes(fin) ||
+      inicio > fin
+    ) {
+      return [];
+    }
+
+    // Contar reclamos por mes de ingreso.
+    const conteo = new Map<string, number>();
+
+    for (const reclamo of reclamos) {
+
+      const fecha = reclamo.fecha.slice(0, 10);
+
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        continue;
+      }
+
+      if (fechaDesde && fecha < fechaDesde) {
+        continue;
+      }
+
+      if (fechaHasta && fecha > fechaHasta) {
+        continue;
+      }
+
+      const mes = fecha.slice(0, 7);
+
+      conteo.set(
+        mes,
+        (conteo.get(mes) ?? 0) + 1
+      );
+    }
+
+    const resultado: {
+      mes: string;
+      cantidad: number;
+    }[] = [];
+
+    const anioInicio = Number(inicio.slice(0, 4));
+    const mesInicio = Number(inicio.slice(5, 7));
+
+    const anioFin = Number(fin.slice(0, 4));
+    const mesFin = Number(fin.slice(5, 7));
+
+    const indiceInicio = anioInicio * 12 + mesInicio - 1;
+    const indiceFin = anioFin * 12 + mesFin - 1;
+
+    // Incluir también los meses sin reclamos.
+    for (
+      let indice = indiceInicio;
+      indice <= indiceFin;
+      indice++
+    ) {
+
+      const anio = Math.floor(indice / 12);
+
+      const numeroMes = String(
+        (indice % 12) + 1
+      ).padStart(2, '0');
+
+      const mes = `${anio}-${numeroMes}`;
+
+      resultado.push({
+        mes,
+        cantidad: conteo.get(mes) ?? 0
+      });
+    }
+
+    return resultado;
+  }
+
+  // ==========================================
+  // 11. CALCULAR DÍAS HASTA RESOLUCIÓN
+  // ==========================================
+
+  private diasHastaResolucion(
+    reclamo: Reclamo
+  ): number | null {
+
+    // Convertir fecha YYYY-MM-DD a UTC.
+    const convertir = (
+      fecha: string | undefined
+    ): number | null => {
+
+      if (
+        !fecha ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(fecha)
+      ) {
+        return null;
+      }
+
+      const instante = Date.parse(
+        fecha + 'T00:00:00Z'
+      );
+
+      if (!Number.isFinite(instante)) {
+        return null;
+      }
+
+      const fechaValidada = new Date(instante)
+        .toISOString()
+        .slice(0, 10);
+
+      return fechaValidada === fecha
+        ? instante
+        : null;
+    };
+
     const inicio = convertir(reclamo.fecha);
-    const fin = convertir(reclamo.fechaResolucion);
-    if (inicio === null || fin === null || fin < inicio || fin > Date.now()) return null;
-    return (fin - inicio) / 86400000;
+
+    const fin = convertir(
+      reclamo.fechaResolucion
+    );
+
+    // Descartar fechas inválidas.
+    if (
+      inicio === null ||
+      fin === null ||
+      fin < inicio ||
+      fin > Date.now()
+    ) {
+      return null;
+    }
+
+    const milisegundosPorDia = 86400000;
+
+    return (fin - inicio) / milisegundosPorDia;
   }
 }

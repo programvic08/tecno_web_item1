@@ -1,1 +1,98 @@
 /* Estilos centralizados en src/styles.css. Consultar ESTILOS.md. */
+.grafico-reclamos {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px;
+  min-width: 0;
+  margin: 24px auto;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #dce5eb;
+  border-radius: 12px;
+}
+
+.grafico-reclamos h2 {
+  margin: 0 0 8px;
+  color: #183248;
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.grafico-reclamos p {
+  margin: 0 0 12px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.grafico-contenedor {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 320px;
+}
+
+.grafico-reclamos .nota-grafico {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.grafico-reclamos details {
+  margin-top: 16px;
+}
+
+.grafico-reclamos summary {
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .grafico-reclamos {
+    padding: 10px;
+  }
+
+  .grafico-reclamos h2 {
+    font-size: 18px;
+  }
+
+  .grafico-contenedor {
+    height: 280px;
+  }
+}
+
+/* Contenedor de los botones */
+.acciones-filtros {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+/* Estilo idéntico para ambos botones */
+.acciones-filtros .btn-filtrar {
+  background-color: #0d3557;
+  color: white;
+
+  width: 150px;
+  height: 42px;
+
+  border: none;
+  border-radius: 4px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Al pasar el mouse */
+.acciones-filtros .btn-filtrar:hover:not(:disabled) {
+  background-color: #164c78;
+}
+
+/* Botones deshabilitados */
+.acciones-filtros .btn-filtrar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

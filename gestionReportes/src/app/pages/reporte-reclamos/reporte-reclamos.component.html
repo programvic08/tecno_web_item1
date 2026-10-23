@@ -1,67 +1,289 @@
+
 <div class="container mt-4">
+
   <h1>Reportes de Reclamos</h1>
   <p>Volumen y tiempos de resolución de atención ciudadana</p>
 
+  <!-- ====================================== -->
+  <!-- FILTROS -->
+  <!-- ====================================== -->
+
   <div class="row mb-3">
+
     <div class="col-md-3">
       <label for="fechaDesde">Desde:</label>
-      <input type="date" id="fechaDesde" #fechaDesdeCtrl="ngModel" [(ngModel)]="filtroFechaDesde">
+      <input
+        type="date"
+        id="fechaDesde"
+        #fechaDesdeCtrl="ngModel"
+        [(ngModel)]="filtroFechaDesde"
+      >
     </div>
+
     <div class="col-md-3">
       <label for="fechaHasta">Hasta:</label>
-      <input type="date" id="fechaHasta" #fechaHastaCtrl="ngModel" [(ngModel)]="filtroFechaHasta">
+      <input
+        type="date"
+        id="fechaHasta"
+        #fechaHastaCtrl="ngModel"
+        [(ngModel)]="filtroFechaHasta"
+      >
     </div>
+
     <div class="col-md-3">
       <label for="categoria">Categoría:</label>
-      <select id="categoria" [(ngModel)]="filtroCategoria">
-        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+      <select
+        id="categoria"
+        [(ngModel)]="filtroCategoria"
+      >
+        <option
+          *ngFor="let cat of categorias"
+          [value]="cat"
+        >
+          {{ cat }}
+        </option>
       </select>
     </div>
+
     <div class="col-md-3">
       <label for="estado">Estado:</label>
-      <select id="estado" [(ngModel)]="filtroEstado">
-        <option *ngFor="let est of estados" [value]="est">{{ est }}</option>
+      <select
+        id="estado"
+        [(ngModel)]="filtroEstado"
+      >
+        <option
+          *ngFor="let est of estados"
+          [value]="est"
+        >
+          {{ est }}
+        </option>
       </select>
     </div>
+
   </div>
 
-  <button class="btn-filtrar" [disabled]="!!fechaDesdeCtrl.invalid || !!fechaHastaCtrl.invalid" (click)="aplicarFiltros()">Filtrar</button>
+  <!-- ====================================== -->
+  <!-- BOTONES -->
+  <!-- ====================================== -->
+
+  <div class="acciones-filtros">
+
+    <button
+      type="button"
+      class="btn-filtrar"
+      [disabled]="
+        isLoading ||
+        !!fechaDesdeCtrl.invalid ||
+        !!fechaHastaCtrl.invalid
+      "
+      (click)="aplicarFiltros()"
+    >
+      Filtrar
+    </button>
+
+    <button
+      type="button"
+      class="btn-filtrar"
+      [disabled]="isLoading"
+      (click)="limpiarFiltros()"
+    >
+      Limpiar filtros
+    </button>
+
+  </div>
+
+  <!-- ====================================== -->
+  <!-- MENSAJES -->
+  <!-- ====================================== -->
+
+  <p *ngIf="mensajeError" role="alert">
+    {{ mensajeError }}
+  </p>
 
   <div *ngIf="isLoading" class="cargando">
     <p>Cargando datos...</p>
   </div>
 
-  <div *ngIf="!isLoading" class="reporte-content">
+  <!-- ====================================== -->
+  <!-- CONTENIDO DEL REPORTE -->
+  <!-- ====================================== -->
+
+  <div
+    *ngIf="!isLoading && !mensajeError"
+    class="reporte-content"
+  >
+
+    <!-- MÉTRICAS GENERALES -->
+
     <div class="metricas-resumen">
-      <p><strong>Total de Reclamos:</strong> {{ reporte.totalReclamos }}</p>
-      <p><strong>Tiempo Promedio de Resolución:</strong> <ng-container *ngIf="reporte.tiempoPromedioResolucionDias !== null; else sinDatos">{{ reporte.tiempoPromedioResolucionDias | number:'1.0-2' }} días</ng-container><ng-template #sinDatos>Sin datos</ng-template></p>
+
+      <p>
+        <strong>Total de Reclamos:</strong>
+        {{ reporte.totalReclamos }}
+      </p>
+
+      <p>
+        <strong>Tiempo Promedio de Resolución:</strong>
+
+        <ng-container
+          *ngIf="
+            reporte.tiempoPromedioResolucionDias !== null;
+            else sinDatos
+          "
+        >
+          {{
+            reporte.tiempoPromedioResolucionDias
+              | number:'1.0-0'
+          }}
+          días
+        </ng-container>
+
+        <ng-template #sinDatos>
+          Sin datos
+        </ng-template>
+      </p>
+
     </div>
 
-    <h4>Reclamos por Estado</h4>
-    <table>
-      <thead>
-        <tr><th>Estado</th><th>Cantidad</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of reporte.reclamosPorEstado">
-          <td><app-status-badge [estado]="item.estado"></app-status-badge></td>
-          <td>{{ item.cantidad }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <p *ngIf="reporte.totalReclamos === 0">
+      No hay reclamos con los filtros seleccionados.
+    </p>
 
-    <h4>Reclamos por Categoría</h4>
-    <table>
-      <thead>
-        <tr><th>Categoría</th><th>Cantidad</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of reporte.reclamosPorCategoria">
-          <td>{{ item.categoria }}</td>
-          <td>{{ item.cantidad }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- ====================================== -->
+    <!-- GRÁFICO DE LÍNEAS -->
+    <!-- ====================================== -->
+
+    <section
+      class="grafico-reclamos"
+      aria-labelledby="tituloGraficoMensual"
+    >
+
+      <h2 id="tituloGraficoMensual">
+        Cantidad de reclamos por mes
+      </h2>
+
+      <p>
+        Evolución mensual de la cantidad de reclamos
+        ingresados, según los filtros seleccionados.
+      </p>
+
+      <div class="grafico-contenedor">
+
+        <canvas
+          #graficoMensual
+          role="img"
+          aria-label="Gráfico de líneas de cantidad de reclamos por mes"
+        >
+          Gráfico de cantidad mensual de reclamos.
+        </canvas>
+
+      </div>
+
+      <!-- TABLA DE RESPALDO -->
+
+      <details>
+
+        <summary>
+          Ver cantidades por mes
+        </summary>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th scope="col">Mes</th>
+              <th scope="col">
+                Cantidad de reclamos
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr
+              *ngFor="let item of reporte.reclamosPorMes"
+            >
+              <td>{{ item.mes }}</td>
+              <td>{{ item.cantidad }}</td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </details>
+
+    </section>
+
+    <!-- ====================================== -->
+    <!-- RECLAMOS POR ESTADO -->
+    <!-- ====================================== -->
+
+    <section>
+
+      <h2>Reclamos por Estado</h2>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th scope="col">Estado</th>
+            <th scope="col">Cantidad</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr
+            *ngFor="let item of reporte.reclamosPorEstado"
+          >
+            <td>
+              <app-status-badge
+                [estado]="item.estado"
+              ></app-status-badge>
+            </td>
+
+            <td>{{ item.cantidad }}</td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </section>
+
+    <!-- ====================================== -->
+    <!-- RECLAMOS POR CATEGORÍA -->
+    <!-- ====================================== -->
+
+    <section>
+
+      <h2>Reclamos por Categoría</h2>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th scope="col">Categoría</th>
+            <th scope="col">Cantidad</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr
+            *ngFor="let item of reporte.reclamosPorCategoria"
+          >
+            <td>{{ item.categoria }}</td>
+            <td>{{ item.cantidad }}</td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </section>
+
   </div>
-</div>
 
+</div>

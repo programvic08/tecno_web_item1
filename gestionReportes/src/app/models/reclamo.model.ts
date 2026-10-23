@@ -48,4 +48,9 @@ export interface ReporteEstadistico {
   tiempoPromedioResolucionDias: number | null;
   reclamosPorEstado: { estado: string; cantidad: number }[];
   reclamosPorCategoria: { categoria: string; cantidad: number }[];
+
+  reclamosPorMes?: {
+    mes: string;
+    cantidad: number | null;
+  }[];
 }
