@@ -1,0 +1,184 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background-color: #f0f4f8; /* Fondo general suave por si falta la variable */
+}
+
+.contenedor-login {
+  width: 100%;
+  max-width: 440px;
+}
+
+.titulo-login {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-top: 16px;
+  border-top: 3px solid var(--nyc-red, #d9381e);
+}
+
+.titulo-login h1 {
+  margin-bottom: 8px;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 2rem;
+  color: var(--primary-blue, #0f2b46);
+}
+
+.titulo-login p,
+.login-footer {
+  color: var(--text-gray, #555555);
+}
+
+.formulario-login {
+  padding: 32px 24px;
+  border: 1px solid var(--border-color, #dcdcdc);
+  border-radius: 8px;
+  background: var(--card-bg, #ffffff);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-elements {
+  margin-bottom: 20px;
+}
+
+.form-elements label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--primary-blue, #0f2b46);
+}
+
+.form-elements input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 6px;
+  background-color: #f8fafc;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-elements input:focus {
+  outline: none;
+  border-color: var(--primary-blue, #0f2b46);
+  background-color: #ffffff;
+}
+
+.form-elements input.ng-invalid.ng-touched {
+  border-color: var(--nyc-red, #d9381e);
+}
+
+.error-campo,
+.mensaje-error {
+  color: var(--error-color, #d9381e);
+  font-size: 13px;
+}
+
+.error-campo {
+  display: block;
+  margin-top: 6px;
+}
+
+.mensaje-error {
+  margin-bottom: 16px;
+  padding: 10px;
+  background: var(--error-bg, #fef2f2);
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
+
+.mensaje-exito {
+  margin-bottom: 16px;
+  padding: 10px;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.recuperar-contraseña {
+  margin-bottom: 20px;
+}
+
+.btn-ingresar {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary-blue, #0f2b46);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.btn-ingresar:hover {
+  background: var(--primary-blue-hover, #163d5c);
+}
+
+.btn-ingresar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.divider {
+  margin: 24px 0;
+  border: 0;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.usuario p {
+  margin-bottom: 12px;
+  color: var(--text-gray, #555555);
+  font-size: 14px;
+}
+
+.user-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-user {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--primary-blue, #0f2b46);
+  border-radius: 6px;
+  background: var(--primary-blue, #0f2b46);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.btn-user:hover {
+  background: var(--primary-blue-hover, #163d5c);
+}
+
+.btn-user:disabled {
+  opacity: 0.6;
+}
+
+a {
+  color: var(--primary-blue, #0f2b46);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--primary-blue-hover, #163d5c);
+}
+
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .formulario-login {
+    padding: 16px;
+  }
+}
