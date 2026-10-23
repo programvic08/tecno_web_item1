@@ -1,5 +1,8 @@
 import { EstadoReclamo, PrioridadReclamo } from './reclamo.enums';
 
+// Texto que se muestra mientras ningún agente tiene el reclamo
+export const SIN_ASIGNAR = 'Sin asignar';
+
 // Registro de una observación dejada por un agente al gestionar el reclamo
 export interface EntradaBitacora {
   fecha: string;
@@ -26,7 +29,8 @@ export interface Reclamo {
   fechaResolucion?: string;
   prioridad: PrioridadReclamo;
   estado: EstadoReclamo;
-  agenteAsignado: string;
+  agenteAsignado: string;          // nombre para mostrar
+  agenteId?: number | null;        // id del agente responsable (la autorización usa este dato, no el nombre)
   usuarioId?: number;
   bitacora?: EntradaBitacora[];
 }

@@ -3,7 +3,7 @@ import { Router, UrlTree } from '@angular/router';
 import { BehaviorSubject, Observable, map, tap, timer } from 'rxjs';
 import { RolUsuario } from '../../models/reclamo.enums';
 import { RUTAS } from '../config/navegacion.config';
-import { ActualizarPerfilDto, CuentaPrueba, LoginDto, TokenPayload, Usuario } from '../../models/usuario.model';
+import { ActualizarPerfilDto, AgenteAsignable, CuentaPrueba, LoginDto, TokenPayload, Usuario } from '../../models/usuario.model';
 
 // Valor del query param con el que se avisa en el login que la sesión venció
 export const MOTIVO_SESION_EXPIRADA = 'sesion-expirada';
@@ -23,6 +23,14 @@ export class AuthService {
       telefono: '',
       direccion: ''
     },
+    [RolUsuario.AGENTE]: {
+      id: 3,
+      nombre: 'Agente Pérez',
+      email: 'agente@gmail.com',
+      rol: RolUsuario.AGENTE,
+      telefono: '',
+      direccion: ''
+    },
     [RolUsuario.ADMINISTRADOR]: {
       id: 2,
       nombre: 'Agente Municipal de Prueba',
@@ -37,6 +45,7 @@ export class AuthService {
   // que exista un backend solo cambie este servicio.
   private readonly credencialesMock: CuentaPrueba[] = [
     { email: 'ciudadano@gmail.com', password: '123456', rol: RolUsuario.CIUDADANO },
+    { email: 'agente@gmail.com', password: '123456', rol: RolUsuario.AGENTE },
     { email: 'admin@gmail.com', password: '123456', rol: RolUsuario.ADMINISTRADOR }
   ];
 
@@ -92,11 +101,21 @@ export class AuthService {
     return this.credencialesMock;
   }
 
+  // Personal al que el administrador puede asignarle reclamos. El administrador también
+  // es agente, así que aparece en la lista (el nombre sale del perfil vigente, que es editable).
+  obtenerAgentes(): AgenteAsignable[] {
+    return [RolUsuario.AGENTE, RolUsuario.ADMINISTRADOR].map(rol => {
+      const perfil = this.leerPerfil(rol);
+      return { id: perfil.id, nombre: perfil.nombre };
+    });
+  }
+
   // Ruta de inicio según el rol (un único lugar para redirecciones)
   obtenerRutaInicio(rol: RolUsuario | null): string {
     switch (rol) {
       case RolUsuario.CIUDADANO:
         return RUTAS.inicioCiudadano;
+      case RolUsuario.AGENTE:
       case RolUsuario.ADMINISTRADOR:
         return RUTAS.inicioAdmin;
       default:

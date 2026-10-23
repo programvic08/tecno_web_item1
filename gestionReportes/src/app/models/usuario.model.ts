@@ -28,6 +28,9 @@ export interface CuentaPrueba extends LoginDto {
   rol: RolUsuario;
 }
 
+// Agente al que se le puede asignar un reclamo (lo que lista el selector del administrador)
+export type AgenteAsignable = Pick<Usuario, 'id' | 'nombre'>;
+
 // Contenido (payload) del token de sesión simulado
 export interface TokenPayload {
   sub: string;   // id del usuario

@@ -19,6 +19,7 @@ export class SubnavComponent {
       map(rol => {
         switch (rol) {
           case RolUsuario.ADMINISTRADOR:
+          case RolUsuario.AGENTE:
             return PESTANAS_ADMIN;
           case RolUsuario.CIUDADANO:
             return PESTANAS_CIUDADANO;

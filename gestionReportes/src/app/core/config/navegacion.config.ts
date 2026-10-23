@@ -1,4 +1,4 @@
-import { RolUsuario } from '../../models/reclamo.enums';
+import { ROLES_PERSONAL, RolUsuario } from '../../models/reclamo.enums';
 import { ApartadoPortal, PestanaSubnav, TareaRapida } from '../../models/navegacion.model';
 
 // Marca del navbar. La guía pide cambiarla por la del portal al integrar los 5 sistemas.
@@ -44,11 +44,19 @@ export const TAREAS_ADMIN: TareaRapida[] = [
   { etiqueta: 'Actualizar mis datos de perfil', ruta: RUTAS.perfil }
 ];
 
+// El agente ve las mismas pantallas que el administrador, pero solo con sus reclamos asignados.
+export const TAREAS_AGENTE: TareaRapida[] = [
+  { etiqueta: 'Revisar los reclamos que tengo asignados', ruta: RUTAS.bandeja },
+  { etiqueta: 'Cambiar el estado o la prioridad de un reclamo mío', ruta: RUTAS.modificar },
+  { etiqueta: 'Ver las estadísticas de mis reclamos', ruta: RUTAS.reportes },
+  { etiqueta: 'Actualizar mis datos de perfil', ruta: RUTAS.perfil }
+];
+
 // Apartados del portal (guía, sección 5). Los de otros grupos van en gris hasta que
 // cada grupo reemplace su enlace por su ruta real.
 export function apartadosPortal(rol: RolUsuario | null): ApartadoPortal[] {
-  const esAdmin = rol === RolUsuario.ADMINISTRADOR;
-  const inicio = esAdmin ? RUTAS.inicioAdmin : RUTAS.inicioCiudadano;
+  const esPersonal = rol !== null && ROLES_PERSONAL.includes(rol);
+  const inicio = esPersonal ? RUTAS.inicioAdmin : RUTAS.inicioCiudadano;
 
   const apartados: ApartadoPortal[] = [
     { etiqueta: 'Inicio', ruta: inicio, prefijos: [inicio] },
@@ -63,7 +71,7 @@ export function apartadosPortal(rol: RolUsuario | null): ApartadoPortal[] {
   }
 
 
-  if (esAdmin) {
+  if (esPersonal) {
     apartados.push(
       { etiqueta: 'Bandeja', ruta: RUTAS.bandeja, prefijos: [RUTAS.bandeja] },
       { etiqueta: 'Modificar', ruta: RUTAS.modificar, prefijos: [RUTAS.modificar] },

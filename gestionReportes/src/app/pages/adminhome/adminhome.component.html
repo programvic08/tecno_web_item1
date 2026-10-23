@@ -10,7 +10,7 @@
         <div class="tarjeta__cuerpo cuerpo">
           <span class="material-symbols-outlined icono">inbox</span>
           <h3>Bandeja de reclamos</h3>
-          <p>Revise, filtre y asigne los reclamos ingresados recientemente por los ciudadanos.</p>
+          <p>{{ esAdmin ? 'Revise, filtre y asigne los reclamos ingresados recientemente por los ciudadanos.' : 'Revise y filtre los reclamos que tiene asignados.' }}</p>
           <a class="boton" [routerLink]="rutas.bandeja">Ver bandeja</a>
         </div>
       </article>
@@ -19,7 +19,7 @@
         <div class="tarjeta__cuerpo cuerpo">
           <span class="material-symbols-outlined icono">edit_note</span>
           <h3>Modificar reclamos</h3>
-          <p>Actualice estados, cambie prioridades, añada observaciones o reasigne responsables.</p>
+          <p>{{ esAdmin ? 'Actualice estados, cambie prioridades, añada observaciones o reasigne responsables.' : 'Actualice el estado y la prioridad de sus reclamos y añada observaciones.' }}</p>
           <a class="boton" [routerLink]="rutas.modificar">Gestionar reclamos</a>
         </div>
       </article>
@@ -28,7 +28,7 @@
         <div class="tarjeta__cuerpo cuerpo">
           <span class="material-symbols-outlined icono">assessment</span>
           <h3>Reportes</h3>
-          <p>Consulte métricas globales, tiempos de resolución y reclamos por estado y categoría.</p>
+          <p>{{ esAdmin ? 'Consulte métricas globales, tiempos de resolución y reclamos por estado y categoría.' : 'Consulte métricas de sus reclamos asignados, tiempos de resolución y reclamos por estado y categoría.' }}</p>
           <a class="boton" [routerLink]="rutas.reportes">Ver reportes</a>
         </div>
       </article>

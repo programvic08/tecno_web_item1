@@ -4,12 +4,18 @@ import { Reclamo } from '../../models/reclamo.model';
 import { TestBed } from '@angular/core/testing';
 
 import { ReclamoService } from './reclamo.service';
+import { AuthService } from './auth.service';
+import { USUARIO_ADMIN_PRUEBA, USUARIO_AGENTE_PRUEBA, USUARIO_CIUDADANO_PRUEBA } from '../../testing/usuarios-prueba';
+import { Usuario } from '../../models/usuario.model';
 
 describe('ReclamoService', () => {
   let service: ReclamoService;
+  let usuarioActual: jasmine.Spy<() => Usuario | null>;
 
+  // Por defecto los tests corren con sesión de administrador (ve y modifica todo)
   beforeEach(() => {
     TestBed.configureTestingModule({});
+    usuarioActual = spyOn(TestBed.inject(AuthService), 'obtenerUsuarioActual').and.returnValue(USUARIO_ADMIN_PRUEBA);
     service = TestBed.inject(ReclamoService);
   });
 
@@ -106,8 +112,91 @@ describe('ReclamoService', () => {
     service.actualizarReclamo(folio, { fechaResolucion: '2026-09-15' });
     service.actualizarReclamo(folio, { estado: EstadoReclamo.RESUELTO });
     service.reclamos$.subscribe(rs => expect(rs[0].fechaResolucion).toBe('2026-09-15')).unsubscribe();
-    service.asignarAgente(folio, 'Agente');
+    service.asignarAgente(folio, { id: USUARIO_AGENTE_PRUEBA.id, nombre: USUARIO_AGENTE_PRUEBA.nombre });
     service.actualizarReclamo(folio, { estado: EstadoReclamo.RESUELTO });
     service.reclamos$.subscribe(rs => expect(rs[0].fechaResolucion).toBe(new Date().toISOString().slice(0, 10))).unsubscribe();
+  });
+
+  describe('permisos por rol', () => {
+    const idsVisibles = (): number[] => {
+      let ids: number[] = [];
+      service.reclamosVisibles$.subscribe(rs => ids = rs.map(r => r.id)).unsubscribe();
+      return ids;
+    };
+    const buscar = (folio: string) => {
+      let encontrado: Reclamo | undefined;
+      service.reclamos$.subscribe(rs => encontrado = rs.find(r => r.folio === folio)).unsubscribe();
+      return encontrado!;
+    };
+
+    // REC-2026-001 (id 101) está asignado al agente de prueba; REC-2026-002 (id 102) no tiene agente.
+    it('el administrador ve todos los reclamos', () => {
+      expect(idsVisibles()).toEqual([101, 102]);
+    });
+
+    it('el agente solo ve los reclamos que tiene asignados', () => {
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      expect(idsVisibles()).toEqual([101]);
+    });
+
+    it('un ciudadano o una sesión inexistente no ven reclamos de gestión', () => {
+      usuarioActual.and.returnValue(USUARIO_CIUDADANO_PRUEBA);
+      expect(idsVisibles()).toEqual([]);
+      usuarioActual.and.returnValue(null);
+      expect(idsVisibles()).toEqual([]);
+    });
+
+    it('el agente puede modificar su reclamo y queda constancia en la bitácora', () => {
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      const guardado = service.actualizarReclamo('REC-2026-001', { estado: EstadoReclamo.RESUELTO }, 'Listo', 'Agente Pérez');
+      expect(guardado).toBeTrue();
+      expect(buscar('REC-2026-001').estado).toBe(EstadoReclamo.RESUELTO);
+      expect(buscar('REC-2026-001').bitacora?.length).toBe(1);
+    });
+
+    it('el agente no puede modificar un reclamo ajeno ni uno sin asignar', () => {
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      const antes = buscar('REC-2026-002');
+      expect(service.actualizarReclamo('REC-2026-002', { estado: EstadoReclamo.RESUELTO })).toBeFalse();
+      expect(buscar('REC-2026-002')).toEqual(antes);
+    });
+
+    it('el agente no puede cambiar la asignación aunque modifique su propio reclamo', () => {
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      const guardado = service.actualizarReclamo('REC-2026-001', {
+        prioridad: PrioridadReclamo.URGENTE, agenteId: USUARIO_ADMIN_PRUEBA.id, agenteAsignado: 'Otro'
+      });
+      expect(guardado).toBeTrue();
+      expect(buscar('REC-2026-001').prioridad).toBe(PrioridadReclamo.URGENTE);
+      expect(buscar('REC-2026-001').agenteId).toBe(USUARIO_AGENTE_PRUEBA.id);
+      expect(buscar('REC-2026-001').agenteAsignado).toBe('Agente Pérez');
+    });
+
+    it('solo el administrador asigna reclamos; el agente lo ve al recibirlo', () => {
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      expect(service.asignarAgente('REC-2026-002', { id: USUARIO_AGENTE_PRUEBA.id, nombre: USUARIO_AGENTE_PRUEBA.nombre })).toBeFalse();
+      expect(idsVisibles()).toEqual([101]);
+
+      usuarioActual.and.returnValue(USUARIO_ADMIN_PRUEBA);
+      expect(service.asignarAgente('REC-2026-002', { id: USUARIO_AGENTE_PRUEBA.id, nombre: USUARIO_AGENTE_PRUEBA.nombre })).toBeTrue();
+
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      expect(idsVisibles()).toEqual([101, 102]);
+    });
+
+    it('al quitar la asignación el agente deja de ver el reclamo', () => {
+      service.asignarAgente('REC-2026-001', null);
+      expect(buscar('REC-2026-001').agenteId).toBeNull();
+      expect(buscar('REC-2026-001').agenteAsignado).toBe('Sin asignar');
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      expect(idsVisibles()).toEqual([]);
+    });
+
+    it('el reporte del agente se calcula solo con sus reclamos', () => {
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      service.obtenerReporte().subscribe(r => expect(r.totalReclamos).toBe(1)).unsubscribe();
+      usuarioActual.and.returnValue(USUARIO_ADMIN_PRUEBA);
+      service.obtenerReporte().subscribe(r => expect(r.totalReclamos).toBe(2)).unsubscribe();
+    });
   });
 });
