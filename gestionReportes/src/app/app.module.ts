@@ -29,6 +29,7 @@ import { ComoHagoParaComponent } from './shared/components/como-hago-para/como-h
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { StatusBadgeComponent } from './shared/components/status-badge/status-badge.component';
 import { FaqComponent } from './shared/components/faq/faq.component';
+import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recuperar-contrasena/recuperar-contrasena.component';
 
 
 @NgModule({
@@ -55,7 +56,8 @@ import { FaqComponent } from './shared/components/faq/faq.component';
     FaqComponent,
     EstadoReclamoComponent,
     ModificarReclamoComponent,
-    PerfilComponent
+    PerfilComponent,
+    RecuperarContrasenaComponent
   ],
   imports: [
     BrowserModule,

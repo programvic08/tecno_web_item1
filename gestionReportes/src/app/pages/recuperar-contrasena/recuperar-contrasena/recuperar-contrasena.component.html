@@ -1,0 +1,31 @@
+<div class="contenedor-login">
+  <div class="titulo-login">
+    <h1>Recuperar contraseña</h1>
+    <p>Ingresa tu correo electrónico y te enviaremos las instrucciones para restablecerla</p>
+  </div>
+
+  <div class="formulario-login">
+    <form #formRecuperar="ngForm" (ngSubmit)="onSubmit(formRecuperar)">
+      <div class="form-elements">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" [(ngModel)]="email" #emailInput="ngModel"
+               placeholder="tucorreo@ejemplo.com" autocomplete="email" required email>
+        <small class="error-campo" *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+          <span *ngIf="emailInput.errors?.['required']">El correo es obligatorio.</span>
+          <span *ngIf="emailInput.errors?.['email']">Ingresa un correo válido.</span>
+        </small>
+      </div>
+
+      <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+      <p class="mensaje-exito" *ngIf="successMessage" role="alert">{{ successMessage }}</p>
+
+      <button type="submit" class="btn-ingresar" [disabled]="cargando">
+        {{ cargando ? 'Enviando...' : 'Enviar instrucciones' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="login-footer">
+    <p>¿Recordaste tu contraseña? <a routerLink="/login">Inicia sesión</a></p>
+  </div>
+</div>
