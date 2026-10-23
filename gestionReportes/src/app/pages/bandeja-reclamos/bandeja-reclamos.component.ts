@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Reclamo } from '../../models/reclamo.model';
-import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
+import { EstadoReclamo, PrioridadReclamo, RolUsuario } from '../../models/reclamo.enums';
+import { AgenteAsignable } from '../../models/usuario.model';
 
 @Component({
   selector: 'app-bandeja-reclamos',
   templateUrl: './bandeja-reclamos.component.html',
   styleUrls: ['./bandeja-reclamos.component.css']
 })
-export class BandejaReclamosComponent implements OnInit {
+export class BandejaReclamosComponent implements OnInit, OnDestroy {
   reclamos: Reclamo[] = [];
   
   filtroEstado: string = 'Todos';
@@ -22,17 +24,32 @@ export class BandejaReclamosComponent implements OnInit {
   categorias: string[] = ['Todas'];
   prioridades: string[] = ['Todas', ...Object.values(PrioridadReclamo)];
 
+  // Solo el administrador asigna; el agente ve únicamente los reclamos que tiene asignados
+  esAdmin = false;
+  agentes: AgenteAsignable[] = [];
+
+  private suscripciones = new Subscription();
+
   constructor(
     private reclamoService: ReclamoService,
     private authService: AuthService
   ) {
     this.categorias = ['Todas', ...this.reclamoService.getCategorias().map(c => c.nombre)];
+    this.esAdmin = this.authService.obtenerRolActual() === RolUsuario.ADMINISTRADOR;
+    this.agentes = this.authService.obtenerAgentes();
   }
 
   ngOnInit(): void {
-    this.reclamoService.reclamos$.subscribe(data => {
-      this.reclamos = data;
-    });
+    // reclamosVisibles$ ya viene filtrado según el rol (admin: todos; agente: los suyos)
+    this.suscripciones.add(
+      this.reclamoService.reclamosVisibles$.subscribe(data => {
+        this.reclamos = data;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.suscripciones.unsubscribe();
   }
 
   get reclamosFiltrados(): Reclamo[] {
@@ -46,9 +63,21 @@ export class BandejaReclamosComponent implements OnInit {
     });
   }
 
+  // El nombre se toma del perfil vigente del agente (si cambió su nombre, aquí se refleja)
+  nombreAgente(reclamo: Reclamo): string {
+    return this.agentes.find(a => a.id === reclamo.agenteId)?.nombre ?? reclamo.agenteAsignado;
+  }
+
+  // Selector del administrador. valor === '' significa "Sin asignar".
+  asignar(folio: string, valor: string): void {
+    const agente = this.agentes.find(a => String(a.id) === String(valor)) ?? null;
+    this.reclamoService.asignarAgente(folio, agente);
+  }
+
   asignarme(folio: string): void {
-    // Se asigna con el nombre del agente que tiene la sesión abierta
-    const agenteNombre = this.authService.obtenerUsuarioActual()?.nombre ?? 'Agente Municipal';
-    this.reclamoService.asignarAgente(folio, agenteNombre);
+    const usuario = this.authService.obtenerUsuarioActual();
+    if (usuario) {
+      this.reclamoService.asignarAgente(folio, { id: usuario.id, nombre: usuario.nombre });
+    }
   }
 }

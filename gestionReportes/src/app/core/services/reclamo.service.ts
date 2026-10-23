@@ -10,7 +10,10 @@ import {
 } from '../../models/reclamo.model';
 
 import { ReporteComun } from '../../models/reporte-comun.model';
-import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
+import { EstadoReclamo, PrioridadReclamo, RolUsuario } from '../../models/reclamo.enums';
+import { SIN_ASIGNAR } from '../../models/reclamo.model';
+import { AgenteAsignable } from '../../models/usuario.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +38,7 @@ export class ReclamoService {
       prioridad: PrioridadReclamo.ALTA,
       estado: EstadoReclamo.EN_PROCESO,
       agenteAsignado: 'Agente Pérez',
+      agenteId: 3,
       usuarioId: 1
     },
     {
@@ -54,16 +58,38 @@ export class ReclamoService {
     }
   ];
 
-  private reclamosSubject = new BehaviorSubject<Reclamo[]>(
-    this.reclamosMock
-  );
+  private reclamosSubject = new BehaviorSubject<Reclamo[]>(this.reclamosMock);
+  public reclamos$: Observable<Reclamo[]> = this.reclamosSubject.asObservable();
 
-  public reclamos$: Observable<Reclamo[]> =
-    this.reclamosSubject.asObservable();
+  constructor(private authService: AuthService) {}
 
-  // ==========================================
-  // 2. CATEGORÍAS
-  // ==========================================
+  // --- Permisos por rol ---
+  // Administrador: todos los reclamos. Agente: solo los que tiene asignados.
+  // Cualquier otro rol (o sin sesión): ninguno.
+
+  puedeGestionar(reclamo: Reclamo): boolean {
+    const usuario = this.authService.obtenerUsuarioActual();
+    if (!usuario) {
+      return false;
+    }
+    if (usuario.rol === RolUsuario.ADMINISTRADOR) {
+      return true;
+    }
+    return usuario.rol === RolUsuario.AGENTE && reclamo.agenteId === usuario.id;
+  }
+
+  // Solo el administrador reparte reclamos entre los agentes
+  puedeAsignar(): boolean {
+    return this.authService.obtenerUsuarioActual()?.rol === RolUsuario.ADMINISTRADOR;
+  }
+
+  // Lo que el usuario con sesión puede ver en la bandeja y en los reportes de gestión.
+  // Se evalúa en cada emisión, con el usuario de ese momento.
+  get reclamosVisibles$(): Observable<Reclamo[]> {
+    return this.reclamos$.pipe(
+      map(lista => lista.filter(r => this.puedeGestionar(r)))
+    );
+  }
 
   getCategorias(): CategoriaReclamo[] {
     return [
@@ -106,13 +132,7 @@ export class ReclamoService {
   // 3. CREAR RECLAMO
   // ==========================================
 
-  crearReclamo(
-    nuevoReclamo: Omit<
-      Reclamo,
-      'id' | 'folio' | 'estado' | 'agenteAsignado' | 'fecha'
-    >
-  ): Observable<Reclamo> {
-
+  crearReclamo(nuevoReclamo: Omit<Reclamo, 'id' | 'folio' | 'estado' | 'agenteAsignado' | 'agenteId' | 'fecha'>): Observable<Reclamo> {
     const id = this.generarId();
 
     const reclamoCompleto: Reclamo = {
@@ -121,8 +141,9 @@ export class ReclamoService {
       folio: `REC-${new Date().getFullYear()}-${String(id).padStart(3, '0')}`,
       estado: EstadoReclamo.RECIBIDO,
       prioridad: PrioridadReclamo.MEDIA,
-      agenteAsignado: 'Sin asignar',
-      fecha: new Date().toISOString().slice(0, 10)
+      agenteAsignado: SIN_ASIGNAR,
+      agenteId: null,
+      fecha: new Date().toISOString().split('T')[0]
     };
 
     const listaActual = this.reclamosSubject.value;
@@ -165,26 +186,22 @@ export class ReclamoService {
   // 5. ACTUALIZAR RECLAMO
   // ==========================================
 
-  actualizarReclamo(
-    folio: string,
-    cambios: Partial<Reclamo>,
-    observacion?: string,
-    autor?: string
-  ): void {
+  // Devuelve false (y no cambia nada) si el reclamo no existe o el usuario no puede gestionarlo.
+  actualizarReclamo(folio: string, cambios: Partial<Reclamo>, observacion?: string, autor?: string): boolean {
+    const objetivo = this.reclamosSubject.value.find(r => r.folio === folio);
+    if (!objetivo || !this.puedeGestionar(objetivo)) {
+      return false;
+    }
 
-    const listaActualizada = this.reclamosSubject.value.map(
-      reclamo => {
+    // Un agente puede editar su reclamo, pero no cambiar quién lo tiene asignado
+    if (!this.puedeAsignar()) {
+      const { agenteId, agenteAsignado, ...sinAsignacion } = cambios;
+      cambios = sinAsignacion;
+    }
 
-        if (reclamo.folio !== folio) {
-          return reclamo;
-        }
-
-        const actualizado: Reclamo = {
-          ...reclamo,
-          ...cambios
-        };
-
-        // Registrar la fecha cuando se resuelve.
+    const listaActualizada = this.reclamosSubject.value.map(r => {
+      if (r.folio === folio) {
+        const actualizado = { ...r, ...cambios };
         if (cambios.estado === EstadoReclamo.RESUELTO) {
 
           const yaResuelto =
@@ -226,21 +243,22 @@ export class ReclamoService {
     );
 
     this.reclamosSubject.next(listaActualizada);
+    return true;
   }
 
-  // ==========================================
-  // 6. ASIGNAR AGENTE
-  // ==========================================
+  // Solo el administrador puede asignar. Con agente null el reclamo queda sin asignar.
+  asignarAgente(folio: string, agente: AgenteAsignable | null): boolean {
+    if (!this.puedeAsignar() || !this.reclamosSubject.value.some(r => r.folio === folio)) {
+      return false;
+    }
 
-  asignarAgente(folio: string, agente: string): void {
-
-    const lista = this.reclamosSubject.value.map(reclamo => {
-
-      if (reclamo.folio === folio) {
+    const lista = this.reclamosSubject.value.map(r => {
+      if (r.folio === folio) {
         return {
-          ...reclamo,
-          agenteAsignado: agente,
-          estado: EstadoReclamo.EN_REVISION
+          ...r,
+          agenteId: agente?.id ?? null,
+          agenteAsignado: agente?.nombre ?? SIN_ASIGNAR,
+          estado: agente ? EstadoReclamo.EN_REVISION : r.estado
         };
       }
 
@@ -248,6 +266,7 @@ export class ReclamoService {
     });
 
     this.reclamosSubject.next(lista);
+    return true;
   }
 
   // ==========================================
@@ -323,8 +342,8 @@ export class ReclamoService {
     categoria?: string;
     estado?: string;
   }): Observable<ReporteEstadistico> {
-
-    return this.reclamos$.pipe(
+    // El reporte se calcula solo con lo que el usuario puede ver: el administrador, todo; el agente, lo suyo
+    return this.reclamosVisibles$.pipe(
       map(reclamos => {
 
         let seleccionados = reclamos;

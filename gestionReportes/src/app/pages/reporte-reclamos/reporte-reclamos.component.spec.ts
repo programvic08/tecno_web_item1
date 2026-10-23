@@ -2,6 +2,8 @@ import { FechaNoFuturaDirective } from '../../shared/directives/fecha-no-futura.
 import { FormsModule } from '@angular/forms';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { ReclamoService } from '../../core/services/reclamo.service';
+import { AuthService } from '../../core/services/auth.service';
+import { USUARIO_ADMIN_PRUEBA } from '../../testing/usuarios-prueba';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { ReporteReclamosComponent } from './reporte-reclamos.component';
@@ -16,6 +18,9 @@ describe('ReporteReclamosComponent', () => {
       imports: [FormsModule]
     })
     .compileComponents();
+
+    // El reporte solo cuenta los reclamos que el usuario puede ver: se prueba con el administrador (ve todos)
+    spyOn(TestBed.inject(AuthService), 'obtenerUsuarioActual').and.returnValue(USUARIO_ADMIN_PRUEBA);
 
     fixture = TestBed.createComponent(ReporteReclamosComponent);
     component = fixture.componentInstance;

@@ -1,6 +1,6 @@
 <div class="container mt-4">
   <h1>Bandeja de Reclamos</h1>
-  <p>Gestión, asignación y seguimiento de reclamos ciudadanos</p>
+  <p>{{ esAdmin ? 'Gestión, asignación y seguimiento de reclamos ciudadanos' : 'Reclamos que tienes asignados' }}</p>
 
   <div class="row mb-3">
     <div class="col-md-3">
@@ -53,15 +53,25 @@
         <td>
           <app-status-badge [estado]="r.estado"></app-status-badge>
         </td>
-        <td>{{ r.agenteAsignado }}</td>
+        <td>
+          <select *ngIf="esAdmin; else soloNombre" class="form-select form-select-sm"
+                  [attr.aria-label]="'Agente del reclamo ' + r.folio"
+                  [ngModel]="r.agenteId ?? ''" (ngModelChange)="asignar(r.folio, $event)">
+            <option value="">Sin asignar</option>
+            <option *ngFor="let a of agentes" [value]="a.id">{{ a.nombre }}</option>
+          </select>
+          <ng-template #soloNombre>{{ nombreAgente(r) }}</ng-template>
+        </td>
         <td>
           <button class="btn btn-sm btn-outline-primary" [routerLink]="['/modificar-reclamo']" [queryParams]="{ folio: r.folio }">Gestionar / Editar</button>
-          <button class="btn btn-sm btn-outline-success" (click)="asignarme(r.folio)" *ngIf="r.agenteAsignado === 'Sin asignar'">Asignarme</button>
+          <button class="btn btn-sm btn-outline-success" (click)="asignarme(r.folio)" *ngIf="esAdmin && !r.agenteId">Asignarme</button>
         </td>
       </tr>
 
       <tr *ngIf="reclamosFiltrados.length === 0">
-        <td colspan="8" class="text-center">No hay reclamos que coincidan con los filtros.</td>
+        <td colspan="8" class="text-center">
+          {{ esAdmin ? 'No hay reclamos que coincidan con los filtros.' : 'No tienes reclamos asignados que coincidan con los filtros.' }}
+        </td>
       </tr>
     </tbody>
   </table>

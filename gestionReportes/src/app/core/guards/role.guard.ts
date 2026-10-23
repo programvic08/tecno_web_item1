@@ -19,11 +19,11 @@ export class RoleGuard implements CanActivate {
       return this.authService.crearUrlLogin();
     }
 
-    // 2. Con sesión y con el rol que la ruta exige: acceso permitido
-    const rolRequerido = route.data['rolRequerido'] as RolUsuario | undefined;
+    // 2. Con sesión y con alguno de los roles que la ruta admite: acceso permitido
+    const rolesPermitidos = route.data['rolesPermitidos'] as RolUsuario[] | undefined;
     const rolActual = this.authService.obtenerRolActual();
 
-    if (rolRequerido && rolActual === rolRequerido) {
+    if (rolActual && rolesPermitidos?.includes(rolActual)) {
       return true;
     }
 

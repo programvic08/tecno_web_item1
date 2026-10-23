@@ -16,5 +16,10 @@ export enum PrioridadReclamo {
 
 export enum RolUsuario {
   CIUDADANO = 'Ciudadano',
+  AGENTE = 'Agente',
   ADMINISTRADOR = 'Administrador'
 }
+
+// Roles del personal municipal que gestionan reclamos. El administrador es un agente con
+// permisos extra: ve y modifica todos los reclamos y es el único que los asigna.
+export const ROLES_PERSONAL: RolUsuario[] = [RolUsuario.AGENTE, RolUsuario.ADMINISTRADOR];

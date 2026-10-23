@@ -16,7 +16,7 @@ import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recup
 import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
 import { RoleGuard } from './core/guards/role.guard';
-import { RolUsuario } from './models/reclamo.enums';
+import { ROLES_PERSONAL, RolUsuario } from './models/reclamo.enums';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -28,7 +28,7 @@ const routes: Routes = [
   {
     path: '',
     canActivate: [AuthGuard, RoleGuard],
-    data: { rolRequerido: RolUsuario.CIUDADANO },
+    data: { rolesPermitidos: [RolUsuario.CIUDADANO] },
     children: [
       { path: 'userHome', component: UserhomeComponent },
       { path: 'crear-reclamo', component: CrearReclamoComponent },
@@ -37,11 +37,12 @@ const routes: Routes = [
     ]
   },
 
-  // --- RUTAS HIJAS DEL ADMINISTRADOR / AGENTE ---
+  // --- RUTAS HIJAS DEL PERSONAL MUNICIPAL (administrador y agente) ---
+  // El filtrado de qué reclamos ve cada uno (todos / solo los asignados) lo hace ReclamoService.
   {
     path: '',
     canActivate: [AuthGuard, RoleGuard],
-    data: { rolRequerido: RolUsuario.ADMINISTRADOR },
+    data: { rolesPermitidos: ROLES_PERSONAL },
     children: [
       { path: 'adminHome', component: AdminhomeComponent },
       { path: 'bandeja-reclamos', component: BandejaReclamosComponent },

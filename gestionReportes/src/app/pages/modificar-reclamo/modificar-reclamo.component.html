@@ -60,15 +60,14 @@
         </div>
 
         <div class="campo full-width">
-          <label for="agente">Agente o Unidad Asignada</label>
-          <input 
-            type="text" 
-            id="agente" 
-            name="agente" 
-            [(ngModel)]="nuevoAgente" 
-            placeholder="Ej: Agente Pérez / Depto. Aseo y Ornato" 
-            required 
-          />
+          <label for="agente">Agente Asignado</label>
+          <select *ngIf="esAdmin; else agenteSoloLectura" id="agente" name="agente" [(ngModel)]="nuevoAgenteId">
+            <option [ngValue]="null">Sin asignar</option>
+            <option *ngFor="let a of agentes" [ngValue]="a.id">{{ a.nombre }}</option>
+          </select>
+          <ng-template #agenteSoloLectura>
+            <input type="text" id="agente" [value]="agenteActual" disabled />
+          </ng-template>
         </div>
 
         <div class="campo full-width">
@@ -89,13 +88,17 @@
       </div>
     </form>
 
+    <div *ngIf="sinPermiso" class="error-card" role="alert">
+      No tienes permiso para modificar este reclamo.
+    </div>
+
     <div *ngIf="actualizadoExito" class="alerta-exito">
       ¡Modificaciones guardadas con éxito! Redirigiendo a la bandeja...
     </div>
   </div>
 
   <div *ngIf="buscado && !reclamo" class="error-card">
-    <p>No se encontró ningún reclamo con el folio <strong>"{{ busquedaFolio }}"</strong>. Verifique el código e intente de nuevo.</p>
+    <p>No se encontró ningún reclamo con el folio <strong>"{{ busquedaFolio }}"</strong><ng-container *ngIf="!esAdmin"> entre los reclamos asignados a ti</ng-container>. Verifique el código e intente de nuevo.</p>
   </div>
 </main>
 

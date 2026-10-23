@@ -5,7 +5,9 @@ import { UserhomeComponent } from './userhome.component';
 import { ReportesCarouselComponent } from '../../shared/components/reportes-carousel/reportes-carousel.component';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { ReclamoService } from '../../core/services/reclamo.service';
+import { AuthService } from '../../core/services/auth.service';
 import { RUTAS } from '../../core/config/navegacion.config';
+import { USUARIO_ADMIN_PRUEBA } from '../../testing/usuarios-prueba';
 
 describe('UserhomeComponent', () => {
   let component: UserhomeComponent;
@@ -17,6 +19,9 @@ describe('UserhomeComponent', () => {
       declarations: [UserhomeComponent, ReportesCarouselComponent, FaqComponent]
     })
     .compileComponents();
+
+    // El test de abajo modifica un reclamo para simular un cambio en el ranking: requiere un usuario que pueda hacerlo
+    spyOn(TestBed.inject(AuthService), 'obtenerUsuarioActual').and.returnValue(USUARIO_ADMIN_PRUEBA);
 
     fixture = TestBed.createComponent(UserhomeComponent);
     component = fixture.componentInstance;
