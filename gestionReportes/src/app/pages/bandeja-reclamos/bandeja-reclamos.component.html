@@ -63,6 +63,8 @@
           <ng-template #soloNombre>{{ nombreAgente(r) }}</ng-template>
         </td>
         <td>
+          <button class="btn btn-sm btn-outline-secondary" [routerLink]="['/detalle-reclamo']"
+                  [queryParams]="{ folio: r.folio }">Ver reclamo completo</button>
           <button class="btn btn-sm btn-outline-primary" [routerLink]="['/modificar-reclamo']" [queryParams]="{ folio: r.folio }">Gestionar / Editar</button>
           <button class="btn btn-sm btn-outline-success" (click)="asignarme(r.folio)" *ngIf="esAdmin && !r.agenteId">Asignarme</button>
         </td>
@@ -76,4 +78,3 @@
     </tbody>
   </table>
 </div>
-

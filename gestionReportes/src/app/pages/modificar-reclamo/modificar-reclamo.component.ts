@@ -3,8 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Reclamo, SIN_ASIGNAR } from '../../models/reclamo.model';
-import { EstadoReclamo, PrioridadReclamo, RolUsuario } from '../../models/reclamo.enums';
-import { AgenteAsignable } from '../../models/usuario.model';
+import { EstadoReclamo } from '../../models/reclamo.enums';
 import { take } from 'rxjs/operators';
 
 @Component({
@@ -19,16 +18,9 @@ export class ModificarReclamoComponent implements OnInit {
   actualizadoExito: boolean = false;
   sinPermiso: boolean = false;
 
-  // Solo el administrador reasigna; el agente ve el responsable pero no lo cambia
-  esAdmin = false;
-  agentes: AgenteAsignable[] = [];
-
   estados = Object.values(EstadoReclamo);
-  prioridades = Object.values(PrioridadReclamo);
 
   nuevoEstado!: EstadoReclamo;
-  nuevaPrioridad!: PrioridadReclamo;
-  nuevoAgenteId: number | null = null;
   nuevaObservacion: string = '';
 
   constructor(
@@ -37,8 +29,6 @@ export class ModificarReclamoComponent implements OnInit {
     private reclamoService: ReclamoService,
     private authService: AuthService
   ) {
-    this.esAdmin = this.authService.obtenerRolActual() === RolUsuario.ADMINISTRADOR;
-    this.agentes = this.authService.obtenerAgentes();
   }
 
   get agenteActual(): string {
@@ -72,8 +62,6 @@ export class ModificarReclamoComponent implements OnInit {
       if (encontrado) {
         this.reclamo = { ...encontrado };
         this.nuevoEstado = encontrado.estado;
-        this.nuevaPrioridad = encontrado.prioridad;
-        this.nuevoAgenteId = encontrado.agenteId ?? null;
       } else {
         this.reclamo = null;
       }
@@ -84,16 +72,8 @@ export class ModificarReclamoComponent implements OnInit {
     if (!this.reclamo) return;
 
     const cambios: Partial<Reclamo> = {
-      estado: this.nuevoEstado,
-      prioridad: this.nuevaPrioridad
+      estado: this.nuevoEstado
     };
-
-    // Solo el administrador envía la asignación (el servicio además la descarta si no lo es)
-    if (this.esAdmin) {
-      const agente = this.agentes.find(a => a.id === this.nuevoAgenteId) ?? null;
-      cambios.agenteId = agente?.id ?? null;
-      cambios.agenteAsignado = agente?.nombre ?? SIN_ASIGNAR;
-    }
 
     // Delegamos la actualización al servicio, que valida el permiso. La observación queda en la bitácora.
     const guardado = this.reclamoService.actualizarReclamo(

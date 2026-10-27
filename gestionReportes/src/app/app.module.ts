@@ -19,6 +19,7 @@ import { BandejaReclamosComponent } from './pages/bandeja-reclamos/bandeja-recla
 import { ReporteReclamosComponent } from './pages/reporte-reclamos/reporte-reclamos.component';
 import { EstadoReclamoComponent } from './pages/estado-reclamo/estado-reclamo.component';
 import { ModificarReclamoComponent } from './pages/modificar-reclamo/modificar-reclamo.component';
+import { DetalleReclamoComponent } from './pages/detalle-reclamo/detalle-reclamo.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
 
 // Componentes Compartidos (Reutilizables)
@@ -56,6 +57,7 @@ import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recup
     FaqComponent,
     EstadoReclamoComponent,
     ModificarReclamoComponent,
+    DetalleReclamoComponent,
     PerfilComponent,
     RecuperarContrasenaComponent
   ],

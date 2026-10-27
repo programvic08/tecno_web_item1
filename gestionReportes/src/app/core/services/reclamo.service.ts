@@ -329,7 +329,7 @@ export class ReclamoService {
     )) {
       const actorId = this.authService.obtenerUsuarioActual()?.id;
       this.notificacionService.crear(
-        [objetivo.usuarioId ?? 0, agente?.id ?? 0].filter(id => id !== actorId),
+        [agente?.id ?? 0].filter(id => id !== actorId),
         'asignacion',
         agente ? 'Te asignaron un caso' : 'Se actualizó la asignación de tu caso',
         agente
@@ -358,8 +358,10 @@ export class ReclamoService {
     }
 
     const actorId = this.authService.obtenerUsuarioActual()?.id;
-    const destinatarios = [actualizado.usuarioId ?? 0, actualizado.agenteId ?? 0]
-      .filter(id => id !== actorId);
+    const destinatarios = (cambioAsignacion
+      ? [actualizado.agenteId ?? 0]
+      : [actualizado.usuarioId ?? 0, actualizado.agenteId ?? 0]
+    ).filter(id => id !== actorId);
     this.notificacionService.crear(
       destinatarios,
       cambioAsignacion ? 'asignacion' : 'bitacora',
