@@ -14,6 +14,7 @@ import { EstadoReclamo, PrioridadReclamo, RolUsuario } from '../../models/reclam
 import { SIN_ASIGNAR } from '../../models/reclamo.model';
 import { AgenteAsignable } from '../../models/usuario.model';
 import { AuthService } from './auth.service';
+import { NotificacionService } from './notificacion.service';
 
 @Injectable({
   providedIn: 'root'
@@ -54,14 +55,25 @@ export class ReclamoService {
       prioridad: PrioridadReclamo.MEDIA,
       estado: EstadoReclamo.RECIBIDO,
       agenteAsignado: 'Sin asignar',
-      usuarioId: 1
+      usuarioId: 1,
+      bitacora: [
+        {
+          fecha: '2026-09-12',
+          autor: 'Sistema',
+          estado: EstadoReclamo.RECIBIDO,
+          observacion: 'El reclamo fue recibido y quedó pendiente de asignación.'
+        }
+      ]
     }
   ];
 
   private reclamosSubject = new BehaviorSubject<Reclamo[]>(this.reclamosMock);
   public reclamos$: Observable<Reclamo[]> = this.reclamosSubject.asObservable();
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private notificacionService: NotificacionService
+  ) {}
 
   // --- Permisos por rol ---
   // Administrador: todos los reclamos. Agente: solo los que tiene asignados.
@@ -199,6 +211,7 @@ export class ReclamoService {
       cambios = sinAsignacion;
     }
 
+    let reclamoActualizado: Reclamo | undefined;
     const listaActualizada = this.reclamosSubject.value.map(r => {
       if (r.folio === folio) {
         const actualizado = { ...r, ...cambios };
@@ -238,36 +251,124 @@ export class ReclamoService {
           ];
         }
 
+        const cambioAsignacion =
+          r.agenteId !== actualizado.agenteId ||
+          r.agenteAsignado !== actualizado.agenteAsignado;
+        if (cambioAsignacion) {
+          actualizado.bitacora = [
+            ...(actualizado.bitacora ?? []),
+            {
+              fecha: new Date().toISOString().slice(0, 10),
+              autor: autor?.trim() || 'Agente Municipal',
+              estado: actualizado.estado,
+              observacion: actualizado.agenteId
+                ? `Caso asignado a ${actualizado.agenteAsignado}.`
+                : 'Caso dejado sin asignar.'
+            }
+          ];
+        }
+
+        reclamoActualizado = actualizado;
         return actualizado;
       }
       return r;
     });
 
     this.reclamosSubject.next(listaActualizada);
+    if (reclamoActualizado) {
+      this.notificarActualizacion(objetivo, reclamoActualizado, autor);
+    }
     return true;
   }
 
   // Solo el administrador puede asignar. Con agente null el reclamo queda sin asignar.
   asignarAgente(folio: string, agente: AgenteAsignable | null): boolean {
-    if (!this.puedeAsignar() || !this.reclamosSubject.value.some(r => r.folio === folio)) {
+    const objetivo = this.reclamosSubject.value.find(r => r.folio === folio);
+    if (!this.puedeAsignar() || !objetivo) {
       return false;
     }
 
+    let reclamoActualizado: Reclamo | undefined;
     const lista = this.reclamosSubject.value.map(r => {
       if (r.folio === folio) {
-        return {
+        const nuevoAgenteId = agente?.id ?? null;
+        const nuevoNombreAgente = agente?.nombre ?? SIN_ASIGNAR;
+        const cambioAsignacion =
+          r.agenteId !== nuevoAgenteId ||
+          r.agenteAsignado !== nuevoNombreAgente;
+        const actualizado = {
           ...r,
-          agenteId: agente?.id ?? null,
-          agenteAsignado: agente?.nombre ?? SIN_ASIGNAR,
-          estado: agente ? EstadoReclamo.EN_REVISION : r.estado
+          agenteId: nuevoAgenteId,
+          agenteAsignado: nuevoNombreAgente,
+          estado: agente ? EstadoReclamo.EN_REVISION : r.estado,
+          bitacora: cambioAsignacion
+            ? [
+                ...(r.bitacora ?? []),
+                {
+                  fecha: new Date().toISOString().slice(0, 10),
+                  autor: this.authService.obtenerUsuarioActual()?.nombre ?? 'Agente Municipal',
+                  estado: agente ? EstadoReclamo.EN_REVISION : r.estado,
+                  observacion: agente
+                    ? `Caso asignado a ${agente.nombre}.`
+                    : 'Caso dejado sin asignar.'
+                }
+              ]
+            : r.bitacora
         };
+        reclamoActualizado = actualizado;
+        return actualizado;
       }
 
       return r;
     });
 
     this.reclamosSubject.next(lista);
+    if (reclamoActualizado && (
+      objetivo.agenteId !== reclamoActualizado.agenteId ||
+      objetivo.agenteAsignado !== reclamoActualizado.agenteAsignado
+    )) {
+      const actorId = this.authService.obtenerUsuarioActual()?.id;
+      this.notificacionService.crear(
+        [objetivo.usuarioId ?? 0, agente?.id ?? 0].filter(id => id !== actorId),
+        'asignacion',
+        agente ? 'Te asignaron un caso' : 'Se actualizó la asignación de tu caso',
+        agente
+          ? `El caso ${objetivo.folio} fue asignado a tu bandeja.`
+          : `El caso ${objetivo.folio} quedó sin agente asignado.`,
+        reclamoActualizado
+      );
+    }
     return true;
+  }
+
+  private notificarActualizacion(
+    anterior: Reclamo,
+    actualizado: Reclamo,
+    autor?: string
+  ): void {
+    const cambioAsignacion =
+      anterior.agenteId !== actualizado.agenteId ||
+      anterior.agenteAsignado !== actualizado.agenteAsignado;
+    const agregoBitacora = (actualizado.bitacora?.length ?? 0) > (anterior.bitacora?.length ?? 0);
+    const cambioEstado = anterior.estado !== actualizado.estado;
+    const cambioPrioridad = anterior.prioridad !== actualizado.prioridad;
+
+    if (!cambioAsignacion && !agregoBitacora && !cambioEstado && !cambioPrioridad) {
+      return;
+    }
+
+    const actorId = this.authService.obtenerUsuarioActual()?.id;
+    const destinatarios = [actualizado.usuarioId ?? 0, actualizado.agenteId ?? 0]
+      .filter(id => id !== actorId);
+    this.notificacionService.crear(
+      destinatarios,
+      cambioAsignacion ? 'asignacion' : 'bitacora',
+      cambioAsignacion ? 'Te asignaron un caso' : 'Actualización de tu caso',
+      cambioAsignacion
+        ? `El caso ${actualizado.folio} fue asignado a ${actualizado.agenteAsignado}.`
+        : `${autor?.trim() || 'El equipo municipal'} actualizó la bitácora del caso ${actualizado.folio}.`,
+      actualizado
+    );
   }
 
   // ==========================================
