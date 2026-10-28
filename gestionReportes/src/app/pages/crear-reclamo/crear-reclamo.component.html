@@ -121,7 +121,7 @@
 
         <div *ngIf="evidenciaNombre">
           <span>{{ evidenciaNombre }}</span>
-          <button type="button" (click)="quitarEvidencia(archivoInput)">Quitar</button>
+          <button type="button" class="btn-secundario" (click)="quitarEvidencia(archivoInput)">Quitar</button>
           <img
             *ngIf="evidenciaTipo.startsWith('image/')"
             [src]="evidenciaDataUrl"
@@ -131,7 +131,7 @@
       </div>
 
       <div class="acciones">
-        <button type="button" (click)="volver()">Volver</button>
+        <button type="button" class="btn-secundario" (click)="volver()">Volver</button>
         <button type="submit" [disabled]="!donde.valid || !!errorFecha">Siguiente</button>
       </div>
     </form>
@@ -232,7 +232,7 @@
 
         <div *ngIf="evidenciaNombre">
           <span>{{ evidenciaNombre }}</span>
-          <button type="button" [disabled]="enviado" (click)="quitarEvidencia(archivoPlantilla)">Quitar</button>
+          <button type="button" class="btn-secundario" [disabled]="enviado" (click)="quitarEvidencia(archivoPlantilla)">Quitar</button>
           <img
             *ngIf="evidenciaTipo.startsWith('image/')"
             [src]="evidenciaDataUrl"
@@ -248,7 +248,7 @@
     </div>
 
     <div class="acciones" *ngIf="!enviado">
-      <button *ngIf="!esPlantilla" type="button" (click)="volver()">Volver</button>
+      <button *ngIf="!esPlantilla" type="button" class="btn-secundario" (click)="volver()">Volver</button>
       <button type="button" [disabled]="!formularioValido || !!errorFecha || leyendoEvidencia" (click)="enviarReclamo()">Enviar Reclamo</button>
     </div>
 
