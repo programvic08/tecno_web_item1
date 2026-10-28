@@ -3,7 +3,7 @@ import { Router, UrlTree } from '@angular/router';
 import { BehaviorSubject, Observable, map, tap, timer } from 'rxjs';
 import { RolUsuario } from '../../models/reclamo.enums';
 import { RUTAS } from '../config/navegacion.config';
-import { ActualizarPerfilDto, AgenteAsignable, CuentaPrueba, LoginDto, RegistroDto, TokenPayload, Usuario, UsuarioRegistrado } from '../../models/usuario.model';
+import { ActualizarPerfilDto, AgenteAsignable, AgenteGestion, AgenteRegistrado, CuentaPrueba, LoginDto, RegistroDto, TokenPayload, Usuario, UsuarioRegistrado } from '../../models/usuario.model';
 
 // Valor del query param con el que se avisa en el login que la sesión venció
 export const MOTIVO_SESION_EXPIRADA = 'sesion-expirada';
@@ -61,6 +61,15 @@ export class AuthService {
   // Cuentas creadas desde la pantalla de registro (localStorage: persisten
   // entre sesiones). Debe declararse antes de los BehaviorSubject.
   private readonly claveUsuarios = 'usuarios_registrados';
+
+  // Cuentas de agente creadas por el administrador (localStorage: persisten
+  // entre sesiones, igual que las cuentas registradas).
+  private readonly claveAgentes = 'agentes_registrados';
+
+  // Cuentas base de agente que el administrador eliminó. Se guardan aparte
+  // porque los perfiles base viven en el código: así la cuenta desaparece de
+  // la lista, no puede iniciar sesión y su correo queda disponible otra vez.
+  private readonly claveAgentesBaseEliminados = 'agentes_base_eliminados';
   private temporizadorExpiracion: ReturnType<typeof setTimeout> | null = null;
 
   private loggedInSubject = new BehaviorSubject<boolean>(this.estaAutenticado());
@@ -90,9 +99,17 @@ export class AuthService {
     return timer(400).pipe(
       map(() => {
         const email = credenciales.email.trim().toLowerCase();
-        const id = this.buscarIdPorCredenciales(email, credenciales.password);
-        const usuario = id !== null ? this.leerPerfil(id) : null;
+        const cuenta = this.buscarCuentaPorCredenciales(email, credenciales.password);
 
+        if (!cuenta) {
+          throw new Error('Correo o contraseña incorrectos.');
+        }
+
+        if (!cuenta.activo) {
+          throw new Error('Tu cuenta está desactivada. Contacta al administrador.');
+        }
+
+        const usuario = this.leerPerfil(cuenta.id);
         if (!usuario) {
           throw new Error('Correo o contraseña incorrectos.');
         }
@@ -116,7 +133,7 @@ export class AuthService {
 
         const registrados = this.leerRegistrados();
         const nueva: UsuarioRegistrado = {
-          id: this.siguienteId(registrados),
+          id: this.siguienteId(),
           nombre: datos.nombre.trim(),
           email,
           password: datos.password,
@@ -129,19 +146,131 @@ export class AuthService {
     );
   }
 
-  // Cuentas de demostración que se muestran en el login
-  obtenerCuentasPrueba(): CuentaPrueba[] {
-    return this.credencialesMock;
+  // Crea una cuenta de agente desde la pantalla del administrador. Las
+  // validaciones de correo y contraseña son las mismas del registro público.
+  registrarAgente(datos: RegistroDto): Observable<void> {
+    return timer(400).pipe(
+      map(() => {
+        const email = datos.email.trim().toLowerCase();
+
+        if (this.correoYaRegistrado(email)) {
+          throw new Error('Ya existe una cuenta con ese correo.');
+        }
+
+        if (datos.password.length < 6) {
+          throw new Error('La contraseña debe tener al menos 6 caracteres.');
+        }
+
+        const agentes = this.leerAgentes();
+        const nuevo: AgenteRegistrado = {
+          id: this.siguienteId(),
+          nombre: datos.nombre.trim(),
+          email,
+          password: datos.password,
+          activo: true
+        };
+
+        localStorage.setItem(this.claveAgentes, JSON.stringify([...agentes, nuevo]));
+      })
+    );
   }
 
-  // Personal al que el administrador puede asignarle reclamos. El administrador también
-  // es agente, así que aparece en la lista (el nombre sale del perfil vigente, que es editable).
+  // Cuentas de demostración que se muestran en el login. Si el administrador
+  // eliminó la cuenta base del agente, su acceso rápido deja de aparecer.
+  obtenerCuentasPrueba(): CuentaPrueba[] {
+    const eliminados = this.leerAgentesBaseEliminados();
+    return this.credencialesMock.filter(cuenta => !eliminados.includes(this.usuariosMock[cuenta.rol].id));
+  }
+
+  // Personal al que el administrador puede asignarle reclamos. Incluye las
+  // cuentas base (el administrador también es agente) y los agentes creados
+  // desde la pantalla de gestión que siguen activos.
   obtenerAgentes(): AgenteAsignable[] {
-    return [RolUsuario.AGENTE, RolUsuario.ADMINISTRADOR].map(rol => {
-      const base = this.usuariosMock[rol];
-      const perfil = this.leerPerfil(base.id) ?? base;
-      return { id: perfil.id, nombre: perfil.nombre };
+    const eliminados = this.leerAgentesBaseEliminados();
+    const base = [RolUsuario.AGENTE, RolUsuario.ADMINISTRADOR]
+      .map(rol => this.usuariosMock[rol])
+      .filter(cuenta => !eliminados.includes(cuenta.id))
+      .map(cuenta => {
+        const perfil = this.leerPerfil(cuenta.id) ?? cuenta;
+        return { id: perfil.id, nombre: perfil.nombre };
+      });
+
+    const creados = this.leerAgentes()
+      .filter(agente => agente.activo)
+      .map(agente => {
+        const perfil = this.leerPerfil(agente.id);
+        return { id: agente.id, nombre: perfil?.nombre ?? agente.nombre };
+      });
+
+    return [...base, ...creados];
+  }
+
+  // Cuentas que se muestran en la pantalla de gestión del administrador.
+  obtenerAgentesGestion(): AgenteGestion[] {
+    const eliminados = this.leerAgentesBaseEliminados();
+    const base = [RolUsuario.ADMINISTRADOR, RolUsuario.AGENTE]
+      .map(rol => this.usuariosMock[rol])
+      .filter(cuenta => !eliminados.includes(cuenta.id))
+      .map(cuenta => {
+        const perfil = this.leerPerfil(cuenta.id) ?? cuenta;
+        return {
+          id: cuenta.id,
+          nombre: perfil.nombre,
+          email: cuenta.email,
+          activo: true,
+          esCuentaBase: true,
+          esAdministrador: cuenta.rol === RolUsuario.ADMINISTRADOR
+        };
+      });
+
+    const creados = this.leerAgentes().map(agente => {
+      const perfil = this.leerPerfil(agente.id);
+      return {
+        id: agente.id,
+        nombre: perfil?.nombre ?? agente.nombre,
+        email: agente.email,
+        activo: agente.activo,
+        esCuentaBase: false,
+        esAdministrador: false
+      };
     });
+
+    return [...base, ...creados];
+  }
+
+  // Elimina la cuenta de un agente, sea creada por el administrador o una de
+  // las cuentas base. Las cuentas de administrador no se eliminan y tampoco la
+  // propia. Quien llama debe liberar después los reclamos asignados.
+  eliminarAgente(id: number): void {
+    const actual = this.usuarioSubject.value;
+    if (actual?.id === id) {
+      throw new Error('No puedes eliminar tu propia cuenta.');
+    }
+
+    // Las cuentas base viven en el código: solo la del agente se puede dar de
+    // baja, y se registra aparte para que desaparezca del sistema.
+    const cuentaBase = Object.values(this.usuariosMock).find(cuenta => cuenta.id === id);
+    if (cuentaBase) {
+      if (cuentaBase.rol !== RolUsuario.AGENTE) {
+        throw new Error('Las cuentas de administrador no se pueden eliminar.');
+      }
+
+      const eliminados = this.leerAgentesBaseEliminados();
+      if (!eliminados.includes(id)) {
+        localStorage.setItem(this.claveAgentesBaseEliminados, JSON.stringify([...eliminados, id]));
+      }
+      localStorage.removeItem(this.clavePerfil(id));
+      return;
+    }
+
+    const agente = this.leerAgentes().find(cuenta => cuenta.id === id);
+    if (!agente) {
+      throw new Error('La cuenta ya no existe.');
+    }
+
+    const restantes = this.leerAgentes().filter(cuenta => cuenta.id !== id);
+    localStorage.setItem(this.claveAgentes, JSON.stringify(restantes));
+    localStorage.removeItem(this.clavePerfil(id));
   }
 
   // Ruta de inicio según el rol (un único lugar para redirecciones)
@@ -304,26 +433,39 @@ export class AuthService {
 
   // --- Cuentas ---
 
-  // Busca el id de la cuenta cuyo correo y contraseña coinciden (null si ninguna)
-  private buscarIdPorCredenciales(email: string, password: string): number | null {
+  // Busca la cuenta cuyas credenciales coinciden (null si ninguna). Devuelve
+  // también las cuentas desactivadas para que el login muestre un aviso claro.
+  private buscarCuentaPorCredenciales(email: string, password: string): { id: number; activo: boolean } | null {
     const prueba = this.credencialesMock.find(c => c.email === email && c.password === password);
     if (prueba) {
-      return this.usuariosMock[prueba.rol].id;
+      const id = this.usuariosMock[prueba.rol].id;
+      // Una cuenta base eliminada ya no puede iniciar sesión.
+      return this.leerAgentesBaseEliminados().includes(id) ? null : { id, activo: true };
     }
 
     const registrada = this.leerRegistrados().find(u => u.email === email && u.password === password);
-    return registrada ? registrada.id : null;
+    if (registrada) {
+      return { id: registrada.id, activo: true };
+    }
+
+    const agente = this.leerAgentes().find(a => a.email === email && a.password === password);
+    return agente ? { id: agente.id, activo: agente.activo } : null;
   }
 
   private correoYaRegistrado(email: string): boolean {
-    return this.credencialesMock.some(c => c.email === email)
-      || this.leerRegistrados().some(u => u.email === email);
+    const eliminados = this.leerAgentesBaseEliminados();
+    const cuentasBase = this.credencialesMock.filter(c => !eliminados.includes(this.usuariosMock[c.rol].id));
+
+    return cuentasBase.some(c => c.email === email)
+      || this.leerRegistrados().some(u => u.email === email)
+      || this.leerAgentes().some(a => a.email === email);
   }
 
-  private siguienteId(registrados: UsuarioRegistrado[]): number {
+  private siguienteId(): number {
     const ids = [
       ...Object.values(this.usuariosMock).map(u => u.id),
-      ...registrados.map(u => u.id)
+      ...this.leerRegistrados().map(u => u.id),
+      ...this.leerAgentes().map(a => a.id)
     ];
     return Math.max(...ids) + 1;
   }
@@ -332,6 +474,27 @@ export class AuthService {
     try {
       const datos = JSON.parse(localStorage.getItem(this.claveUsuarios) ?? '[]');
       return Array.isArray(datos) ? datos : [];
+    } catch {
+      // JSON corrupto en localStorage: se ignora
+      return [];
+    }
+  }
+
+  private leerAgentes(): AgenteRegistrado[] {
+    try {
+      const datos = JSON.parse(localStorage.getItem(this.claveAgentes) ?? '[]');
+      return Array.isArray(datos) ? datos : [];
+    } catch {
+      // JSON corrupto en localStorage: se ignora
+      return [];
+    }
+  }
+
+  // Ids de las cuentas base de agente que el administrador dio de baja.
+  private leerAgentesBaseEliminados(): number[] {
+    try {
+      const datos = JSON.parse(localStorage.getItem(this.claveAgentesBaseEliminados) ?? '[]');
+      return Array.isArray(datos) ? datos.filter(id => typeof id === 'number') : [];
     } catch {
       // JSON corrupto en localStorage: se ignora
       return [];
@@ -351,15 +514,33 @@ export class AuthService {
     };
   }
 
-  // Datos base de una cuenta (de prueba o registrada), sin los cambios de perfil
+  // Las cuentas creadas desde la gestión de agentes son SIEMPRE agentes.
+  private agenteAUsuario(agente: AgenteRegistrado): Usuario {
+    return {
+      id: agente.id,
+      nombre: agente.nombre,
+      email: agente.email,
+      rol: RolUsuario.AGENTE,
+      telefono: '',
+      direccion: ''
+    };
+  }
+
+  // Datos base de una cuenta (de prueba, registrada o de agente), sin los
+  // cambios de perfil.
   private obtenerUsuarioBase(id: number): Usuario | null {
     const prueba = Object.values(this.usuariosMock).find(u => u.id === id);
     if (prueba) {
-      return prueba;
+      return this.leerAgentesBaseEliminados().includes(id) ? null : prueba;
     }
 
     const registrada = this.leerRegistrados().find(u => u.id === id);
-    return registrada ? this.aUsuario(registrada) : null;
+    if (registrada) {
+      return this.aUsuario(registrada);
+    }
+
+    const agente = this.leerAgentes().find(a => a.id === id);
+    return agente ? this.agenteAUsuario(agente) : null;
   }
 
   // --- Perfil ---

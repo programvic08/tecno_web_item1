@@ -43,6 +43,29 @@ export interface CuentaPrueba extends LoginDto {
   rol: RolUsuario;
 }
 
+// Cuenta de agente creada por el administrador, tal como se guarda en
+// localStorage (simula la tabla de usuarios). La contraseña es temporal:
+// el agente puede cambiarla después desde su perfil.
+export interface AgenteRegistrado {
+  id: number;
+  nombre: string;
+  email: string;
+  password: string;
+  activo: boolean;
+}
+
+// Fila de la pantalla de gestión de cuentas de agentes.
+export interface AgenteGestion {
+  id: number;
+  nombre: string;
+  email: string;
+  activo: boolean;
+  // Las cuentas de demostración se marcan en la tabla como referencia.
+  esCuentaBase: boolean;
+  // Solo las cuentas de administrador quedan fuera de la eliminación.
+  esAdministrador: boolean;
+}
+
 // Agente al que se le puede asignar un reclamo (lo que lista el selector del administrador)
 export type AgenteAsignable = Pick<Usuario, 'id' | 'nombre'>;
 

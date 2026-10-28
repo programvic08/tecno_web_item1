@@ -1,0 +1,159 @@
+<div class="page-layout">
+  <main class="agentes-container">
+
+    <div class="header-bar">
+      <div>
+        <h2>Cuentas de agentes</h2>
+        <p class="subtitulo">Crea cuentas de agente con una contraseña temporal y elimina las que ya no se utilizan.</p>
+      </div>
+      <button type="button" class="btn-nuevo" (click)="toggleFormulario()">
+        {{ mostrarFormulario ? 'Cerrar formulario' : 'Nuevo agente' }}
+      </button>
+    </div>
+
+    <p class="mensaje-exito" *ngIf="mensajeExito" role="status">{{ mensajeExito }}</p>
+    <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+    <section class="form-card" *ngIf="mostrarFormulario">
+      <h3>Nuevo agente</h3>
+      <p class="ayuda">La contraseña es temporal: el agente puede cambiarla más adelante desde su perfil.</p>
+
+      <form #formAgente="ngForm" (ngSubmit)="crearAgente(formAgente)">
+        <div class="campo">
+          <label for="nombreAgente">Nombre completo</label>
+          <input
+            id="nombreAgente"
+            name="nombre"
+            type="text"
+            [(ngModel)]="nombre"
+            #nombreInput="ngModel"
+            placeholder="Nombre y apellido"
+            autocomplete="off"
+            required
+            minlength="3"
+            maxlength="60"
+            pattern="\S.*" />
+          <small class="error" *ngIf="nombreInput.invalid && (nombreInput.dirty || nombreInput.touched)">
+            <span *ngIf="nombreInput.errors?.['required']">El nombre es obligatorio.</span>
+            <span *ngIf="nombreInput.errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
+            <span *ngIf="nombreInput.errors?.['pattern']">El nombre no puede empezar con espacios.</span>
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="emailAgente">Correo electrónico</label>
+          <input
+            id="emailAgente"
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            #emailInput="ngModel"
+            placeholder="agente@ejemplo.com"
+            autocomplete="off"
+            required
+            email />
+          <small class="error" *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+            <span *ngIf="emailInput.errors?.['required']">El correo es obligatorio.</span>
+            <span *ngIf="emailInput.errors?.['email']">Ingresa un correo válido.</span>
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="passwordAgente">Contraseña temporal</label>
+          <input
+            id="passwordAgente"
+            name="password"
+            type="password"
+            [(ngModel)]="password"
+            #passwordInput="ngModel"
+            placeholder="Mínimo 6 caracteres"
+            autocomplete="new-password"
+            required
+            minlength="6" />
+          <small class="error" *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)">
+            <span *ngIf="passwordInput.errors?.['required']">La contraseña es obligatoria.</span>
+            <span *ngIf="passwordInput.errors?.['minlength']">Debe tener al menos 6 caracteres.</span>
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="confirmarPasswordAgente">Confirmar contraseña</label>
+          <input
+            id="confirmarPasswordAgente"
+            name="confirmarPassword"
+            type="password"
+            [(ngModel)]="confirmarPassword"
+            #confirmarInput="ngModel"
+            placeholder="Repite la contraseña temporal"
+            autocomplete="new-password"
+            required />
+          <small class="error"
+                 *ngIf="(confirmarInput.dirty || confirmarInput.touched) && (confirmarInput.invalid || !passwordsCoinciden)">
+            <span *ngIf="confirmarInput.errors?.['required']">Confirma la contraseña.</span>
+            <span *ngIf="!confirmarInput.errors?.['required'] && !passwordsCoinciden">Las contraseñas no coinciden.</span>
+          </small>
+        </div>
+
+        <div class="acciones">
+          <button type="button" class="btn-secundario" (click)="toggleFormulario()">Cancelar</button>
+          <button type="submit" class="btn-primario" [disabled]="cargando">
+            {{ cargando ? 'Creando cuenta...' : 'Crear agente' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <div class="table-card">
+      <table class="agentes-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let agente of agentes">
+            <td>
+              <strong>{{ agente.nombre }}</strong>
+              <small class="etiqueta" *ngIf="esUsuarioActual(agente)">Tu cuenta</small>
+              <small class="etiqueta" *ngIf="!esUsuarioActual(agente) && agente.esCuentaBase">Cuenta base</small>
+            </td>
+            <td>{{ agente.email }}</td>
+            <td>
+              <span class="estado" [class.estado--inactivo]="!agente.activo">
+                {{ agente.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <button *ngIf="puedeEliminar(agente)" type="button" class="btn-eliminar" (click)="pedirConfirmacion(agente)">
+                Eliminar
+              </button>
+              <span *ngIf="!puedeEliminar(agente)" class="sin-accion">No editable</span>
+            </td>
+          </tr>
+
+          <tr *ngIf="agentes.length === 0">
+            <td colspan="4" class="sin-datos">No hay cuentas de agentes registradas.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <div class="modal-fondo" *ngIf="agenteAEliminar" (click)="cancelarEliminacion()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-eliminar" (click)="$event.stopPropagation()">
+      <h3 id="titulo-eliminar">Eliminar cuenta</h3>
+      <p>
+        ¿Eliminar la cuenta de <strong>{{ agenteAEliminar.nombre }}</strong>?
+        Sus reclamos quedarán sin asignar y la persona no podrá volver a iniciar sesión.
+      </p>
+      <div class="acciones">
+        <button type="button" class="btn-secundario" (click)="cancelarEliminacion()">Cancelar</button>
+        <button type="button" class="btn-peligro" (click)="confirmarEliminacion()">Eliminar cuenta</button>
+      </div>
+    </div>
+  </div>
+</div>

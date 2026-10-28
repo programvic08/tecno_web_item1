@@ -199,4 +199,20 @@ describe('ReclamoService', () => {
       service.obtenerReporte().subscribe(r => expect(r.totalReclamos).toBe(2)).unsubscribe();
     });
   });
+
+  it('libera los reclamos del agente eliminado y conserva su estado', () => {
+    let antes: Reclamo[] = [];
+    service.reclamos$.subscribe(rs => antes = rs).unsubscribe();
+    const estadoOriginal = antes.find(r => r.agenteId === USUARIO_AGENTE_PRUEBA.id)!.estado;
+
+    const liberados = service.liberarReclamosDeAgente(USUARIO_AGENTE_PRUEBA.id);
+    expect(liberados).toBe(1);
+
+    let despues: Reclamo[] = [];
+    service.reclamos$.subscribe(rs => despues = rs).unsubscribe();
+    const liberado = despues.find(r => r.id === 101)!;
+    expect(liberado.agenteId).toBeNull();
+    expect(liberado.agenteAsignado).toBe('Sin asignar');
+    expect(liberado.estado).toBe(estadoOriginal);
+  });
 });

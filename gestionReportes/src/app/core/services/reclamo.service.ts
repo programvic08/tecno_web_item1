@@ -270,6 +270,31 @@ export class ReclamoService {
     return true;
   }
 
+  // Al eliminar la cuenta de un agente, sus reclamos vuelven a "Sin asignar"
+  // sin cambiar el estado en el que estaban. Devuelve cuántos se liberaron.
+  liberarReclamosDeAgente(agenteId: number): number {
+    let liberados = 0;
+
+    const lista = this.reclamosSubject.value.map(reclamo => {
+      if (reclamo.agenteId !== agenteId) {
+        return reclamo;
+      }
+
+      liberados++;
+      return {
+        ...reclamo,
+        agenteId: null,
+        agenteAsignado: SIN_ASIGNAR
+      };
+    });
+
+    if (liberados > 0) {
+      this.reclamosSubject.next(lista);
+    }
+
+    return liberados;
+  }
+
   // ==========================================
   // 7. ESTADÍSTICAS BASE
   // ==========================================

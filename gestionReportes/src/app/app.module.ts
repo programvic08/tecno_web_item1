@@ -20,6 +20,7 @@ import { ReporteReclamosComponent } from './pages/reporte-reclamos/reporte-recla
 import { EstadoReclamoComponent } from './pages/estado-reclamo/estado-reclamo.component';
 import { ModificarReclamoComponent } from './pages/modificar-reclamo/modificar-reclamo.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
+import { GestionAgentesComponent } from './pages/gestion-agentes/gestion-agentes.component';
 
 // Componentes Compartidos (Reutilizables)
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
@@ -57,7 +58,8 @@ import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recup
     EstadoReclamoComponent,
     ModificarReclamoComponent,
     PerfilComponent,
-    RecuperarContrasenaComponent
+    RecuperarContrasenaComponent,
+    GestionAgentesComponent
   ],
   imports: [
     BrowserModule,
