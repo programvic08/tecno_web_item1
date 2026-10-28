@@ -7,4 +7,5 @@ export interface DiapositivaHome {
   ruta?: string;
   seccionDestino?: string;
   tema: number;
+  urlPdf?: string;
 }
