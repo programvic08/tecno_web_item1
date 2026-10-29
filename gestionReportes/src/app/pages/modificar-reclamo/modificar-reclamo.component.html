@@ -27,6 +27,26 @@
     <div class="info-readonly">
       <p><strong>Ubicación:</strong> {{ reclamo.ubicacion }}</p>
       <p><strong>Fecha de Ingreso:</strong> {{ reclamo.fecha }}</p>
+      <div class="evidencia-agente">
+  <p><strong>Evidencia adjunta:</strong></p>
+
+  <ng-container *ngIf="reclamo.evidenciaDataUrl; else sinEvidencia">
+    <p>{{ reclamo.evidenciaNombre }}</p>
+
+    <img *ngIf="reclamo.evidenciaTipo?.startsWith('image/')"
+         class="evidencia-imagen"
+         [src]="reclamo.evidenciaDataUrl"
+         [alt]="'Evidencia adjunta: ' + reclamo.evidenciaNombre">
+
+    <p *ngIf="reclamo.evidenciaTipo === 'application/pdf'">
+      Archivo PDF adjunto (sin vista previa).
+    </p>
+  </ng-container>
+
+  <ng-template #sinEvidencia>
+    <p>Este reclamo no tiene evidencia adjunta.</p>
+  </ng-template>
+</div>
 
       <ng-container *ngIf="reclamo.bitacora?.length">
         <p><strong>Bitácora de avance:</strong></p>
