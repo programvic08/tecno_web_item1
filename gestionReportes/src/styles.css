@@ -20,12 +20,27 @@
   --surface-neutral: #f0f0f0;
   --success-color: #15803d;
   --success-bg: #dcfce7;
+  --success-border: #a7f3d0;
   --error-color: #991b1b;
   --error-bg: #fef2f2;
   --error-border: #fecaca;
   --focus-color: #00bde3;
   --surface-info: #d2ebf1;
   --surface-info-light: #e7f6f8;
+
+  /* Sistema de botones: un solo alto, tipografia y radio para todo el sitio.
+     La altura se fija con min-height para que el borde no la modifique. */
+  --btn-height: 40px;
+  --btn-font-size: 14px;
+  --btn-font-weight: 600;
+  --btn-padding-x: 18px;
+  --btn-radius: var(--radius-sm);
+
+  /* Campos de formulario: misma altura y tipografia que los botones para que
+     un input junto a un boton no quede desparejo. */
+  --field-height: 40px;
+  --field-font-size: 14px;
+  --field-padding-x: 12px;
 }
 
 * {
@@ -55,13 +70,13 @@ body {
 app-footer .site-footer {
   background-color: var(--primary-blue);
   color: var(--card-bg);
-  padding: 30px 20px;
+  /* Mismo margen lateral que el navbar: el texto arranca al borde izquierdo
+     de la pagina y no se corre cuando aparece/desaparece la barra de scroll. */
+  padding: 30px 24px;
   margin-top: 40px;
 }
 
 app-footer .footer-container {
-  max-width: var(--content-max-width);
-  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -80,6 +95,14 @@ app-footer .footer-info p {
   color: #c0d0e0;
 }
 
+/* En pantallas angostas el navbar usa 16px; el footer lo acompania para que
+   ambos textos sigan alineados en la misma vertical. */
+@media (max-width: 700px) {
+  app-footer .site-footer {
+    padding: 30px 16px;
+  }
+}
+
 /* Componente compartido: indicador de estado */
 
 app-status-badge .badge {
@@ -88,6 +111,7 @@ app-status-badge .badge {
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 12px;
+  white-space: nowrap;
 }
 
 app-status-badge .recibido {
@@ -129,8 +153,9 @@ app-reporte-reclamos > .container > :is(h1, h2) {
   font-size: 24px;
 }
 
-app-bandeja-reclamos > .container > p,
-app-reporte-reclamos > .container > p {
+/* El parrafo introductorio no debe pisar las cajas de mensaje. */
+app-bandeja-reclamos > .container > p:not(:is(.mensaje-error, .mensaje-exito)),
+app-reporte-reclamos > .container > p:not(:is(.mensaje-error, .mensaje-exito)) {
   color: var(--text-gray);
   margin-bottom: 24px;
 }
@@ -159,9 +184,11 @@ app-bandeja-reclamos > :where(.container) .col-md-3 select,
 app-reporte-reclamos > :where(.container) .col-md-3 input,
 app-reporte-reclamos > :where(.container) .col-md-3 select {
   width: 100%;
-  padding: 10px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
 }
 
 @media (max-width: 760px) {
@@ -215,125 +242,66 @@ app-bandeja-reclamos > :where(.container) .text-center {
   text-align: center;
 }
 
-app-bandeja-reclamos > :where(.container) .btn {
+app-bandeja-reclamos > :where(.container) .tabla-scroll {
+  overflow-x: auto;
+}
+
+app-bandeja-reclamos > :where(.container) .acciones-tabla {
+  display: flex;
+  flex-direction: column;
+  /* Centrado horizontal dentro de la celda: el ancho de la columna cambia
+     con la ventana, el boton mantiene sus 156px y queda parejo en ambos roles. */
+  align-items: center;
+  gap: 8px;
   width: 100%;
-  padding: 6px 12px;
+}
+
+app-bandeja-reclamos > :where(.container) .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Ancho fijo: identico en la vista de admin y de agente. El centrado dentro
+     de la celda lo resuelve .acciones-tabla con align-items: center. */
+  width: 156px;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
   border: 1px solid var(--primary-blue);
   background: var(--primary-blue);
   color: var(--card-bg);
-  border-radius: var(--radius-sm);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
   cursor: pointer;
 }
 
-app-bandeja-reclamos > :where(.container) .btn + .btn {
-  margin-top: 8px;
+app-bandeja-reclamos > :where(.container) .btn-asignar {
   background: var(--success-color);
   border-color: var(--success-color);
 }
 
-app-bandeja-reclamos > :where(.container) td:last-child {
-  min-width: 220px;
+app-bandeja-reclamos > :where(.container) .btn-asignar:hover {
+  background: #0f6a33;
 }
 
-app-bandeja-reclamos > :where(.container) td:last-child .btn {
-  margin-bottom: 6px;
-}
-
-/* Pagina: detalle completo del reclamo */
-
-app-detalle-reclamo > .detalle-container {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 0 16px;
-  min-height: 70vh;
-}
-
-app-detalle-reclamo .detalle-card {
-  padding: 24px;
+app-bandeja-reclamos > :where(.container) .select-agente {
+  width: 100%;
+  min-width: 112px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   background: var(--card-bg);
+  font-size: var(--field-font-size);
+  font-family: var(--font-body);
 }
 
-app-detalle-reclamo .detalle-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-  border-top: 5px solid var(--nyc-red);
-  padding-top: 16px;
-}
-
-app-detalle-reclamo h1,
-app-detalle-reclamo h2 {
-  color: var(--primary-blue);
-  font-family: var(--font-heading);
-}
-
-app-detalle-reclamo h1 { font-size: 28px; }
-app-detalle-reclamo h2 { margin-bottom: 16px; font-size: 20px; }
-app-detalle-reclamo .folio { margin-top: 6px; color: var(--text-gray); }
-
-app-detalle-reclamo .detalle-seccion {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
-}
-
-app-detalle-reclamo .detalle-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 24px;
-}
-
-app-detalle-reclamo .descripcion {
-  margin-top: 18px;
-  padding: 14px;
-  background: var(--surface-muted);
-}
-
-app-detalle-reclamo .descripcion p { margin-top: 6px; }
-app-detalle-reclamo .evidencia {
-  display: block;
-  max-width: min(100%, 520px);
-  max-height: 360px;
-  margin: 14px 0;
-  object-fit: contain;
-  border: 1px solid var(--border-color);
-}
-
-app-detalle-reclamo .btn-descargar,
-app-detalle-reclamo .btn-volver,
-app-detalle-reclamo .btn-gestionar {
-  display: inline-block;
-  padding: 9px 14px;
-  border: 1px solid var(--primary-blue);
-  border-radius: var(--radius-sm);
-  background: var(--primary-blue);
-  color: var(--card-bg);
-  cursor: pointer;
-  text-decoration: none;
-}
-
-app-detalle-reclamo .bitacora {
-  display: grid;
-  gap: 12px;
-  padding-left: 22px;
-}
-
-app-detalle-reclamo .bitacora li { padding-left: 4px; }
-app-detalle-reclamo .bitacora span { display: block; color: var(--text-gray); font-size: 13px; }
-app-detalle-reclamo .bitacora p { margin-top: 4px; }
-app-detalle-reclamo .muted { color: var(--text-gray); }
-app-detalle-reclamo .acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
-app-detalle-reclamo .btn-volver { background: var(--surface-neutral); color: var(--primary-blue); }
-app-detalle-reclamo .btn-gestionar { background: var(--success-color); border-color: var(--success-color); }
-app-detalle-reclamo .error-card { padding: 20px; background: var(--error-bg); color: var(--error-color); }
-
-@media (max-width: 600px) {
-  app-detalle-reclamo .detalle-grid { grid-template-columns: 1fr; }
-  app-detalle-reclamo .detalle-header { align-items: flex-start; flex-direction: column; }
+/* En la vista de agente el nombre va en una sola linea: si se parte, la fila
+   crece y la celda de Accion deja de coincidir con la del admin. */
+app-bandeja-reclamos > :where(.container) .nombre-agente {
+  white-space: nowrap;
 }
 
 /* Pagina: crear-reclamo */
@@ -402,16 +370,54 @@ app-crear-reclamo > :where(.reclamo-container) .campo > label {
   font-weight: 600;
 }
 
-app-crear-reclamo > :where(.reclamo-container) .campo > input,
+app-crear-reclamo > :where(.reclamo-container) .campo > input:not([type="file"]),
 app-crear-reclamo > :where(.reclamo-container) select,
 app-crear-reclamo > :where(.reclamo-container) textarea {
   width: 100%;
-  padding: 10px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
+}
+
+/* El input de archivo mantiene su altura natural y centra su contenido. */
+app-crear-reclamo > :where(.reclamo-container) .campo > input[type="file"] {
+  width: 100%;
+  height: auto;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .campo > input[type="file"]::file-selector-button {
+  height: 26px;
+  margin-right: 10px;
+  padding: 0 12px;
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--radius-sm);
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .campo > input[type="file"]::file-selector-button:hover {
+  background: var(--primary-blue-hover);
+  border-color: var(--primary-blue-hover);
 }
 
 app-crear-reclamo > :where(.reclamo-container) textarea {
+  height: auto;
+  min-height: 96px;
+  padding: 10px var(--field-padding-x);
   resize: vertical;
 }
 
@@ -440,27 +446,38 @@ app-crear-reclamo > :where(.reclamo-container) .acciones {
 }
 
 app-crear-reclamo > :where(.reclamo-container) button {
-  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
   border: 1px solid var(--primary-blue);
-  border-radius: var(--radius-sm);
+  border-radius: var(--btn-radius);
   background: var(--primary-blue);
   color: var(--card-bg);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
 }
 
-app-crear-reclamo > :where(.reclamo-container) button:disabled {
-  background: #d1d9e0;
-  border-color: #d1d9e0;
-  color: var(--text-gray);
-  cursor: default;
+app-crear-reclamo > :where(.reclamo-container) .btn-secundario {
+  background: var(--surface-neutral);
+  border-color: var(--border-color);
+  color: var(--text-dark);
+}
+
+app-crear-reclamo > :where(.reclamo-container) .btn-secundario:hover:not(:disabled) {
+  background: #e3e8ec;
 }
 
 app-crear-reclamo > :where(.reclamo-container) .confirmacion {
   margin: 24px 0 0;
   padding: 16px;
-  border: 1px solid #b9d5c1;
-  background: #edf5ef;
-  color: #285638;
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-sm);
+  background: var(--success-bg);
+  color: var(--success-color);
 }
 
 @media (max-width: 480px) {
@@ -501,25 +518,34 @@ app-estado-reclamo > :where(.estado-container) .search-card p {
 
 app-estado-reclamo > :where(.estado-container) .search-box {
   display: flex;
+  align-items: center;
   gap: 12px;
   max-width: 600px;
 }
 
 app-estado-reclamo > :where(.estado-container) .search-box input {
   flex: 1;
-  padding: 10px 14px;
+  min-width: 0;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  font-size: 15px;
+  font-size: var(--field-font-size);
 }
 
 app-estado-reclamo > :where(.estado-container) .btn-search {
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
   background: var(--primary-blue);
   color: var(--card-bg);
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
 }
 
@@ -653,7 +679,7 @@ app-estado-reclamo > :where(.estado-container) .timeline-content p {
 app-estado-reclamo > :where(.estado-container) .error-card {
   padding: 20px;
   background: var(--error-bg);
-  border: 1px solid #fecaca;
+  border: 1px solid var(--error-border);
   color: var(--error-color);
   border-radius: var(--radius-sm);
 }
@@ -706,9 +732,12 @@ app-historial > :where(.page-layout) .filter-group {
 }
 
 app-historial > :where(.page-layout) .select-filter {
-  padding: 8px 12px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
+  font-family: var(--font-body);
 }
 
 app-historial > :where(.page-layout) .table-card {
@@ -750,11 +779,18 @@ app-historial > :where(.page-layout) .sub-cat {
 }
 
 app-historial > :where(.page-layout) .btn-action {
-  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
   background: var(--primary-blue);
   color: var(--card-bg);
-  border: none;
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
 }
 
@@ -762,10 +798,16 @@ app-historial > :where(.page-layout) .btn-action:hover {
   background: var(--primary-blue-hover);
 }
 
-/* Pagina: login */
+/* La columna de accion centra el boton, igual que en la bandeja. */
+app-historial > :where(.page-layout) tbody td:last-child {
+  text-align: center;
+}
+
+/* Paginas: login, registro y recuperar contrasena */
 
 app-login,
-app-registro {
+app-registro,
+app-recuperar-contrasena {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -774,21 +816,24 @@ app-registro {
 }
 
 app-login > .contenedor-login,
-app-registro > .contenedor-login {
+app-registro > .contenedor-login,
+app-recuperar-contrasena > .contenedor-login {
   width: 100%;
   max-width: 440px;
 }
 
 app-login > :where(.contenedor-login) .titulo-login,
-app-registro > :where(.contenedor-login) .titulo-login {
+app-registro > :where(.contenedor-login) .titulo-login,
+app-recuperar-contrasena > :where(.contenedor-login) .titulo-login {
   text-align: center;
   margin-bottom: 24px;
   padding-top: 16px;
-  border-top: 1px solid var(--nyc-red);
+  border-top: 5px solid var(--nyc-red);
 }
 
 app-login > :where(.contenedor-login) .titulo-login h1,
-app-registro > :where(.contenedor-login) .titulo-login h1 {
+app-registro > :where(.contenedor-login) .titulo-login h1,
+app-recuperar-contrasena > :where(.contenedor-login) .titulo-login h1 {
   margin-bottom: 16px;
   font-family: var(--font-heading);
   color: var(--primary-blue);
@@ -799,12 +844,23 @@ app-login > :where(.contenedor-login) .usuario p,
 app-login > :where(.contenedor-login) .login-footer,
 app-registro > :where(.contenedor-login) .titulo-login p,
 app-registro > :where(.contenedor-login) .usuario p,
-app-registro > :where(.contenedor-login) .login-footer {
+app-registro > :where(.contenedor-login) .login-footer,
+app-recuperar-contrasena > :where(.contenedor-login) .titulo-login p,
+app-recuperar-contrasena > :where(.contenedor-login) .usuario p,
+app-recuperar-contrasena > :where(.contenedor-login) .login-footer {
   color: var(--text-gray);
 }
 
+/* Separa la etiqueta "Cuentas de prueba" de los botones de acceso rapido. */
+app-login > :where(.contenedor-login) .usuario p,
+app-registro > :where(.contenedor-login) .usuario p,
+app-recuperar-contrasena > :where(.contenedor-login) .usuario p {
+  margin-bottom: 12px;
+}
+
 app-login > :where(.contenedor-login) .formulario-login,
-app-registro > :where(.contenedor-login) .formulario-login {
+app-registro > :where(.contenedor-login) .formulario-login,
+app-recuperar-contrasena > :where(.contenedor-login) .formulario-login {
   padding: 24px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -812,79 +868,99 @@ app-registro > :where(.contenedor-login) .formulario-login {
 }
 
 app-login > :where(.contenedor-login) .form-elements,
-app-registro > :where(.contenedor-login) .form-elements {
+app-registro > :where(.contenedor-login) .form-elements,
+app-recuperar-contrasena > :where(.contenedor-login) .form-elements {
   margin-bottom: 16px;
 }
 
 app-login > :where(.contenedor-login) .form-elements label,
-app-registro > :where(.contenedor-login) .form-elements label {
+app-registro > :where(.contenedor-login) .form-elements label,
+app-recuperar-contrasena > :where(.contenedor-login) .form-elements label {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
 }
 
 app-login > :where(.contenedor-login) .form-elements input,
-app-login > :where(.contenedor-login) .btn-ingresar,
 app-registro > :where(.contenedor-login) .form-elements input,
-app-registro > :where(.contenedor-login) .btn-ingresar {
+app-recuperar-contrasena > :where(.contenedor-login) .form-elements input {
   width: 100%;
-  padding: 10px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
 }
 
 app-login > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched,
-app-registro > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched {
+app-registro > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched,
+app-recuperar-contrasena > :where(.contenedor-login) .form-elements input.ng-invalid.ng-touched {
   border-color: var(--nyc-red);
 }
 
 app-login > :where(.contenedor-login) .error-campo,
-app-login > :where(.contenedor-login) .mensaje-error,
 app-registro > :where(.contenedor-login) .error-campo,
-app-registro > :where(.contenedor-login) .mensaje-error {
+app-recuperar-contrasena > :where(.contenedor-login) .error-campo {
+  display: block;
+  margin-top: 4px;
   color: var(--error-color);
   font-size: 13px;
 }
 
-app-login > :where(.contenedor-login) .error-campo,
-app-registro > :where(.contenedor-login) .error-campo {
-  display: block;
-  margin-top: 4px;
+/* Caja de mensajes de formulario: mismo formato para error y exito en las
+   pantallas de acceso y en reportes. */
+app-login > :where(.contenedor-login) :is(.mensaje-error, .mensaje-exito),
+app-registro > :where(.contenedor-login) :is(.mensaje-error, .mensaje-exito),
+app-recuperar-contrasena > :where(.contenedor-login) :is(.mensaje-error, .mensaje-exito),
+app-reporte-reclamos > :where(.container) :is(.mensaje-error, .mensaje-exito) {
+  margin-bottom: 16px;
+  padding: 10px var(--field-padding-x);
+  border: 1px solid var(--error-border);
+  border-radius: var(--radius-sm);
+  background: var(--error-bg);
+  color: var(--error-color);
+  font-size: 13px;
 }
 
-app-login > :where(.contenedor-login) .mensaje-error,
-app-registro > :where(.contenedor-login) .mensaje-error {
-  margin-bottom: 16px;
-  padding: 10px;
-  background: var(--error-bg);
-  border: 1px solid #fecaca;
-  border-radius: var(--radius-sm);
+app-login > :where(.contenedor-login) .mensaje-exito,
+app-registro > :where(.contenedor-login) .mensaje-exito,
+app-recuperar-contrasena > :where(.contenedor-login) .mensaje-exito,
+app-reporte-reclamos > :where(.container) .mensaje-exito {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-color);
 }
 
 app-login > :where(.contenedor-login) .btn-ingresar,
-app-registro > :where(.contenedor-login) .btn-ingresar {
+app-registro > :where(.contenedor-login) .btn-ingresar,
+app-recuperar-contrasena > :where(.contenedor-login) .btn-ingresar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--btn-radius);
   background: var(--primary-blue);
   color: var(--card-bg);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
-  font-weight: 600;
 }
 
 app-login > :where(.contenedor-login) .btn-ingresar:hover,
 app-login > :where(.contenedor-login) .btn-user:hover,
 app-registro > :where(.contenedor-login) .btn-ingresar:hover,
-app-registro > :where(.contenedor-login) .btn-user:hover {
+app-registro > :where(.contenedor-login) .btn-user:hover,
+app-recuperar-contrasena > :where(.contenedor-login) .btn-ingresar:hover {
   background: var(--primary-blue-hover);
 }
 
-app-login > :where(.contenedor-login) .btn-ingresar:disabled,
-app-login > :where(.contenedor-login) .btn-user:disabled,
-app-registro > :where(.contenedor-login) .btn-ingresar:disabled,
-app-registro > :where(.contenedor-login) .btn-user:disabled {
-  opacity: 0.6;
-}
-
 app-login > :where(.contenedor-login) .recuperar-contraseña,
-app-registro > :where(.contenedor-login) .recuperar-contraseña {
+app-registro > :where(.contenedor-login) .recuperar-contraseña,
+app-recuperar-contrasena > :where(.contenedor-login) .recuperar-contraseña {
   margin-bottom: 24px;
 }
 
@@ -895,43 +971,56 @@ app-login > :where(.contenedor-login) .enlace-pronto {
 }
 
 app-login > :where(.contenedor-login) a,
-app-registro > :where(.contenedor-login) a {
+app-registro > :where(.contenedor-login) a,
+app-recuperar-contrasena > :where(.contenedor-login) a {
   color: var(--primary-blue);
   text-decoration: underline;
 }
 
 app-login > :where(.contenedor-login) a:hover,
-app-registro > :where(.contenedor-login) a:hover {
+app-registro > :where(.contenedor-login) a:hover,
+app-recuperar-contrasena > :where(.contenedor-login) a:hover {
   color: var(--primary-blue-hover);
 }
 
 app-login > :where(.contenedor-login) .divider,
-app-registro > :where(.contenedor-login) .divider {
+app-registro > :where(.contenedor-login) .divider,
+app-recuperar-contrasena > :where(.contenedor-login) .divider {
   margin: 24px 0;
   border: 0;
   border-top: 1px solid var(--border-color);
 }
 
 app-login > :where(.contenedor-login) .user-buttons,
-app-registro > :where(.contenedor-login) .user-buttons {
+app-registro > :where(.contenedor-login) .user-buttons,
+app-recuperar-contrasena > :where(.contenedor-login) .user-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
 }
 
 app-login > :where(.contenedor-login) .btn-user,
-app-registro > :where(.contenedor-login) .btn-user {
+app-registro > :where(.contenedor-login) .btn-user,
+app-recuperar-contrasena > :where(.contenedor-login) .btn-user {
   flex: 1;
-  padding: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 12px;
   border: 1px solid var(--primary-blue);
-  border-radius: var(--radius-sm);
+  border-radius: var(--btn-radius);
   background: var(--primary-blue);
   color: var(--card-bg);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
 }
 
 app-login > :where(.contenedor-login) .login-footer,
-app-registro > :where(.contenedor-login) .login-footer {
+app-registro > :where(.contenedor-login) .login-footer,
+app-recuperar-contrasena > :where(.contenedor-login) .login-footer {
   margin-top: 24px;
   text-align: center;
   font-size: 14px;
@@ -940,7 +1029,8 @@ app-registro > :where(.contenedor-login) .login-footer {
 @media (max-width: 480px) {
 
   app-login > :where(.contenedor-login) .formulario-login,
-  app-registro > :where(.contenedor-login) .formulario-login {
+  app-registro > :where(.contenedor-login) .formulario-login,
+  app-recuperar-contrasena > :where(.contenedor-login) .formulario-login {
     padding: 16px;
   }
 }
@@ -986,6 +1076,7 @@ app-modificar-reclamo > :where(.modificar-container) .bitacora {
 
 app-modificar-reclamo > :where(.modificar-container) .search-box {
   display: flex;
+  align-items: center;
   gap: 12px;
   max-width: 600px;
   margin-top: 12px;
@@ -996,19 +1087,44 @@ app-modificar-reclamo > :where(.modificar-container) .campo input,
 app-modificar-reclamo > :where(.modificar-container) .campo select,
 app-modificar-reclamo > :where(.modificar-container) .campo textarea {
   width: 100%;
-  padding: 10px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
+  font-family: var(--font-body);
+}
+
+app-modificar-reclamo > :where(.modificar-container) .campo textarea {
+  height: auto;
+  min-height: 96px;
+  padding: 10px var(--field-padding-x);
+  resize: vertical;
+}
+
+/* El buscador comparte altura con su boton (mismo patron que estado-reclamo). */
+app-modificar-reclamo > :where(.modificar-container) .search-box input {
+  flex: 1;
+  min-width: 0;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
+  font-size: var(--field-font-size);
 }
 
 app-modificar-reclamo > :where(.modificar-container) .btn-search,
 app-modificar-reclamo > :where(.modificar-container) .btn-guardar {
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
   background: var(--primary-blue);
   color: var(--card-bg);
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
 }
 
@@ -1068,21 +1184,28 @@ app-modificar-reclamo > :where(.modificar-container) .acciones {
 }
 
 app-modificar-reclamo > :where(.modificar-container) .btn-cancelar {
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
   background: var(--surface-neutral);
   color: var(--text-dark);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
 }
 
 app-modificar-reclamo > :where(.modificar-container) .alerta-exito {
   margin-top: 20px;
-  padding: 14px;
+  padding: 12px var(--field-padding-x);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-sm);
   background: var(--success-bg);
   color: var(--success-color);
-  border: 1px solid #b91c1c00;
-  border-radius: var(--radius-sm);
   text-align: center;
   font-weight: 600;
 }
@@ -1090,7 +1213,7 @@ app-modificar-reclamo > :where(.modificar-container) .alerta-exito {
 app-modificar-reclamo > :where(.modificar-container) .error-card {
   padding: 20px;
   background: var(--error-bg);
-  border: 1px solid #fecaca;
+  border: 1px solid var(--error-border);
   color: var(--error-color);
   border-radius: var(--radius-sm);
 }
@@ -1131,6 +1254,12 @@ app-perfil > :where(.perfil-container) .perfil-card h2 {
   color: var(--primary-blue);
 }
 
+/* Solo el titulo del formulario es hijo directo de la tarjeta; en la vista de
+   detalle el nombre va dentro de .perfil-header. */
+app-perfil > :where(.perfil-container) .perfil-card > h2 {
+  margin-bottom: 16px;
+}
+
 app-perfil > :where(.perfil-container) .perfil-header {
   display: flex;
   align-items: center;
@@ -1145,8 +1274,9 @@ app-perfil > :where(.perfil-container) .avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-blue);
-  color: var(--card-bg);
+  /* Mismo esquema que el avatar del navbar: celeste con iniciales azul marino. */
+  background: var(--focus-color);
+  color: var(--primary-blue);
   font-size: 20px;
   font-weight: 700;
 }
@@ -1192,9 +1322,18 @@ app-perfil > :where(.perfil-container) .campo label {
 
 app-perfil > :where(.perfil-container) .campo input {
   width: 100%;
-  padding: 10px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
+  font-family: var(--font-body);
+}
+
+app-perfil > :where(.perfil-container) .campo input:disabled {
+  background: var(--surface-muted);
+  color: var(--text-gray);
+  cursor: not-allowed;
 }
 
 app-perfil > :where(.perfil-container) .campo input.ng-invalid.ng-touched {
@@ -1205,7 +1344,7 @@ app-perfil > :where(.perfil-container) .error {
   display: block;
   margin-top: 4px;
   color: var(--error-color);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 app-perfil > :where(.perfil-container) .acciones {
@@ -1217,24 +1356,26 @@ app-perfil > :where(.perfil-container) .acciones {
 
 app-perfil > :where(.perfil-container) .btn-primario,
 app-perfil > :where(.perfil-container) .btn-cancelar {
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
 }
 
 app-perfil > :where(.perfil-container) .btn-primario {
   background: var(--primary-blue);
   color: var(--card-bg);
-  border: none;
+  border: 1px solid var(--primary-blue);
 }
 
 app-perfil > :where(.perfil-container) .btn-primario:hover:not(:disabled) {
   background: var(--primary-blue-hover);
-}
-
-app-perfil > :where(.perfil-container) .btn-primario:disabled {
-  opacity: 0.5;
 }
 
 app-perfil > :where(.perfil-container) .btn-cancelar {
@@ -1245,7 +1386,8 @@ app-perfil > :where(.perfil-container) .btn-cancelar {
 
 app-perfil > :where(.perfil-container) .alerta-exito {
   margin-top: 16px;
-  padding: 12px;
+  padding: 12px var(--field-padding-x);
+  border: 1px solid var(--success-border);
   border-radius: var(--radius-sm);
   background: var(--success-bg);
   color: var(--success-color);
@@ -1269,14 +1411,111 @@ app-perfil > :where(.perfil-container) .alerta-exito {
   }
 }
 
+app-reporte-reclamos > :where(.container) .acciones-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0 20px;
+}
+
 app-reporte-reclamos > :where(.container) .btn-filtrar {
-  margin-bottom: 24px;
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Ancho minimo parejo para los dos botones del bloque de filtros. */
+  min-width: 150px;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
   background: var(--primary-blue);
   color: var(--card-bg);
-  border: none;
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   cursor: pointer;
+}
+
+app-reporte-reclamos > :where(.container) .btn-filtrar:hover:not(:disabled) {
+  background: var(--primary-blue-hover);
+  border-color: var(--primary-blue-hover);
+}
+
+/* Grafico del reporte: misma tarjeta que el resto del sitio y mismo ancho que
+   el contenedor, para que los bordes coincidan con el resto de las tarjetas. */
+app-reporte-reclamos > :where(.container) .grafico-reclamos {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-reporte-reclamos > :where(.container) .grafico-reclamos h2 {
+  margin: 0 0 8px;
+  color: var(--primary-blue);
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+app-reporte-reclamos > :where(.container) .grafico-reclamos p {
+  margin: 0 0 12px;
+  color: var(--text-gray);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+app-reporte-reclamos > :where(.container) .grafico-contenedor {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 320px;
+}
+
+app-reporte-reclamos > :where(.container) .grafico-reclamos .nota-grafico {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+app-reporte-reclamos > :where(.container) .grafico-reclamos details {
+  margin-top: 16px;
+}
+
+app-reporte-reclamos > :where(.container) .grafico-reclamos summary {
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+
+  app-reporte-reclamos > :where(.container) .grafico-reclamos {
+    padding: 10px;
+  }
+
+  app-reporte-reclamos > :where(.container) .grafico-reclamos h2 {
+    font-size: 18px;
+  }
+
+  app-reporte-reclamos > :where(.container) .grafico-contenedor {
+    height: 280px;
+  }
+}
+
+app-reporte-reclamos > :where(.container) .cargando p {
+  padding: 24px 0;
+  color: var(--text-gray);
+  text-align: center;
+}
+
+/* Titulos de las secciones de tablas: mismo ritmo vertical que la tarjeta del
+   grafico, que de otro modo quedaba pegada a la tabla anterior. */
+app-reporte-reclamos > :where(.container) .reporte-content > section > h2 {
+  margin: 24px 0 12px;
+  color: var(--primary-blue);
+  font-size: 22px;
 }
 
 app-reporte-reclamos > :where(.container) .metricas-resumen {
@@ -1336,7 +1575,7 @@ button, input, select, textarea { font-family: inherit; }
 :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .tarjeta {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 1px 4px rgba(17, 47, 78, 0.08);
 }
 :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .tarjeta__cuerpo { padding: 20px; }
@@ -1345,21 +1584,32 @@ button, input, select, textarea { font-family: inherit; }
 
 /* ── Botones: normal, hover, foco, deshabilitado ──── */
 :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
   background: var(--primary-blue);
   color: var(--card-bg);
-  border: none;
-  border-radius: 6px;
-  padding: 10px 18px;
-  font-weight: 700;
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--btn-radius);
+  padding: 0 var(--btn-padding-x);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
   text-decoration: none;
 }
 :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton:hover { background: var(--primary-blue-hover); }
-:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--contorno { background: var(--card-bg); color: var(--primary-blue); border: 2px solid var(--primary-blue); }
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--contorno { background: var(--card-bg); color: var(--primary-blue); border: 1px solid var(--primary-blue); }
 :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--contorno:hover { background: var(--surface-info-light); }
 :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--peligro { background: var(--error-color); }
 :where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton--peligro:hover { background: #8f0707; }
-:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton[disabled] { opacity: 0.6; cursor: default; }
+
+/* Un solo estado deshabilitado para todos los botones del sitio. */
+button:disabled,
+:where(app-userhome, app-adminhome, app-como-hago-para, app-faq) .boton[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 
 /* ── Avisos ───────────────────────────────────────── */
 
@@ -1402,32 +1652,34 @@ app-userhome .flecha {
   top: 42%;
   transform: translateY(-50%);
   z-index: 3;
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--primary-blue);
   background: var(--card-bg);
   color: var(--primary-blue);
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   box-shadow: 0 2px 8px rgba(17, 47, 78, 0.25);
 }
 
 app-userhome .flecha:hover { background: var(--primary-blue); color: var(--card-bg); }
-app-userhome .flecha.prev { left: -14px; }
-app-userhome .flecha.next { right: -14px; }
+/* La flecha queda sobre el margen interno de la carta, nunca sobre el texto. */
+app-userhome .flecha.prev { left: -18px; }
+app-userhome .flecha.next { right: -18px; }
 
 /* Cartas con las mismas proporciones y pie alineado abajo */
 app-userhome .carta {
   flex: 0 0 290px;
   scroll-snap-align: start;
   border: 1px solid var(--primary-blue);
+  border-radius: var(--radius-sm);
   background: var(--card-bg);
   display: flex;
   flex-direction: column;
 }
 
-app-userhome .carta .cuerpo { padding: 14px; display: flex; flex-direction: column; flex: 1; }
+app-userhome .carta .cuerpo { padding: 14px 20px; display: flex; flex-direction: column; flex: 1; }
 
 app-userhome .chips { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
 
@@ -1449,16 +1701,29 @@ app-userhome .pie { margin-top: auto; padding-top: 12px; display: flex; justify-
 app-userhome .puesto { color: var(--primary-blue); font-size: 15px; }
 
 app-userhome .btn-reportar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
   background: var(--primary-blue);
   color: var(--card-bg);
-  font-weight: 700;
-  font-size: 14px;
-  padding: 9px 18px;
-  border-radius: 4px;
+  border: 1px solid var(--primary-blue);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
+  padding: 0 var(--btn-padding-x);
+  border-radius: var(--btn-radius);
   text-decoration: none;
 }
 
 app-userhome .btn-reportar:hover { background: var(--primary-blue-hover); }
+
+/* Las etiquetas de boton nunca se parten en dos lineas. */
+:where(app-login, app-registro, app-recuperar-contrasena, app-crear-reclamo,
+  app-estado-reclamo, app-historial, app-modificar-reclamo, app-perfil,
+  app-bandeja-reclamos, app-reporte-reclamos, app-userhome, app-adminhome) button {
+  white-space: nowrap;
+}
 
 
 @media (max-width: 700px) {
@@ -1470,7 +1735,7 @@ app-userhome .btn-reportar:hover { background: var(--primary-blue-hover); }
 /* Cabecera compartida por todas las páginas con sesión. */
 app-navbar { display: flex; align-items: center; gap: 24px; padding: 0 24px; background: var(--primary-blue); color: var(--card-bg); }
 app-navbar .cabecera-portal { display: flex; align-items: center; gap: 14px; padding: 16px 0; color: var(--card-bg); }
-app-navbar .sello { display: grid; place-items: center; flex-shrink: 0; width: 72px; height: 60px; border-radius: 6px; background: var(--primary-blue); color: var(--card-bg); font-size: 28px; font-weight: 700; }
+app-navbar .sello { display: grid; place-items: center; flex-shrink: 0; width: 72px; height: 60px; border-radius: var(--radius-sm); background: var(--primary-blue); color: var(--card-bg); font-size: 28px; font-weight: 700; }
 app-navbar .identidad { display: flex; flex-direction: column; gap: 8px; }
 app-navbar .marca { font-family: var(--font-heading); font-size: 22px; font-weight: 700; }
 app-navbar .subtitulo { color: var(--surface-info); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -1609,7 +1874,7 @@ app-navbar .menu-usuario {
   min-width: 220px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 8px 22px rgba(17, 47, 78, 0.25);
   padding: 12px 0 6px;
 }
@@ -1652,6 +1917,7 @@ app-como-hago-para .tareas--sin-carrusel { margin-top: 0; padding-top: 28px; pad
 app-como-hago-para .tareas-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   padding: 20px 26px 22px;
 }
 
@@ -1708,7 +1974,7 @@ app-subnav .pestanas a.activa { color: var(--primary-blue); border-bottom-color:
 
 /* Componente compartido: faq */
 app-faq .introduccion { color: var(--text-gray); margin-bottom: 18px; }
-app-faq details { border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); margin-bottom: 10px; }
+app-faq details { border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--card-bg); margin-bottom: 10px; }
 app-faq summary { padding: 16px 20px; color: var(--primary-blue); font-weight: 700; cursor: pointer; }
 app-faq summary:hover, app-faq details[open] summary { background: var(--surface-info-light); }
 app-faq summary:focus-visible { outline: 4px solid var(--focus-color); outline-offset: 2px; }
@@ -1832,9 +2098,12 @@ app-direccion-autocomplete { display: block; }
 app-direccion-autocomplete .direccion-autocomplete { position: relative; }
 app-direccion-autocomplete .direccion-autocomplete input {
   width: 100%;
-  padding: 10px;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
+  font-family: var(--font-body);
 }
 app-direccion-autocomplete .texto-cargando {
   display: block;
