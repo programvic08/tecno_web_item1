@@ -55,18 +55,24 @@
             <app-status-badge [estado]="r.estado"></app-status-badge>
           </td>
           <td>
-            <select *ngIf="esAdmin; else soloNombre" class="form-select form-select-sm select-agente"
-                    [attr.aria-label]="'Agente del reclamo ' + r.folio"
-                    [ngModel]="r.agenteId ?? ''" (ngModelChange)="asignar(r.folio, $event)">
-              <option value="">Sin asignar</option>
-              <option *ngFor="let a of agentes" [value]="a.id">{{ a.nombre }}</option>
-            </select>
+            <div *ngIf="esAdmin && r.estado === EstadoReclamo.RECIBIDO; else soloNombre">
+              <label [for]="'buscar-agente-' + r.id">Buscar agente por nombre</label>
+              <input type="search" class="form-control" [id]="'buscar-agente-' + r.id"
+                     [(ngModel)]="busquedasAgente[r.folio]" placeholder="Escriba parte del nombre">
+              <select class="form-select form-select-sm select-agente"
+                      [attr.aria-label]="'Agente del reclamo ' + r.folio"
+                      [ngModel]="r.agenteId ?? ''" (ngModelChange)="asignar(r.folio, $event)">
+                <option value="">Sin asignar</option>
+                <option *ngFor="let a of agentesFiltrados(r.folio)" [value]="a.id">{{ a.nombre }}</option>
+              </select>
+              <small *ngIf="agentesFiltrados(r.folio).length === 0">No hay agentes que coincidan.</small>
+            </div>
             <ng-template #soloNombre><span class="nombre-agente">{{ nombreAgente(r) }}</span></ng-template>
           </td>
           <td>
             <div class="acciones-tabla">
               <button class="btn" [routerLink]="['/modificar-reclamo']" [queryParams]="{ folio: r.folio }">Gestionar / Editar</button>
-              <button class="btn btn-asignar" (click)="asignarme(r.folio)" *ngIf="esAdmin && !r.agenteId">Asignarme</button>
+              <button class="btn btn-asignar" (click)="asignarme(r.folio)" *ngIf="esAdmin && r.estado === EstadoReclamo.RECIBIDO && !r.agenteId">Asignarme</button>
             </div>
           </td>
         </tr>

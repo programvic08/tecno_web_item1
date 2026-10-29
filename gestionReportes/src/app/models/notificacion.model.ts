@@ -1,4 +1,4 @@
-export type TipoNotificacion = 'bitacora' | 'asignacion';
+export type TipoNotificacion = 'bitacora' | 'asignacion' | 'nuevo-reclamo' | 'rechazo' | 'resolucion';
 
 export interface Notificacion {
   id: string;

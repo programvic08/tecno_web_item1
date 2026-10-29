@@ -27,6 +27,13 @@ export class BandejaReclamosComponent implements OnInit, OnDestroy {
   // Solo el administrador asigna; el agente ve únicamente los reclamos que tiene asignados
   esAdmin = false;
   agentes: AgenteAsignable[] = [];
+  busquedasAgente: Record<string, string> = {};
+  readonly EstadoReclamo = EstadoReclamo;
+
+  agentesFiltrados(folio: string): AgenteAsignable[] {
+    const texto = (this.busquedasAgente[folio] ?? '').trim().toLocaleLowerCase();
+    return this.agentes.filter(agente => agente.nombre.toLocaleLowerCase().includes(texto));
+  }
 
   private suscripciones = new Subscription();
 

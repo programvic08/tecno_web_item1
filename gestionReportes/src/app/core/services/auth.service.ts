@@ -134,6 +134,16 @@ export class AuthService {
     return this.credencialesMock;
   }
 
+  obtenerUsuarioPorId(id: number): Usuario | null {
+    return this.leerPerfil(id);
+  }
+
+  obtenerAdministradores(): Usuario[] {
+    return Object.values(this.usuariosMock)
+      .filter(usuario => usuario.rol === RolUsuario.ADMINISTRADOR)
+      .map(usuario => this.leerPerfil(usuario.id) ?? usuario);
+  }
+
   // Personal al que el administrador puede asignarle reclamos. El administrador también
   // es agente, así que aparece en la lista (el nombre sale del perfil vigente, que es editable).
   obtenerAgentes(): AgenteAsignable[] {

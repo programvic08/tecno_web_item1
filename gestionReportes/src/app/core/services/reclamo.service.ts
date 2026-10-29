@@ -155,7 +155,15 @@ export class ReclamoService {
       prioridad: PrioridadReclamo.MEDIA,
       agenteAsignado: SIN_ASIGNAR,
       agenteId: null,
-      fecha: new Date().toISOString().split('T')[0]
+      fecha: new Date().toISOString().split('T')[0],
+      fechaResolucion: undefined,
+      resultadoCierre: undefined,
+      bitacora: [{
+        fecha: new Date().toISOString(),
+        autor: this.authService.obtenerUsuarioActual()?.nombre ?? 'Ciudadano',
+        estado: EstadoReclamo.RECIBIDO,
+        observacion: 'El reclamo fue recibido y quedó pendiente de asignación.' }]
+
     };
 
     const listaActual = this.reclamosSubject.value;
@@ -165,6 +173,11 @@ export class ReclamoService {
       ...listaActual
     ]);
 
+    this.notificacionService.crear(
+      this.authService.obtenerAdministradores().map(usuario => usuario.id),
+      'nuevo-reclamo', 'Nuevo reclamo pendiente de asignación',
+      'El reclamo ' + reclamoCompleto.folio + ' está pendiente de asignación.', reclamoCompleto
+    );
     return of(reclamoCompleto);
   }
 
@@ -198,179 +211,105 @@ export class ReclamoService {
   // 5. ACTUALIZAR RECLAMO
   // ==========================================
 
-  // Devuelve false (y no cambia nada) si el reclamo no existe o el usuario no puede gestionarlo.
   actualizarReclamo(folio: string, cambios: Partial<Reclamo>, observacion?: string, autor?: string): boolean {
-    const objetivo = this.reclamosSubject.value.find(r => r.folio === folio);
-    if (!objetivo || !this.puedeGestionar(objetivo)) {
-      return false;
-    }
-
-    // Un agente puede editar su reclamo, pero no cambiar quién lo tiene asignado
-    if (!this.puedeAsignar()) {
-      const { agenteId, agenteAsignado, ...sinAsignacion } = cambios;
-      cambios = sinAsignacion;
-    }
-
-    let reclamoActualizado: Reclamo | undefined;
-    const listaActualizada = this.reclamosSubject.value.map(r => {
-      if (r.folio === folio) {
-        const actualizado = { ...r, ...cambios };
-        if (cambios.estado === EstadoReclamo.RESUELTO) {
-
-          const yaResuelto =
-            r.estado === EstadoReclamo.RESUELTO ||
-            r.estado === EstadoReclamo.CERRADO;
-
-          actualizado.fechaResolucion =
-            yaResuelto && r.fechaResolucion
-              ? r.fechaResolucion
-              : new Date().toISOString().slice(0, 10);
-
-        } else if (
-          cambios.estado &&
-          cambios.estado !== EstadoReclamo.CERRADO
-        ) {
-          // Si se reabre, deja de estar resuelto.
-          actualizado.fechaResolucion = undefined;
-        }
-
-        // Registrar observación en la bitácora.
-        const texto = observacion?.trim();
-
-        if (texto) {
-          const entrada: EntradaBitacora = {
-            fecha: new Date().toISOString().slice(0, 10),
-            autor: autor?.trim() || 'Agente Municipal',
-            estado: actualizado.estado,
-            observacion: texto
-          };
-
-          actualizado.bitacora = [
-            ...(r.bitacora ?? []),
-            entrada
-          ];
-        }
-
-        const cambioAsignacion =
-          r.agenteId !== actualizado.agenteId ||
-          r.agenteAsignado !== actualizado.agenteAsignado;
-        if (cambioAsignacion) {
-          actualizado.bitacora = [
-            ...(actualizado.bitacora ?? []),
-            {
-              fecha: new Date().toISOString().slice(0, 10),
-              autor: autor?.trim() || 'Agente Municipal',
-              estado: actualizado.estado,
-              observacion: actualizado.agenteId
-                ? `Caso asignado a ${actualizado.agenteAsignado}.`
-                : 'Caso dejado sin asignar.'
-            }
-          ];
-        }
-
-        reclamoActualizado = actualizado;
-        return actualizado;
-      }
-      return r;
-    });
-
-    this.reclamosSubject.next(listaActualizada);
-    if (reclamoActualizado) {
-      this.notificarActualizacion(objetivo, reclamoActualizado, autor);
-    }
-    return true;
-  }
-
-  // Solo el administrador puede asignar. Con agente null el reclamo queda sin asignar.
-  asignarAgente(folio: string, agente: AgenteAsignable | null): boolean {
-    const objetivo = this.reclamosSubject.value.find(r => r.folio === folio);
-    if (!this.puedeAsignar() || !objetivo) {
-      return false;
-    }
-
-    let reclamoActualizado: Reclamo | undefined;
-    const lista = this.reclamosSubject.value.map(r => {
-      if (r.folio === folio) {
-        const nuevoAgenteId = agente?.id ?? null;
-        const nuevoNombreAgente = agente?.nombre ?? SIN_ASIGNAR;
-        const cambioAsignacion =
-          r.agenteId !== nuevoAgenteId ||
-          r.agenteAsignado !== nuevoNombreAgente;
-        const actualizado = {
-          ...r,
-          agenteId: nuevoAgenteId,
-          agenteAsignado: nuevoNombreAgente,
-          estado: agente ? EstadoReclamo.EN_REVISION : r.estado,
-          bitacora: cambioAsignacion
-            ? [
-                ...(r.bitacora ?? []),
-                {
-                  fecha: new Date().toISOString().slice(0, 10),
-                  autor: this.authService.obtenerUsuarioActual()?.nombre ?? 'Agente Municipal',
-                  estado: agente ? EstadoReclamo.EN_REVISION : r.estado,
-                  observacion: agente
-                    ? `Caso asignado a ${agente.nombre}.`
-                    : 'Caso dejado sin asignar.'
-                }
-              ]
-            : r.bitacora
-        };
-        reclamoActualizado = actualizado;
-        return actualizado;
-      }
-
-      return r;
-    });
-
-    this.reclamosSubject.next(lista);
-    if (reclamoActualizado && (
-      objetivo.agenteId !== reclamoActualizado.agenteId ||
-      objetivo.agenteAsignado !== reclamoActualizado.agenteAsignado
-    )) {
+    const reclamo = this.buscarGestionable(folio);
+    if (!reclamo || reclamo.estado === EstadoReclamo.CERRADO) return false;
+    const protegidos: (keyof Reclamo)[] = [
+      'id', 'folio', 'usuarioId', 'estado', 'agenteId', 'agenteAsignado',
+      'bitacora', 'fechaResolucion', 'resultadoCierre'
+    ];
+    if (protegidos.some(campo => Object.prototype.hasOwnProperty.call(cambios, campo))) return false;
+    if (observacion !== undefined) return false;
+    const actualizado = { ...reclamo, ...cambios };
+    this.guardar(actualizado);
+    if (actualizado.prioridad !== reclamo.prioridad) {
       const actorId = this.authService.obtenerUsuarioActual()?.id;
       this.notificacionService.crear(
-        [agente?.id ?? 0].filter(id => id !== actorId),
-        'asignacion',
-        agente ? 'Te asignaron un caso' : 'Se actualizó la asignación de tu caso',
-        agente
-          ? `El caso ${objetivo.folio} fue asignado a tu bandeja.`
-          : `El caso ${objetivo.folio} quedó sin agente asignado.`,
-        reclamoActualizado
+        [reclamo.usuarioId ?? 0, reclamo.agenteId ?? 0].filter(id => id !== actorId),
+        'bitacora', 'Actualización de tu caso',
+        'Se actualizó la prioridad del caso ' + folio + '.', actualizado
       );
     }
     return true;
   }
 
-  private notificarActualizacion(
-    anterior: Reclamo,
-    actualizado: Reclamo,
-    autor?: string
-  ): void {
-    const cambioAsignacion =
-      anterior.agenteId !== actualizado.agenteId ||
-      anterior.agenteAsignado !== actualizado.agenteAsignado;
-    const agregoBitacora = (actualizado.bitacora?.length ?? 0) > (anterior.bitacora?.length ?? 0);
-    const cambioEstado = anterior.estado !== actualizado.estado;
-    const cambioPrioridad = anterior.prioridad !== actualizado.prioridad;
-
-    if (!cambioAsignacion && !agregoBitacora && !cambioEstado && !cambioPrioridad) {
-      return;
+  asignarAgente(folio: string, agente: AgenteAsignable | null): boolean {
+    const reclamo = this.buscarGestionable(folio);
+    if (!this.puedeAsignar() || !reclamo || reclamo.estado !== EstadoReclamo.RECIBIDO) return false;
+    if (!agente) return !reclamo.agenteId;
+    const disponible = this.authService.obtenerAgentes().find(a => a.id === agente.id);
+    if (!disponible) return false;
+    const actualizado: Reclamo = {
+      ...reclamo, agenteId: disponible.id, agenteAsignado: disponible.nombre,
+      estado: EstadoReclamo.EN_REVISION,
+      bitacora: [...(reclamo.bitacora ?? []), this.entrada(EstadoReclamo.EN_REVISION,
+        'Caso asignado a ' + disponible.nombre + '.')]
+    };
+    this.guardar(actualizado);
+    if (disponible.id !== this.authService.obtenerUsuarioActual()?.id) {
+      this.notificacionService.crear([disponible.id], 'asignacion', 'Te asignaron un caso',
+        'El caso ' + folio + ' fue asignado a tu bandeja.', actualizado);
     }
+    return true;
+  }
 
-    const actorId = this.authService.obtenerUsuarioActual()?.id;
-    const destinatarios = (cambioAsignacion
-      ? [actualizado.agenteId ?? 0]
-      : [actualizado.usuarioId ?? 0, actualizado.agenteId ?? 0]
-    ).filter(id => id !== actorId);
-    this.notificacionService.crear(
-      destinatarios,
-      cambioAsignacion ? 'asignacion' : 'bitacora',
-      cambioAsignacion ? 'Te asignaron un caso' : 'Actualización de tu caso',
-      cambioAsignacion
-        ? `El caso ${actualizado.folio} fue asignado a ${actualizado.agenteAsignado}.`
-        : `${autor?.trim() || 'El equipo municipal'} actualizó la bitácora del caso ${actualizado.folio}.`,
-      actualizado
-    );
+  registrarAvance(folio: string, observacion: string): boolean {
+    const reclamo = this.buscarGestionable(folio);
+    const texto = observacion.trim();
+    if (!reclamo || !texto || !reclamo.agenteId ||
+        ![EstadoReclamo.EN_REVISION, EstadoReclamo.EN_PROCESO].includes(reclamo.estado)) return false;
+    const primero = reclamo.estado === EstadoReclamo.EN_REVISION;
+    const actualizado: Reclamo = {
+      ...reclamo, estado: EstadoReclamo.EN_PROCESO,
+      bitacora: [...(reclamo.bitacora ?? []), this.entrada(EstadoReclamo.EN_PROCESO, texto)]
+    };
+    this.guardar(actualizado);
+    this.notificacionService.crear([reclamo.usuarioId ?? 0], 'bitacora',
+      primero ? 'Tu reclamo se encuentra en proceso' : 'Hay una nueva actualización en tu reclamo',
+      'Actualización del caso ' + folio + ': ' + texto, actualizado);
+    return true;
+  }
+
+  rechazarReclamo(folio: string, motivo: string): boolean {
+    if (!motivo.trim()) return false;
+    return this.cerrar(folio, 'Rechazado', motivo.trim());
+  }
+
+  resolverReclamo(folio: string): boolean {
+    return this.cerrar(folio, 'Resuelto', 'El reclamo fue resuelto.');
+  }
+
+  private cerrar(folio: string, resultado: 'Resuelto' | 'Rechazado', observacion: string): boolean {
+    const reclamo = this.buscarGestionable(folio);
+    const resuelto = resultado === 'Resuelto';
+    if (!reclamo || !reclamo.agenteId || reclamo.estado !==
+        (resuelto ? EstadoReclamo.EN_PROCESO : EstadoReclamo.EN_REVISION)) return false;
+    const actualizado: Reclamo = {
+      ...reclamo, estado: EstadoReclamo.CERRADO, resultadoCierre: resultado,
+      fechaResolucion: resuelto ? new Date().toISOString().slice(0, 10) : undefined,
+      bitacora: [...(reclamo.bitacora ?? []),
+        this.entrada(resuelto ? EstadoReclamo.RESUELTO : EstadoReclamo.RECHAZADO, observacion),
+        this.entrada(EstadoReclamo.CERRADO, 'Reclamo cerrado por ' + (resuelto ? 'resolución' : 'rechazo') + '.')]
+    };
+    this.guardar(actualizado);
+    this.notificacionService.crear([reclamo.usuarioId ?? 0], resuelto ? 'resolucion' : 'rechazo',
+      resuelto ? 'Tu reclamo fue resuelto y cerrado' : 'Tu reclamo fue rechazado',
+      'Caso ' + folio + ': ' + observacion, actualizado);
+    return true;
+  }
+
+  private buscarGestionable(folio: string): Reclamo | undefined {
+    const reclamo = this.reclamosSubject.value.find(r => r.folio === folio);
+    return reclamo && this.puedeGestionar(reclamo) ? reclamo : undefined;
+  }
+
+  private entrada(estado: EstadoReclamo, observacion: string): EntradaBitacora {
+    return { fecha: new Date().toISOString(),
+      autor: this.authService.obtenerUsuarioActual()!.nombre, estado, observacion };
+  }
+
+  private guardar(reclamo: Reclamo): void {
+    this.reclamosSubject.next(this.reclamosSubject.value.map(r => r.folio === reclamo.folio ? reclamo : r));
   }
 
   // ==========================================
@@ -515,7 +454,7 @@ export class ReclamoService {
         const duraciones = reclamosFiltrados
           .filter(r =>
             r.estado === EstadoReclamo.RESUELTO ||
-            r.estado === EstadoReclamo.CERRADO
+            (r.estado === EstadoReclamo.CERRADO && r.resultadoCierre !== 'Rechazado')
           )
           .map(r => this.diasHastaResolucion(r))
           .filter(

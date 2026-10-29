@@ -25,6 +25,8 @@
     </div>
 
     <div class="info-readonly">
+      <p><strong>Ciudadano:</strong> {{ nombreCiudadano }}</p>
+      <p *ngIf="reclamo.resultadoCierre"><strong>Resultado del cierre:</strong> {{ reclamo.resultadoCierre }}</p>
       <p><strong>Ubicación:</strong> {{ reclamo.ubicacion }}</p>
       <p><strong>Fecha de Ingreso:</strong> {{ reclamo.fecha }}</p>
       <div class="evidencia-agente">
@@ -60,41 +62,34 @@
 
     <hr class="divider" />
 
-    <form (ngSubmit)="guardarCambios()" #formEdit="ngForm">
-      <h4>Actualizar Datos de Gestión</h4>
-
-      <div class="form-grid">
-        <div class="campo">
-          <label for="estado">Estado del Trámite</label>
-          <select id="estado" name="estado" [(ngModel)]="nuevoEstado" required>
-            <option *ngFor="let est of estados" [value]="est">{{ est }}</option>
-          </select>
-        </div>
-
-        <div class="campo full-width">
-          <label for="observacion">Observación o Bitácora de Avance</label>
-          <textarea 
-            id="observacion" 
-            name="observacion" 
-            rows="3" 
-            [(ngModel)]="nuevaObservacion" 
-            placeholder="Describa las acciones realizadas o justificación del cambio de estado..."
-          ></textarea>
-        </div>
+    <p *ngIf="reclamo.estado === EstadoReclamo.RECIBIDO">Pendiente de asignación. Asigne un agente desde la bandeja para iniciar la gestión.</p>
+    <form *ngIf="reclamo.estado === EstadoReclamo.EN_REVISION || reclamo.estado === EstadoReclamo.EN_PROCESO"
+          (ngSubmit)="ejecutar('avance')">
+      <div class="campo full-width">
+        <label for="observacion">{{ reclamo.estado === EstadoReclamo.EN_REVISION ? 'Observación / Bitácora' : 'Nueva actualización' }}</label>
+        <textarea id="observacion" name="observacion" rows="3" [(ngModel)]="nuevaObservacion"
+                  placeholder="Describa el avance o motivo de rechazo"></textarea>
       </div>
-
       <div class="acciones">
-        <button type="button" class="btn-cancelar" routerLink="/bandeja-reclamos">Volver a Bandeja</button>
-        <button type="submit" class="btn-guardar" [disabled]="!formEdit.valid">Guardar Cambios</button>
+        <button type="submit" class="btn-guardar" [disabled]="!nuevaObservacion.trim()">
+          {{ reclamo.estado === EstadoReclamo.EN_REVISION ? 'Registrar avance' : 'Agregar avance' }}
+        </button>
+        <button *ngIf="reclamo.estado === EstadoReclamo.EN_REVISION" type="button" class="btn-cancelar"
+                [disabled]="!nuevaObservacion.trim()" (click)="ejecutar('rechazar')">Rechazar reclamo</button>
+        <button *ngIf="reclamo.estado === EstadoReclamo.EN_PROCESO" type="button" class="btn-guardar"
+                (click)="ejecutar('resolver')">Resolver reclamo</button>
       </div>
     </form>
+    <a class="btn-cancelar" routerLink="/bandeja-reclamos">Volver a Bandeja</a>
+
 
     <div *ngIf="sinPermiso" class="error-card" role="alert">
-      No tienes permiso para modificar este reclamo.
+      No se pudo realizar la acción. Verifique los permisos, el estado y la observación.
     </div>
 
     <div *ngIf="actualizadoExito" class="alerta-exito">
-      ¡Modificaciones guardadas con éxito! Redirigiendo a la bandeja...
+      ¡Acción registrada con éxito!
+      <span *ngIf="reclamo.estado === EstadoReclamo.CERRADO">Redirigiendo a la bandeja...</span>
     </div>
   </div>
 

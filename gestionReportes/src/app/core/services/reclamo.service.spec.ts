@@ -6,6 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { ReclamoService } from './reclamo.service';
 import { AuthService } from './auth.service';
 import { USUARIO_ADMIN_PRUEBA, USUARIO_AGENTE_PRUEBA, USUARIO_CIUDADANO_PRUEBA } from '../../testing/usuarios-prueba';
+import { NotificacionService } from './notificacion.service';
 import { Usuario } from '../../models/usuario.model';
 
 describe('ReclamoService', () => {
@@ -65,26 +66,6 @@ describe('ReclamoService', () => {
     }
   });
 
-  it('registra la fecha al resolver, la conserva al cerrar y la limpia al reabrir', () => {
-    const folio = 'REC-2026-001';
-    service.actualizarReclamo(folio, { estado: EstadoReclamo.RESUELTO });
-    const hoy = new Date().toISOString().slice(0, 10);
-    service.reclamos$.subscribe(reclamos => expect(reclamos.find(r => r.folio === folio)?.fechaResolucion).toBe(hoy)).unsubscribe();
-    service.actualizarReclamo(folio, { estado: EstadoReclamo.CERRADO });
-    service.reclamos$.subscribe(reclamos => expect(reclamos.find(r => r.folio === folio)?.fechaResolucion).toBe(hoy)).unsubscribe();
-    service.actualizarReclamo(folio, { estado: EstadoReclamo.EN_PROCESO });
-    service.reclamos$.subscribe(reclamos => expect(reclamos.find(r => r.folio === folio)?.fechaResolucion).toBeUndefined()).unsubscribe();
-  });
-
-  it('no inventa fecha al cerrar directamente y conserva fechas al editar otros campos', () => {
-    service.actualizarReclamo('REC-2026-001', { estado: EstadoReclamo.CERRADO });
-    service.obtenerReporte().subscribe(r => expect(r.tiempoPromedioResolucionDias).toBeNull()).unsubscribe();
-    service.actualizarReclamo('REC-2026-002', { estado: EstadoReclamo.RESUELTO });
-    const hoy = new Date().toISOString().slice(0, 10);
-    service.actualizarReclamo('REC-2026-002', { descripcion: 'Editada' });
-    service.reclamos$.subscribe(rs => expect(rs[1].fechaResolucion).toBe(hoy)).unsubscribe();
-  });
-
   it('calcula promedio real incluyendo cero dias y respeta filtros', () => {
     let originales: Reclamo[] = [];
     service.reclamos$.subscribe(rs => originales = rs).unsubscribe();
@@ -105,16 +86,100 @@ describe('ReclamoService', () => {
     service.obtenerReporte({ categoria: 'B' }).subscribe(r => expect(r.tiempoPromedioResolucionDias).toBe(0));
     service.obtenerReporte({ categoria: 'Sin coincidencias' }).subscribe(r => expect(r.tiempoPromedioResolucionDias).toBeNull());
   });
+  describe('flujo controlado y notificaciones', () => {
+    const folio = 'REC-2026-002';
+    let notificar: jasmine.Spy;
+    const caso = (): Reclamo => {
+      let reclamo!: Reclamo;
+      service.reclamos$.subscribe(rs => reclamo = rs.find(r => r.folio === folio)!).unsubscribe();
+      return reclamo;
+    };
+    beforeEach(() => { notificar = spyOn(TestBed.inject(NotificacionService), 'crear'); });
 
-  it('conserva la resolucion al guardar otra vez y renueva la fecha tras reasignar', () => {
-    const folio = 'REC-2026-001';
-    service.actualizarReclamo(folio, { estado: EstadoReclamo.RESUELTO });
-    service.actualizarReclamo(folio, { fechaResolucion: '2026-09-15' });
-    service.actualizarReclamo(folio, { estado: EstadoReclamo.RESUELTO });
-    service.reclamos$.subscribe(rs => expect(rs[0].fechaResolucion).toBe('2026-09-15')).unsubscribe();
-    service.asignarAgente(folio, { id: USUARIO_AGENTE_PRUEBA.id, nombre: USUARIO_AGENTE_PRUEBA.nombre });
-    service.actualizarReclamo(folio, { estado: EstadoReclamo.RESUELTO });
-    service.reclamos$.subscribe(rs => expect(rs[0].fechaResolucion).toBe(new Date().toISOString().slice(0, 10))).unsubscribe();
+    it('crea recibido sin agente y notifica a administradores con el folio', () => {
+      service.crearReclamo({ ...caso(), estado: EstadoReclamo.CERRADO, agenteId: 3,
+        resultadoCierre: 'Resuelto', fechaResolucion: '2020-01-01' } as any).subscribe(r => {
+        expect(r.estado).toBe(EstadoReclamo.RECIBIDO);
+        expect(r.agenteId).toBeNull();
+        expect(r.resultadoCierre).toBeUndefined();
+        expect(r.fechaResolucion).toBeUndefined();
+        expect(r.bitacora?.length).toBe(1);
+        expect(notificar).toHaveBeenCalledWith([USUARIO_ADMIN_PRUEBA.id], 'nuevo-reclamo',
+          'Nuevo reclamo pendiente de asignación', jasmine.stringContaining(r.folio), r);
+      });
+    });
+    it('asigna, registra bit?cora y notifica al agente', () => {
+      expect(service.asignarAgente(folio, USUARIO_AGENTE_PRUEBA)).toBeTrue();
+      expect(caso().estado).toBe(EstadoReclamo.EN_REVISION);
+      expect(caso().bitacora?.length).toBe(2);
+      expect(notificar).toHaveBeenCalledWith([USUARIO_AGENTE_PRUEBA.id], 'asignacion',
+        'Te asignaron un caso', jasmine.stringContaining(folio), caso());
+    });
+    it('autoasignación registra bit?cora sin notificarse', () => {
+      expect(service.asignarAgente(folio, USUARIO_ADMIN_PRUEBA)).toBeTrue();
+      expect(caso().bitacora?.length).toBe(2);
+      expect(notificar).not.toHaveBeenCalled();
+    });
+    it('primer avance inicia proceso y siguientes avances conservan estado', () => {
+      service.asignarAgente(folio, USUARIO_AGENTE_PRUEBA);
+      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
+      expect(service.registrarAvance(folio, '  ')).toBeFalse();
+      expect(service.registrarAvance(folio, 'Inspección')).toBeTrue();
+      expect(caso().estado).toBe(EstadoReclamo.EN_PROCESO);
+      expect(notificar).toHaveBeenCalledWith([1], 'bitacora', 'Tu reclamo se encuentra en proceso', jasmine.any(String), caso());
+      expect(service.registrarAvance(folio, 'Reparación')).toBeTrue();
+      expect(caso().estado).toBe(EstadoReclamo.EN_PROCESO);
+      expect(caso().bitacora?.slice(-1)[0].autor).toBe(USUARIO_AGENTE_PRUEBA.nombre);
+      expect(notificar).toHaveBeenCalledWith([1], 'bitacora', 'Hay una nueva actualización en tu reclamo', jasmine.any(String), caso());
+    });
+    it('rechazo exige revisi?n y motivo y cierra con resultado y notificaci?n', () => {
+      expect(service.rechazarReclamo(folio, 'Motivo')).toBeFalse();
+      service.asignarAgente(folio, USUARIO_AGENTE_PRUEBA);
+      expect(service.rechazarReclamo(folio, ' ')).toBeFalse();
+      expect(service.rechazarReclamo(folio, 'Fuera de competencia')).toBeTrue();
+      expect(caso().estado).toBe(EstadoReclamo.CERRADO);
+      expect(caso().resultadoCierre).toBe('Rechazado');
+      expect(caso().fechaResolucion).toBeUndefined();
+      expect(caso().bitacora?.slice(-2).map(e => e.estado)).toEqual([EstadoReclamo.RECHAZADO, EstadoReclamo.CERRADO]);
+      expect(notificar).toHaveBeenCalledWith([1], 'rechazo', 'Tu reclamo fue rechazado', jasmine.stringContaining('Fuera de competencia'), caso());
+      expect(service.rechazarReclamo(folio, 'Otra vez')).toBeFalse();
+      expect(service.registrarAvance(folio, 'Reabrir')).toBeFalse();
+    });
+    it('resolver exige proceso y notifica cierre resuelto', () => {
+      expect(service.resolverReclamo(folio)).toBeFalse();
+      service.asignarAgente(folio, USUARIO_AGENTE_PRUEBA);
+      expect(service.resolverReclamo(folio)).toBeFalse();
+      service.registrarAvance(folio, 'Trabajo');
+      expect(service.actualizarReclamo(folio, { estado: EstadoReclamo.RECIBIDO })).toBeFalse();
+      expect(service.rechazarReclamo(folio, 'Motivo')).toBeFalse();
+      expect(service.resolverReclamo(folio)).toBeTrue();
+      expect(caso().fechaResolucion).toBe(new Date().toISOString().slice(0, 10));
+      expect(caso().bitacora?.slice(-2).map(e => e.estado)).toEqual([EstadoReclamo.RESUELTO, EstadoReclamo.CERRADO]);
+      expect(caso().resultadoCierre).toBe('Resuelto');
+      expect(caso().estado).toBe(EstadoReclamo.CERRADO);
+      expect(notificar).toHaveBeenCalledWith([1], 'resolucion', 'Tu reclamo fue resuelto y cerrado', jasmine.any(String), caso());
+      expect(service.resolverReclamo(folio)).toBeFalse();
+      expect(service.actualizarReclamo(folio, { estado: EstadoReclamo.EN_REVISION })).toBeFalse();
+      expect(service.asignarAgente(folio, USUARIO_ADMIN_PRUEBA)).toBeFalse();
+    });
+    it('bloquea saltos manuales y manipulación de campos protegidos', () => {
+      for (const estado of Object.values(EstadoReclamo)) {
+        expect(service.actualizarReclamo(folio, { estado })).toBeFalse();
+      }
+      for (const cambios of [{ bitacora: [] }, { resultadoCierre: 'Resuelto' as const }, { agenteId: 3 }, { usuarioId: 3 }]) {
+        expect(service.actualizarReclamo(folio, cambios)).toBeFalse();
+      }
+      expect(service.registrarAvance(folio, 'Sin asignar')).toBeFalse();
+    });
+    it('agente ajeno y ciudadano no pueden ejecutar acciones', () => {
+      service.asignarAgente(folio, USUARIO_ADMIN_PRUEBA);
+      for (const usuario of [USUARIO_AGENTE_PRUEBA, USUARIO_CIUDADANO_PRUEBA, null]) {
+        usuarioActual.and.returnValue(usuario);
+        expect(service.registrarAvance(folio, 'Intento')).toBeFalse();
+        expect(service.rechazarReclamo(folio, 'Intento')).toBeFalse();
+        expect(service.resolverReclamo(folio)).toBeFalse();
+      }
+    });
   });
 
   describe('permisos por rol', () => {
@@ -148,9 +213,9 @@ describe('ReclamoService', () => {
 
     it('el agente puede modificar su reclamo y queda constancia en la bitácora', () => {
       usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
-      const guardado = service.actualizarReclamo('REC-2026-001', { estado: EstadoReclamo.RESUELTO }, 'Listo', 'Agente Pérez');
+      const guardado = service.registrarAvance('REC-2026-001', 'Listo');
       expect(guardado).toBeTrue();
-      expect(buscar('REC-2026-001').estado).toBe(EstadoReclamo.RESUELTO);
+      expect(buscar('REC-2026-001').estado).toBe(EstadoReclamo.EN_PROCESO);
       expect(buscar('REC-2026-001').bitacora?.length).toBe(1);
     });
 
@@ -166,8 +231,8 @@ describe('ReclamoService', () => {
       const guardado = service.actualizarReclamo('REC-2026-001', {
         prioridad: PrioridadReclamo.URGENTE, agenteId: USUARIO_ADMIN_PRUEBA.id, agenteAsignado: 'Otro'
       });
-      expect(guardado).toBeTrue();
-      expect(buscar('REC-2026-001').prioridad).toBe(PrioridadReclamo.URGENTE);
+      expect(guardado).toBeFalse();
+      expect(buscar('REC-2026-001').prioridad).toBe(PrioridadReclamo.ALTA);
       expect(buscar('REC-2026-001').agenteId).toBe(USUARIO_AGENTE_PRUEBA.id);
       expect(buscar('REC-2026-001').agenteAsignado).toBe('Agente Pérez');
     });
@@ -184,12 +249,9 @@ describe('ReclamoService', () => {
       expect(idsVisibles()).toEqual([101, 102]);
     });
 
-    it('al quitar la asignación el agente deja de ver el reclamo', () => {
-      service.asignarAgente('REC-2026-001', null);
-      expect(buscar('REC-2026-001').agenteId).toBeNull();
-      expect(buscar('REC-2026-001').agenteAsignado).toBe('Sin asignar');
-      usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
-      expect(idsVisibles()).toEqual([]);
+    it('no quita asignacion en proceso', () => {
+      expect(service.asignarAgente('REC-2026-001', null)).toBeFalse();
+      expect(buscar('REC-2026-001').agenteId).toBe(USUARIO_AGENTE_PRUEBA.id);
     });
 
     it('el reporte del agente se calcula solo con sus reclamos', () => {
