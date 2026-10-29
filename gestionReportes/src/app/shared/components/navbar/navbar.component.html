@@ -1,9 +1,11 @@
-<header class="cabecera-portal">
-  <span class="sello" aria-hidden="true">NY</span>
-  <div class="identidad">
-    <span class="marca">{{ marca }}</span>
-    <span class="subtitulo">Trámites y servicios al ciudadano</span>
-  </div>
+<header class="cabecera-portal" *ngIf="usuario$ | async as usuario">
+  <a [routerLink]="getHomeRoute(usuario)" class="enlace-home" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem;">
+    <span class="sello" aria-hidden="true">NY</span>
+    <div class="identidad">
+      <span class="marca">{{ marca }}</span>
+      <span class="subtitulo">Trámites y servicios al ciudadano</span>
+    </div>
+  </a>
 </header>
 
 <nav class="navbar" aria-label="Navegación principal">

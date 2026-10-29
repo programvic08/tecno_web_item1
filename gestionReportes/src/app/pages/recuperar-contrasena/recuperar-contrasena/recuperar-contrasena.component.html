@@ -1,31 +1,88 @@
 <div class="contenedor-login">
-  <div class="titulo-login">
-    <h1>Recuperar contraseña</h1>
-    <p>Ingresa tu correo electrónico y te enviaremos las instrucciones para restablecerla</p>
+  
+  <!-- ================= PASO 1: Ingresar Correo ================= -->
+  <div *ngIf="paso === 1">
+    <div class="titulo-login">
+      <h1>Recuperar contraseña</h1>
+      <p>Ingresa tu correo electrónico y te enviaremos las instrucciones</p>
+    </div>
+
+    <div class="formulario-login">
+      <form #formCorreo="ngForm" (ngSubmit)="onEnviarCorreo(formCorreo)">
+        <div class="form-elements">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" [(ngModel)]="email" #emailInput="ngModel"
+                 placeholder="tucorreo@ejemplo.com" autocomplete="email" required email>
+          <small class="error-campo" *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+            <span *ngIf="emailInput.errors?.['required']">El correo es obligatorio.</span>
+            <span *ngIf="emailInput.errors?.['email']">Ingresa un correo válido.</span>
+          </small>
+        </div>
+
+        <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+        <p class="mensaje-exito" *ngIf="successMessage" role="alert">{{ successMessage }}</p>
+
+        <button type="submit" class="btn-ingresar" [disabled]="cargando">
+          {{ cargando ? 'Enviando...' : 'Enviar instrucciones' }}
+        </button>
+      </form>
+    </div>
   </div>
 
-  <div class="formulario-login">
-    <form #formRecuperar="ngForm" (ngSubmit)="onSubmit(formRecuperar)">
-      <div class="form-elements">
-        <label for="email">Correo electrónico</label>
-        <input type="email" id="email" name="email" [(ngModel)]="email" #emailInput="ngModel"
-               placeholder="tucorreo@ejemplo.com" autocomplete="email" required email>
-        <small class="error-campo" *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
-          <span *ngIf="emailInput.errors?.['required']">El correo es obligatorio.</span>
-          <span *ngIf="emailInput.errors?.['email']">Ingresa un correo válido.</span>
-        </small>
-      </div>
+  <!-- ================= PASO 2: Ingresar Código ================= -->
+  <div *ngIf="paso === 2">
+    <div class="titulo-login">
+      <h1>Ingresa el código</h1>
+      <p>Enviamos un código de 6 dígitos a <strong>{{ email }}</strong></p>
+    </div>
 
-      <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
-      <p class="mensaje-exito" *ngIf="successMessage" role="alert">{{ successMessage }}</p>
+    <div class="formulario-login">
+      <form #formCodigo="ngForm" (ngSubmit)="onVerificarCodigo(formCodigo)">
+        <div class="form-elements">
+          <label for="codigo">Código de verificación</label>
+          <input type="text" id="codigo" name="codigo" [(ngModel)]="codigo" #codigoInput="ngModel"
+                 placeholder="123456" maxlength="6" required>
+        </div>
 
-      <button type="submit" class="btn-ingresar" [disabled]="cargando">
-        {{ cargando ? 'Enviando...' : 'Enviar instrucciones' }}
-      </button>
-    </form>
+        <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+        <button type="submit" class="btn-ingresar" [disabled]="cargando">
+          {{ cargando ? 'Verificando...' : 'Confirmar código' }}
+        </button>
+      </form>
+    </div>
   </div>
 
+  <!-- ================= PASO 3: Nueva Contraseña ================= -->
+  <div *ngIf="paso === 3">
+    <div class="titulo-login">
+      <h1>Nueva contraseña</h1>
+      <p>Ingresa y confirma tu nueva contraseña</p>
+    </div>
+
+    <div class="formulario-login">
+      <form #formPass="ngForm" (ngSubmit)="onCambiarPassword(formPass)">
+        <div class="form-elements">
+          <label for="nuevaPassword">Nueva contraseña</label>
+          <input type="password" id="nuevaPassword" name="nuevaPassword" [(ngModel)]="nuevaPassword" required minlength="6">
+          
+          <label for="confirmarPassword">Confirmar contraseña</label>
+          <input type="password" id="confirmarPassword" name="confirmarPassword" [(ngModel)]="confirmarPassword" required>
+        </div>
+
+        <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+        <p class="mensaje-exito" *ngIf="successMessage" role="alert">{{ successMessage }}</p>
+
+        <button type="submit" class="btn-ingresar" [disabled]="cargando">
+          {{ cargando ? 'Guardando...' : 'Restablecer contraseña' }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer general -->
   <div class="login-footer">
     <p>¿Recordaste tu contraseña? <a routerLink="/login">Inicia sesión</a></p>
   </div>
+
 </div>

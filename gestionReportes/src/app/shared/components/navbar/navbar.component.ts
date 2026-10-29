@@ -5,6 +5,8 @@ import { AuthService } from '../../../core/services/auth.service';
 import { MARCA_PORTAL, RUTAS, apartadosPortal } from '../../../core/config/navegacion.config';
 import { ApartadoPortal } from '../../../models/navegacion.model';
 import { Usuario } from '../../../models/usuario.model';
+import { RolUsuario } from '../../../models/reclamo.enums';
+
 
 @Component({
   selector: 'app-navbar',
@@ -57,5 +59,13 @@ export class NavbarComponent {
     this.cerrarMenu();
     this.authService.logout();
     this.router.navigate([RUTAS.login]);
+  }
+
+  
+  getHomeRoute(usuario: any): string {
+    if (usuario && usuario.rol === RolUsuario.CIUDADANO) {
+      return '/userHome';
+    }
+    return '/adminHome';
   }
 }
