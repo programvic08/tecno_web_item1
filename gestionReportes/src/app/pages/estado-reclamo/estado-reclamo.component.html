@@ -48,6 +48,27 @@
       <p>{{ reclamoEncontrado.descripcion }}</p>
     </div>
 
+    <div class="evidencia-box">
+      <strong>Evidencia adjunta:</strong>
+
+      <ng-container *ngIf="reclamoEncontrado.evidenciaDataUrl; else sinEvidencia">
+        <p>{{ reclamoEncontrado.evidenciaNombre }}</p>
+
+        <img *ngIf="reclamoEncontrado.evidenciaTipo?.startsWith('image/')"
+             class="evidencia-imagen"
+             [src]="reclamoEncontrado.evidenciaDataUrl"
+             [alt]="'Evidencia adjunta: ' + reclamoEncontrado.evidenciaNombre">
+
+        <p *ngIf="reclamoEncontrado.evidenciaTipo === 'application/pdf'">
+          Archivo PDF adjunto (sin vista previa).
+        </p>
+      </ng-container>
+
+      <ng-template #sinEvidencia>
+        <p>No se adjuntó evidencia a este reclamo.</p>
+      </ng-template>
+    </div>
+
     <!-- Timeline / Línea de Tiempo -->
     <div class="timeline-section">
       <h4>Avance del Trámite</h4>
