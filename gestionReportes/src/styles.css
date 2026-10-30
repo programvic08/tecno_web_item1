@@ -607,6 +607,20 @@ app-estado-reclamo > :where(.estado-container) .description-box strong {
   color: var(--primary-blue);
 }
 
+.evidencia-box {
+  margin-bottom: 24px;
+}
+
+.evidencia-imagen {
+  display: block;
+  max-width: min(100%, 420px);
+  max-height: 320px;
+  object-fit: contain;
+  margin-top: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
 app-estado-reclamo > :where(.estado-container) .timeline-section h4 {
   font-family: var(--font-heading);
   color: var(--primary-blue);
