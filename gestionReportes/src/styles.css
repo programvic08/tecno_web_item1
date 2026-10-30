@@ -912,7 +912,8 @@ app-recuperar-contrasena > :where(.contenedor-login) .error-campo {
 app-login > :where(.contenedor-login) :is(.mensaje-error, .mensaje-exito),
 app-registro > :where(.contenedor-login) :is(.mensaje-error, .mensaje-exito),
 app-recuperar-contrasena > :where(.contenedor-login) :is(.mensaje-error, .mensaje-exito),
-app-reporte-reclamos > :where(.container) :is(.mensaje-error, .mensaje-exito) {
+app-reporte-reclamos > :where(.container) :is(.mensaje-error, .mensaje-exito),
+app-gestion-agentes > :where(.page-layout) :is(.mensaje-error, .mensaje-exito) {
   margin-bottom: 16px;
   padding: 10px var(--field-padding-x);
   border: 1px solid var(--error-border);
@@ -925,7 +926,8 @@ app-reporte-reclamos > :where(.container) :is(.mensaje-error, .mensaje-exito) {
 app-login > :where(.contenedor-login) .mensaje-exito,
 app-registro > :where(.contenedor-login) .mensaje-exito,
 app-recuperar-contrasena > :where(.contenedor-login) .mensaje-exito,
-app-reporte-reclamos > :where(.container) .mensaje-exito {
+app-reporte-reclamos > :where(.container) .mensaje-exito,
+app-gestion-agentes > :where(.page-layout) .mensaje-exito {
   border-color: var(--success-border);
   background: var(--success-bg);
   color: var(--success-color);
@@ -1553,6 +1555,256 @@ app-historial > :where(.page-layout) .tabla-vacia {
   padding: 20px;
 }
 
+/* Pagina: gestion-agentes */
+
+app-gestion-agentes > :where(.page-layout) .agentes-container {
+  max-width: var(--content-max-width);
+  margin: 30px auto;
+  padding: 0 16px;
+  min-height: 70vh;
+}
+
+app-gestion-agentes > :where(.page-layout) .header-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--nyc-red);
+  border-radius: var(--radius-sm);
+}
+
+app-gestion-agentes > :where(.page-layout) .header-bar h2 {
+  margin: 0 0 4px;
+  font-family: var(--font-heading);
+  color: var(--primary-blue);
+}
+
+app-gestion-agentes > :where(.page-layout) .subtitulo {
+  margin: 0;
+  color: var(--text-gray);
+  font-size: 14px;
+}
+
+/* Botones de la pagina: mismas medidas que el resto del sitio. */
+app-gestion-agentes > :where(.page-layout) :is(.btn-nuevo, .btn-primario, .btn-secundario, .btn-peligro, .btn-eliminar) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+app-gestion-agentes > :where(.page-layout) :is(.btn-nuevo, .btn-primario) {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+  border: 1px solid var(--primary-blue);
+}
+
+app-gestion-agentes > :where(.page-layout) :is(.btn-nuevo, .btn-primario):hover {
+  background: var(--primary-blue-hover);
+  border-color: var(--primary-blue-hover);
+}
+
+app-gestion-agentes > :where(.page-layout) .btn-secundario {
+  background: var(--surface-neutral);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+}
+
+app-gestion-agentes > :where(.page-layout) .btn-secundario:hover {
+  background: #e3e8ec;
+}
+
+app-gestion-agentes > :where(.page-layout) .btn-peligro,
+app-gestion-agentes > :where(.page-layout) .btn-eliminar:hover {
+  background: var(--error-color);
+  color: var(--card-bg);
+  border: 1px solid var(--error-color);
+}
+
+app-gestion-agentes > :where(.page-layout) .btn-peligro:hover {
+  background: #7f1d1d;
+  border-color: #7f1d1d;
+}
+
+app-gestion-agentes > :where(.page-layout) .btn-eliminar {
+  background: var(--card-bg);
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+}
+
+/* Formulario de alta */
+app-gestion-agentes > :where(.page-layout) .form-card {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-gestion-agentes > :where(.page-layout) .form-card h3 {
+  margin: 0 0 4px;
+  color: var(--primary-blue);
+  font-family: var(--font-heading);
+  font-size: 20px;
+}
+
+app-gestion-agentes > :where(.page-layout) .form-card .ayuda {
+  margin: 0 0 16px;
+  color: var(--text-gray);
+  font-size: 14px;
+}
+
+app-gestion-agentes > :where(.page-layout) .campo {
+  margin-bottom: 16px;
+}
+
+app-gestion-agentes > :where(.page-layout) .campo > label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+app-gestion-agentes > :where(.page-layout) .campo > input {
+  width: 100%;
+  height: var(--field-height);
+  padding: 0 var(--field-padding-x);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: var(--field-font-size);
+}
+
+app-gestion-agentes > :where(.page-layout) .campo > input.ng-invalid.ng-touched {
+  border-color: var(--error-color);
+}
+
+app-gestion-agentes > :where(.page-layout) .campo .error {
+  display: block;
+  margin-top: 4px;
+  color: var(--error-color);
+  font-size: 13px;
+}
+
+app-gestion-agentes > :where(.page-layout) .form-card .acciones,
+app-gestion-agentes > :where(.page-layout) .modal .acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Listado */
+app-gestion-agentes > :where(.page-layout) .table-card {
+  overflow-x: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-gestion-agentes > :where(.page-layout) .agentes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+app-gestion-agentes > :where(.page-layout) .agentes-table th,
+app-gestion-agentes > :where(.page-layout) .agentes-table td {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+app-gestion-agentes > :where(.page-layout) .agentes-table th {
+  background: var(--primary-blue);
+  color: var(--card-bg);
+}
+
+app-gestion-agentes > :where(.page-layout) .agentes-table tbody tr:nth-child(even) {
+  background: var(--surface-muted);
+}
+
+app-gestion-agentes > :where(.page-layout) .agentes-table small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-gray);
+  font-size: 12px;
+}
+
+app-gestion-agentes > :where(.page-layout) .agentes-table td:last-child {
+  text-align: center;
+}
+
+app-gestion-agentes > :where(.page-layout) .estado {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--success-bg);
+  color: var(--success-color);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+app-gestion-agentes > :where(.page-layout) .estado--inactivo {
+  background: var(--surface-neutral);
+  color: var(--text-gray);
+}
+
+app-gestion-agentes > :where(.page-layout) .sin-accion {
+  color: var(--text-gray);
+  font-size: 13px;
+}
+
+app-gestion-agentes > :where(.page-layout) .sin-datos {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-gray);
+}
+
+/* Confirmacion de borrado */
+app-gestion-agentes > :where(.page-layout) .modal-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(17, 47, 78, 0.55);
+}
+
+app-gestion-agentes > :where(.page-layout) .modal {
+  width: min(100%, 440px);
+  padding: 24px;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 32px rgba(17, 47, 78, 0.3);
+}
+
+app-gestion-agentes > :where(.page-layout) .modal h3 {
+  margin: 0 0 8px;
+  color: var(--primary-blue);
+  font-family: var(--font-heading);
+  font-size: 20px;
+}
+
+app-gestion-agentes > :where(.page-layout) .modal p {
+  margin: 0 0 20px;
+  color: var(--text-gray);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 /* Estructura global y foco compartido */
 app-root { display: flex; flex-direction: column; min-height: 100vh; }
 app-root > app-footer { margin-top: auto; }
@@ -1756,11 +2008,14 @@ app-navbar .enlaces a > span { font-size: 16px; }
 app-navbar .enlaces a.activo { border-bottom-color: var(--nyc-red); }
 app-navbar .icono-nav { width: 22px; height: 22px; flex-shrink: 0; }
 app-navbar .enlaces .pronto { color: #6e8ca6; padding: 16px 24px; cursor: not-allowed; }
-@media (max-width: 1100px) {
+/* Con cinco apartados (el administrador suma "Agentes"), el navbar necesita
+   el modo compacto antes para no partirse en dos filas. */
+@media (max-width: 1200px) {
   app-navbar { gap: 16px; }
   app-navbar .sello { display: none; }
-  app-navbar .marca { font-size: 20px; }
-  app-navbar .enlaces a { padding: 12px; font-size: 16px; gap: 8px; }
+  app-navbar .marca { font-size: 18px; }
+  app-navbar .enlaces { gap: 2px; }
+  app-navbar .enlaces a { padding: 12px 9px; font-size: 16px; gap: 8px; }
   app-navbar .enlaces a > span { font-size: 14px; }
 }
 @media (max-width: 700px) {
@@ -1864,7 +2119,9 @@ app-como-hago-para .tareas--sin-carrusel .tareas-card {
 
 app-como-hago-para .tareas-card h2 { font-size: 21px; color: var(--primary-blue); margin: 0 0 14px; }
 
-app-como-hago-para .lista { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+/* Las tareas se reparten en una sola fila, sin importar si son cuatro o cinco
+   (el administrador suma "Crear o eliminar cuentas de agentes"). */
+app-como-hago-para .lista { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0; }
 
 app-como-hago-para .lista a {
   display: block;
@@ -1879,7 +2136,7 @@ app-como-hago-para .lista a {
 
 app-como-hago-para .lista a:hover { text-decoration: underline; }
 
-@media (max-width: 900px) { app-como-hago-para .lista { grid-template-columns: 1fr 1fr; row-gap: 10px; } }
+@media (max-width: 900px) { app-como-hago-para .lista { grid-auto-flow: row; grid-template-columns: 1fr 1fr; row-gap: 10px; } }
 @media (max-width: 576px) { app-como-hago-para .lista { grid-template-columns: 1fr; } }
 
 /* Estado rechazado: se conserva el estado adicional de esta rama. */

@@ -15,6 +15,7 @@ export const RUTAS = {
   bandeja: '/bandeja-reclamos',
   modificar: '/modificar-reclamo',
   reportes: '/reporteReclamo',
+  agentes: '/gestion-agentes',
   perfil: '/perfil'
 } as const;
 
@@ -41,6 +42,7 @@ export const TAREAS_ADMIN: TareaRapida[] = [
   { etiqueta: 'Revisar los reclamos que llegaron', ruta: RUTAS.bandeja },
   { etiqueta: 'Cambiar el estado o la prioridad de un reclamo', ruta: RUTAS.modificar },
   { etiqueta: 'Ver las estadísticas y reportes', ruta: RUTAS.reportes },
+  { etiqueta: 'Crear o eliminar cuentas de agentes', ruta: RUTAS.agentes },
   { etiqueta: 'Actualizar mis datos de perfil', ruta: RUTAS.perfil }
 ];
 
@@ -76,6 +78,13 @@ export function apartadosPortal(rol: RolUsuario | null): ApartadoPortal[] {
       { etiqueta: 'Bandeja', ruta: RUTAS.bandeja, prefijos: [RUTAS.bandeja] },
       { etiqueta: 'Modificar', ruta: RUTAS.modificar, prefijos: [RUTAS.modificar] },
       { etiqueta: 'Reportes', ruta: RUTAS.reportes, prefijos: [RUTAS.reportes] }
+    );
+  }
+
+  // La gestión de cuentas de agentes es exclusiva del administrador.
+  if (rol === RolUsuario.ADMINISTRADOR) {
+    apartados.push(
+      { etiqueta: 'Agentes', ruta: RUTAS.agentes, prefijos: [RUTAS.agentes] }
     );
   }
 

@@ -12,6 +12,7 @@ import { EstadoReclamoComponent } from './pages/estado-reclamo/estado-reclamo.co
 import { ModificarReclamoComponent } from './pages/modificar-reclamo/modificar-reclamo.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
 import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recuperar-contrasena/recuperar-contrasena.component';
+import { GestionAgentesComponent } from './pages/gestion-agentes/gestion-agentes.component';
 
 import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
@@ -48,6 +49,16 @@ const routes: Routes = [
       { path: 'bandeja-reclamos', component: BandejaReclamosComponent },
       { path: 'modificar-reclamo', component: ModificarReclamoComponent },
       { path: 'reporteReclamo', component: ReporteReclamosComponent }
+    ]
+  },
+
+  // --- RUTAS SOLO DEL ADMINISTRADOR ---
+  {
+    path: '',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { rolesPermitidos: [RolUsuario.ADMINISTRADOR] },
+    children: [
+      { path: 'gestion-agentes', component: GestionAgentesComponent }
     ]
   },
 
