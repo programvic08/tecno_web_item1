@@ -590,4 +590,89 @@ export class AuthService {
       return base;
     }
   }
+
+  // --- Recuperación de Contraseña (Simulada) ---
+
+  // Simula el envío de un código de 6 dígitos al correo
+  solicitarRecuperacion(email: string): Observable<void> {
+    return timer(400).pipe(
+      map(() => {
+        const emailLimpio = email.trim().toLowerCase();
+        // Verificamos si existe el correo en las cuentas de prueba o registradas
+        const existe = this.credencialesMock.some(c => c.email === emailLimpio)
+          || this.leerRegistrados().some(u => u.email === emailLimpio);
+
+        if (!existe) {
+          // Por seguridad (como hace Google), a veces no se revela si el correo existe o no, 
+          // pero para tu app académica puedes lanzar el error o simular éxito siempre.
+          throw new Error('No encontramos una cuenta asociada a este correo.');
+        }
+
+        // Generamos un código aleatorio de 6 dígitos
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Guardamos el código temporalmente en localStorage con expiración de 10 minutos
+        const datosRecuperacion = {
+          codigo,
+          exp: this.ahoraEnSegundos() + 600 // 10 minutos
+        };
+        localStorage.setItem(`recuperacion_${emailLimpio}`, JSON.stringify(datosRecuperacion));
+
+        // Para que puedas probarlo fácilmente sin un backend de correo, 
+        // lo imprimimos en la consola de la F12 de tu navegador:
+        console.log(`[CÓDIGO DE RECUPERACIÓN para ${emailLimpio}]: ${codigo}`);
+      })
+    );
+  }
+
+  // Valida si el código ingresado coincide y no ha expirado
+  verificarCodigoRecuperacion(email: string, codigoIngresado: string): Observable<boolean> {
+    return timer(300).pipe(
+      map(() => {
+        const emailLimpio = (email ?? '').trim().toLowerCase();
+        const guardadoStr = localStorage.getItem(`recuperacion_${emailLimpio}`);
+        
+        if (!guardadoStr) {
+          throw new Error('No hay ninguna solicitud de recuperación activa para este correo.');
+        }
+
+        const datos = JSON.parse(guardadoStr);
+        if (datos.exp <= this.ahoraEnSegundos()) {
+          localStorage.removeItem(`recuperacion_${emailLimpio}`);
+          throw new Error('El código ha expirado. Solicita uno nuevo.');
+        }
+
+        // PROTECCIÓN: Si codigoIngresado es null/undefined, se convierte en '' para evitar el error
+        const codigoLimpio = (codigoIngresado ?? '').trim();
+
+        if (datos.codigo !== codigoLimpio) {
+          throw new Error('El código de verificación es incorrecto.');
+        }
+
+        return true;
+      })
+    );
+  }
+
+  // Actualiza la contraseña en las cuentas registradas (o mocks si aplica)
+  actualizarPassword(email: string, nuevaPassword: string): Observable<void> {
+    return timer(400).pipe(
+      map(() => {
+        const emailLimpio = email.trim().toLowerCase();
+        const registrados = this.leerRegistrados();
+        const index = registrados.findIndex(u => u.email === emailLimpio);
+
+        if (index === -1) {
+          throw new Error('No se pudo actualizar la contraseña para este usuario.');
+        }
+
+        // Actualizamos la contraseña del usuario registrado
+        registrados[index].password = nuevaPassword;
+        localStorage.setItem(this.claveUsuarios, JSON.stringify(registrados));
+
+        // Limpiamos el código usado
+        localStorage.removeItem(`recuperacion_${emailLimpio}`);
+      })
+    );
+  }
 }

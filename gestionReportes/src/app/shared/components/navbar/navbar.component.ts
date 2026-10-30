@@ -7,6 +7,8 @@ import { MARCA_PORTAL, RUTAS, apartadosPortal } from '../../../core/config/naveg
 import { ApartadoPortal } from '../../../models/navegacion.model';
 import { Notificacion } from '../../../models/notificacion.model';
 import { Usuario } from '../../../models/usuario.model';
+import { RolUsuario } from '../../../models/reclamo.enums';
+
 
 @Component({
   selector: 'app-navbar',
@@ -85,5 +87,13 @@ export class NavbarComponent {
     this.cerrarNotificaciones();
     this.authService.logout();
     this.router.navigate([RUTAS.login]);
+  }
+
+  
+  getHomeRoute(usuario: any): string {
+    if (usuario && usuario.rol === RolUsuario.CIUDADANO) {
+      return '/userHome';
+    }
+    return '/adminHome';
   }
 }
