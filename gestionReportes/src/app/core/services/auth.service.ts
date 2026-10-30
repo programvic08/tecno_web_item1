@@ -17,39 +17,38 @@ export const MOTIVO_CUENTA_CREADA = 'cuenta-creada';
 export class AuthService {
   // Perfiles base de las cuentas de prueba (se simulan hasta tener backend).
   // Debe declararse antes de los BehaviorSubject, que la usan al inicializarse.
-  private readonly usuariosMock: Record<RolUsuario, Usuario> = {
-    [RolUsuario.CIUDADANO]: {
-      id: 1,
-      nombre: 'Ciudadano de Prueba',
-      email: 'ciudadano@gmail.com',
-      rol: RolUsuario.CIUDADANO,
-      telefono: '',
-      direccion: ''
+  private readonly usuariosMock: Usuario[] = [
+    {
+      id: 1, nombre: 'Ciudadano de Prueba', email: 'ciudadano@gmail.com',
+      rol: RolUsuario.CIUDADANO, telefono: '', direccion: ''
     },
-    [RolUsuario.AGENTE]: {
-      id: 3,
-      nombre: 'Agente Pérez',
-      email: 'agente@gmail.com',
-      rol: RolUsuario.AGENTE,
-      telefono: '',
-      direccion: ''
+    {
+      id: 3, nombre: 'Agente Pérez', email: 'agente@gmail.com',
+      rol: RolUsuario.AGENTE, telefono: '', direccion: ''
     },
-    [RolUsuario.ADMINISTRADOR]: {
-      id: 2,
-      nombre: 'Agente Municipal de Prueba',
-      email: 'admin@gmail.com',
-      rol: RolUsuario.ADMINISTRADOR,
-      telefono: '',
-      direccion: ''
+    {
+      id: 2, nombre: 'Agente Municipal de Prueba', email: 'admin@gmail.com',
+      rol: RolUsuario.ADMINISTRADOR, telefono: '', direccion: ''
+    },
+    // Segundas cuentas de prueba. Los ids altos evitan chocar con cuentas ya registradas en localStorage.
+    {
+      id: 1001, nombre: 'Valentina Rojas', email: 'ciudadano2@gmail.com',
+      rol: RolUsuario.CIUDADANO, telefono: '', direccion: ''
+    },
+    {
+      id: 1002, nombre: 'Agente Gómez', email: 'agente2@gmail.com',
+      rol: RolUsuario.AGENTE, telefono: '', direccion: ''
     }
-  };
+  ];
 
   // Credenciales simuladas: viven aquí (y no en el componente) para que el día
   // que exista un backend solo cambie este servicio.
   private readonly credencialesMock: CuentaPrueba[] = [
     { email: 'ciudadano@gmail.com', password: '123456', rol: RolUsuario.CIUDADANO },
     { email: 'agente@gmail.com', password: '123456', rol: RolUsuario.AGENTE },
-    { email: 'admin@gmail.com', password: '123456', rol: RolUsuario.ADMINISTRADOR }
+    { email: 'admin@gmail.com', password: '123456', rol: RolUsuario.ADMINISTRADOR },
+    { email: 'ciudadano2@gmail.com', password: '123456', rol: RolUsuario.CIUDADANO, etiqueta: 'Ciudadano 2' },
+    { email: 'agente2@gmail.com', password: '123456', rol: RolUsuario.AGENTE, etiqueta: 'Agente 2' }
   ];
 
   // Duración de la sesión: 20 minutos. Para probar la expiración rápido, bajar este valor.
@@ -179,7 +178,7 @@ export class AuthService {
   // eliminó la cuenta base del agente, su acceso rápido deja de aparecer.
   obtenerCuentasPrueba(): CuentaPrueba[] {
     const eliminados = this.leerAgentesBaseEliminados();
-    return this.credencialesMock.filter(cuenta => !eliminados.includes(this.usuariosMock[cuenta.rol].id));
+    return this.credencialesMock.filter(cuenta => !eliminados.includes(this.idCuentaPrueba(cuenta)));
   }
 
   obtenerUsuarioPorId(id: number): Usuario | null {
@@ -187,7 +186,7 @@ export class AuthService {
   }
 
   obtenerAdministradores(): Usuario[] {
-    return Object.values(this.usuariosMock)
+    return this.usuariosMock
       .filter(usuario => usuario.rol === RolUsuario.ADMINISTRADOR)
       .map(usuario => this.leerPerfil(usuario.id) ?? usuario);
   }
@@ -197,8 +196,7 @@ export class AuthService {
   // desde la pantalla de gestión que siguen activos.
   obtenerAgentes(): AgenteAsignable[] {
     const eliminados = this.leerAgentesBaseEliminados();
-    const base = [RolUsuario.AGENTE, RolUsuario.ADMINISTRADOR]
-      .map(rol => this.usuariosMock[rol])
+    const base = this.cuentasBasePorRol([RolUsuario.AGENTE, RolUsuario.ADMINISTRADOR])
       .filter(cuenta => !eliminados.includes(cuenta.id))
       .map(cuenta => {
         const perfil = this.leerPerfil(cuenta.id) ?? cuenta;
@@ -218,8 +216,7 @@ export class AuthService {
   // Cuentas que se muestran en la pantalla de gestión del administrador.
   obtenerAgentesGestion(): AgenteGestion[] {
     const eliminados = this.leerAgentesBaseEliminados();
-    const base = [RolUsuario.ADMINISTRADOR, RolUsuario.AGENTE]
-      .map(rol => this.usuariosMock[rol])
+    const base = this.cuentasBasePorRol([RolUsuario.ADMINISTRADOR, RolUsuario.AGENTE])
       .filter(cuenta => !eliminados.includes(cuenta.id))
       .map(cuenta => {
         const perfil = this.leerPerfil(cuenta.id) ?? cuenta;
@@ -259,7 +256,7 @@ export class AuthService {
 
     // Las cuentas base viven en el código: solo la del agente se puede dar de
     // baja, y se registra aparte para que desaparezca del sistema.
-    const cuentaBase = Object.values(this.usuariosMock).find(cuenta => cuenta.id === id);
+    const cuentaBase = this.usuariosMock.find(cuenta => cuenta.id === id);
     if (cuentaBase) {
       if (cuentaBase.rol !== RolUsuario.AGENTE) {
         throw new Error('Las cuentas de administrador no se pueden eliminar.');
@@ -448,7 +445,7 @@ export class AuthService {
   private buscarCuentaPorCredenciales(email: string, password: string): { id: number; activo: boolean } | null {
     const prueba = this.credencialesMock.find(c => c.email === email && c.password === password);
     if (prueba) {
-      const id = this.usuariosMock[prueba.rol].id;
+      const id = this.idCuentaPrueba(prueba);
       // Una cuenta base eliminada ya no puede iniciar sesión.
       return this.leerAgentesBaseEliminados().includes(id) ? null : { id, activo: true };
     }
@@ -462,9 +459,19 @@ export class AuthService {
     return agente ? { id: agente.id, activo: agente.activo } : null;
   }
 
+  // Id de la cuenta base a la que pertenecen unas credenciales de prueba (se enlazan por correo)
+  private idCuentaPrueba(cuenta: CuentaPrueba): number {
+    return this.usuariosMock.find(u => u.email === cuenta.email)!.id;
+  }
+
+  // Cuentas base de los roles indicados, respetando el orden de esos roles
+  private cuentasBasePorRol(roles: RolUsuario[]): Usuario[] {
+    return roles.flatMap(rol => this.usuariosMock.filter(u => u.rol === rol));
+  }
+
   private correoYaRegistrado(email: string): boolean {
     const eliminados = this.leerAgentesBaseEliminados();
-    const cuentasBase = this.credencialesMock.filter(c => !eliminados.includes(this.usuariosMock[c.rol].id));
+    const cuentasBase = this.credencialesMock.filter(c => !eliminados.includes(this.idCuentaPrueba(c)));
 
     return cuentasBase.some(c => c.email === email)
       || this.leerRegistrados().some(u => u.email === email)
@@ -473,7 +480,7 @@ export class AuthService {
 
   private siguienteId(): number {
     const ids = [
-      ...Object.values(this.usuariosMock).map(u => u.id),
+      ...this.usuariosMock.map(u => u.id),
       ...this.leerRegistrados().map(u => u.id),
       ...this.leerAgentes().map(a => a.id)
     ];
@@ -539,7 +546,7 @@ export class AuthService {
   // Datos base de una cuenta (de prueba, registrada o de agente), sin los
   // cambios de perfil.
   private obtenerUsuarioBase(id: number): Usuario | null {
-    const prueba = Object.values(this.usuariosMock).find(u => u.id === id);
+    const prueba = this.usuariosMock.find(u => u.id === id);
     if (prueba) {
       return this.leerAgentesBaseEliminados().includes(id) ? null : prueba;
     }

@@ -1,0 +1,35 @@
+<div class="combo-agente">
+  <input #entrada type="text" class="combo-agente__campo" role="combobox" autocomplete="off"
+         aria-autocomplete="list" aria-haspopup="listbox"
+         [id]="id"
+         [value]="abierto ? texto : nombreSeleccionado"
+         [placeholder]="abierto && nombreSeleccionado ? nombreSeleccionado : 'Seleccionar agente'"
+         [attr.aria-label]="etiqueta"
+         [attr.aria-expanded]="abierto"
+         [attr.aria-controls]="id + '-lista'"
+         [attr.aria-activedescendant]="abierto && filtrados.length ? idOpcion(indiceActivo) : null"
+         (focus)="abrir()" (click)="abrir()" (blur)="cerrar()"
+         (input)="escribir($event)" (keydown)="teclear($event)">
+  <span class="combo-agente__flecha" aria-hidden="true"></span>
+
+  <ul *ngIf="abierto" class="combo-agente__lista" role="listbox" [id]="id + '-lista'"
+      [attr.aria-label]="'Agentes disponibles'"
+      [class.combo-agente__lista--arriba]="arriba"
+      [style.left.px]="izquierda" [style.min-width.px]="ancho"
+      [style.top.px]="arriba ? null : superior" [style.bottom.px]="arriba ? inferior : null"
+      (mousedown)="$event.preventDefault()">
+    <li *ngFor="let agente of filtrados; let i = index" role="option" class="combo-agente__opcion"
+        [id]="idOpcion(i)"
+        [class.combo-agente__opcion--activa]="i === indiceActivo"
+        [class.combo-agente__opcion--elegida]="agente.id === seleccionadoId"
+        [attr.aria-selected]="agente.id === seleccionadoId"
+        [attr.aria-label]="etiquetaOpcion(agente)"
+        (mouseenter)="indiceActivo = i" (click)="elegir(agente)">
+      <span class="combo-agente__nombre">{{ agente.nombre }}</span>
+      <span *ngIf="agente.reportesActivos !== undefined" class="combo-agente__contador">{{ textoCarga(agente) }}</span>
+    </li>
+    <li *ngIf="filtrados.length === 0" class="combo-agente__vacio" role="option" aria-disabled="true" aria-selected="false">
+      No hay agentes que coincidan.
+    </li>
+  </ul>
+</div>

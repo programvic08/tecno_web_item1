@@ -11,6 +11,18 @@ export interface EntradaBitacora {
   observacion: string;
 }
 
+// Desglose del puntaje de prioridad (lo calcula shared/utils/prioridad.ts)
+export interface PuntajePrioridad {
+  categoria: number;
+  subcategoria: number;
+  sector: number;
+  via: number;
+  recurrencia: number;
+  base: number;           // suma de los cinco criterios anteriores
+  envejecimiento: number; // puntos ganados por el tiempo de espera
+  total: number;          // base + envejecimiento
+}
+
 export interface Reclamo {
   id: number;
   folio: string;
@@ -23,12 +35,13 @@ export interface Reclamo {
   ubicacion: string; // Referencia o dirección
   sectorZona?: string;
   evidenciaNombre?: string;
-  evidenciaTipo?: string;     // 'application/pdf' | 'image/jpeg' | 'image/png' | 'image/webp'
+  evidenciaTipo?: string;     // siempre una imagen: 'image/png', 'image/jpeg', 'image/webp', etc.
   evidenciaDataUrl?: string;  // contenido del archivo en base64 (data URL)
   fecha: string;
   fechaResolucion?: string;
   resultadoCierre?: 'Resuelto' | 'Rechazado';
-  prioridad: PrioridadReclamo;
+  prioridad: PrioridadReclamo;    // la asigna el sistema según el puntaje; no se edita a mano
+  puntaje?: PuntajePrioridad;
   estado: EstadoReclamo;
   agenteAsignado: string;          // nombre para mostrar
   agenteId?: number | null;        // id del agente responsable (la autorización usa este dato, no el nombre)

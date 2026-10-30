@@ -143,4 +143,34 @@ describe('AuthService', () => {
   it('obtiene los administradores disponibles', () => {
     expect(service.obtenerAdministradores().map(u => u.id)).toEqual([2]);
   });
+  describe('cuentas de prueba adicionales', () => {
+    it('permiten iniciar sesión con su propio rol', async () => {
+      const ciudadano = await firstValueFrom(service.iniciarSesion({ email: 'ciudadano2@gmail.com', password: '123456' }));
+      expect(ciudadano.rol).toBe(RolUsuario.CIUDADANO);
+      expect(ciudadano.nombre).toBe('Valentina Rojas');
+      service.logout();
+
+      const agente = await firstValueFrom(service.iniciarSesion({ email: 'agente2@gmail.com', password: '123456' }));
+      expect(agente.rol).toBe(RolUsuario.AGENTE);
+      expect(agente.nombre).toBe('Agente Gómez');
+    });
+
+    it('el segundo agente se puede asignar y ningún id se repite', () => {
+      const agentes = service.obtenerAgentes();
+      expect(agentes.some(a => a.nombre === 'Agente Gómez')).toBeTrue();
+      const ids = agentes.map(a => a.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+
+    it('los accesos rápidos del login distinguen las cuentas del mismo rol', () => {
+      expect(service.obtenerCuentasPrueba().map(c => c.etiqueta ?? c.rol))
+        .toEqual(['Ciudadano', 'Agente', 'Administrador', 'Ciudadano 2', 'Agente 2']);
+    });
+
+    it('sus correos no se pueden volver a registrar', async () => {
+      await expectAsync(firstValueFrom(service.registrarCiudadano({
+        nombre: 'Otra persona', email: 'ciudadano2@gmail.com', password: '123456'
+      }))).toBeRejected();
+    });
+  });
 });

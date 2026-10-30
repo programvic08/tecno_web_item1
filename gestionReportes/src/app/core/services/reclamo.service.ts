@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, of } from 'rxjs';
+import { BehaviorSubject, Observable, defer, map, of } from 'rxjs';
 
 import {
   Reclamo,
@@ -15,6 +15,8 @@ import { SIN_ASIGNAR } from '../../models/reclamo.model';
 import { AgenteAsignable } from '../../models/usuario.model';
 import { AuthService } from './auth.service';
 import { NotificacionService } from './notificacion.service';
+import { esReclamoAbierto, evaluarPrioridad } from '../../shared/utils/prioridad';
+import { RECLAMOS_DEMO } from '../config/reclamos-demo.config';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +37,7 @@ export class ReclamoService {
       esRecurrente: true,
       direccion: 'Av. Manhattan 123',
       ubicacion: 'Av. Manhattan 123',
+      sectorZona: 'Manhattan',
       fecha: '2026-09-10',
       prioridad: PrioridadReclamo.ALTA,
       estado: EstadoReclamo.EN_PROCESO,
@@ -51,6 +54,7 @@ export class ReclamoService {
       esRecurrente: false,
       direccion: 'Central Park Oeste',
       ubicacion: 'Central Park Oeste',
+      sectorZona: 'Manhattan',
       fecha: '2026-09-12',
       prioridad: PrioridadReclamo.MEDIA,
       estado: EstadoReclamo.RECIBIDO,
@@ -67,13 +71,38 @@ export class ReclamoService {
     }
   ];
 
-  private reclamosSubject = new BehaviorSubject<Reclamo[]>(this.reclamosMock);
-  public reclamos$: Observable<Reclamo[]> = this.reclamosSubject.asObservable();
+  private reclamosSubject = new BehaviorSubject<Reclamo[]>(this.aplicarPrioridad(this.reclamosMock, new Date()));
+  // La prioridad se recalcula en cada suscripción y en cada cambio: el envejecimiento
+  // depende de la fecha de hoy, así que no puede quedar guardada de forma fija.
+  public reclamos$: Observable<Reclamo[]> = defer(() =>
+    this.reclamosSubject.pipe(map(lista => this.aplicarPrioridad(lista, new Date())))
+  );
 
   constructor(
     private authService: AuthService,
     private notificacionService: NotificacionService
   ) {}
+
+  // Agrega los reclamos de ejemplo (idempotente). Se llama al arrancar la aplicación (AppModule),
+  // no en el constructor, para que las pruebas unitarias partan solo con los dos reclamos base.
+  cargarReclamosDemo(): void {
+    const existentes = new Set(this.reclamosSubject.value.map(r => r.id));
+    const nuevos = RECLAMOS_DEMO.filter(r => !existentes.has(r.id)).map(r => {
+      // Un reclamo cerrado queda con el puntaje que tenía el día en que se cerró (última entrada de la bitácora)
+      const ultima = r.bitacora?.[r.bitacora.length - 1]?.fecha;
+      const cierre = ultima ? new Date(ultima) : new Date();
+      return { ...r, ...evaluarPrioridad(r, esReclamoAbierto(r) ? new Date() : cierre) } as Reclamo;
+    });
+    if (nuevos.length > 0) {
+      this.reclamosSubject.next([...this.reclamosSubject.value, ...nuevos]);
+    }
+  }
+
+  // Los reclamos abiertos reciben prioridad y puntaje vigentes. Los cerrados conservan
+  // el que tenían al cerrarse (ya no envejecen).
+  private aplicarPrioridad(lista: Reclamo[], ahora: Date): Reclamo[] {
+    return lista.map(reclamo => esReclamoAbierto(reclamo) ? { ...reclamo, ...evaluarPrioridad(reclamo, ahora) } : reclamo);
+  }
 
   // --- Permisos por rol ---
   // Administrador: todos los reclamos. Agente: solo los que tiene asignados.
@@ -144,18 +173,20 @@ export class ReclamoService {
   // 3. CREAR RECLAMO
   // ==========================================
 
-  crearReclamo(nuevoReclamo: Omit<Reclamo, 'id' | 'folio' | 'estado' | 'agenteAsignado' | 'agenteId' | 'fecha'>): Observable<Reclamo> {
+  crearReclamo(nuevoReclamo: Omit<Reclamo, 'id' | 'folio' | 'estado' | 'agenteAsignado' | 'agenteId' | 'fecha' | 'prioridad' | 'puntaje'>): Observable<Reclamo> {
     const id = this.generarId();
+    const fecha = new Date().toISOString().split('T')[0];
 
     const reclamoCompleto: Reclamo = {
       ...nuevoReclamo,
       id,
       folio: `REC-${new Date().getFullYear()}-${String(id).padStart(3, '0')}`,
       estado: EstadoReclamo.RECIBIDO,
-      prioridad: PrioridadReclamo.MEDIA,
+      // La prioridad no la elige el ciudadano: la calcula el sistema con el puntaje
+      ...evaluarPrioridad({ ...nuevoReclamo, fecha }),
       agenteAsignado: SIN_ASIGNAR,
       agenteId: null,
-      fecha: new Date().toISOString().split('T')[0],
+      fecha,
       fechaResolucion: undefined,
       resultadoCierre: undefined,
       bitacora: [{
@@ -216,13 +247,16 @@ export class ReclamoService {
     if (!reclamo || reclamo.estado === EstadoReclamo.CERRADO) return false;
     const protegidos: (keyof Reclamo)[] = [
       'id', 'folio', 'usuarioId', 'estado', 'agenteId', 'agenteAsignado',
-      'bitacora', 'fechaResolucion', 'resultadoCierre'
+      'bitacora', 'fechaResolucion', 'resultadoCierre', 'prioridad', 'puntaje'
     ];
     if (protegidos.some(campo => Object.prototype.hasOwnProperty.call(cambios, campo))) return false;
     if (observacion !== undefined) return false;
-    const actualizado = { ...reclamo, ...cambios };
+    // Si el cambio altera el puntaje (por ejemplo, la subcategoría), la prioridad se recalcula
+    const anterior = evaluarPrioridad(reclamo);
+    const modificado = { ...reclamo, ...cambios };
+    const actualizado = { ...modificado, ...evaluarPrioridad(modificado) };
     this.guardar(actualizado);
-    if (actualizado.prioridad !== reclamo.prioridad) {
+    if (actualizado.prioridad !== anterior.prioridad) {
       const actorId = this.authService.obtenerUsuarioActual()?.id;
       this.notificacionService.crear(
         [reclamo.usuarioId ?? 0, reclamo.agenteId ?? 0].filter(id => id !== actorId),
@@ -310,7 +344,8 @@ export class ReclamoService {
     if (!reclamo || !reclamo.agenteId || reclamo.estado !==
         (resuelto ? EstadoReclamo.EN_PROCESO : EstadoReclamo.EN_REVISION)) return false;
     const actualizado: Reclamo = {
-      ...reclamo, estado: EstadoReclamo.CERRADO, resultadoCierre: resultado,
+      // Al cerrar se congela la prioridad y el puntaje que tenía el reclamo
+      ...reclamo, ...evaluarPrioridad(reclamo), estado: EstadoReclamo.CERRADO, resultadoCierre: resultado,
       fechaResolucion: resuelto ? new Date().toISOString().slice(0, 10) : undefined,
       bitacora: [...(reclamo.bitacora ?? []),
         this.entrada(resuelto ? EstadoReclamo.RESUELTO : EstadoReclamo.RECHAZADO, observacion),
@@ -333,8 +368,10 @@ export class ReclamoService {
       autor: this.authService.obtenerUsuarioActual()!.nombre, estado, observacion };
   }
 
+  // Un reclamo abierto se guarda siempre con su prioridad y puntaje al día
   private guardar(reclamo: Reclamo): void {
-    this.reclamosSubject.next(this.reclamosSubject.value.map(r => r.folio === reclamo.folio ? reclamo : r));
+    const guardado = esReclamoAbierto(reclamo) ? { ...reclamo, ...evaluarPrioridad(reclamo) } : reclamo;
+    this.reclamosSubject.next(this.reclamosSubject.value.map(r => r.folio === guardado.folio ? guardado : r));
   }
 
   // ==========================================

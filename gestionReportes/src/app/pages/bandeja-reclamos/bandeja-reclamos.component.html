@@ -25,6 +25,12 @@
       <label for="ubicacion">Ubicación:</label>
       <input type="text" id="ubicacion" class="form-control" [(ngModel)]="filtroUbicacion" placeholder="Buscar...">
     </div>
+    <div class="col-md-3" *ngIf="esAdmin">
+      <label for="asignacion">Asignación:</label>
+      <select id="asignacion" class="form-select" [(ngModel)]="filtroAsignacion">
+        <option *ngFor="let o of opcionesAsignacion" [value]="o">{{ o }}</option>
+      </select>
+    </div>
   </div>
 
   <div class="tabla-scroll">
@@ -55,18 +61,10 @@
             <app-status-badge [estado]="r.estado"></app-status-badge>
           </td>
           <td>
-            <div *ngIf="esAdmin && r.estado === EstadoReclamo.RECIBIDO; else soloNombre">
-              <label [for]="'buscar-agente-' + r.id">Buscar agente por nombre</label>
-              <input type="search" class="form-control" [id]="'buscar-agente-' + r.id"
-                     [(ngModel)]="busquedasAgente[r.folio]" placeholder="Escriba parte del nombre">
-              <select class="form-select form-select-sm select-agente"
-                      [attr.aria-label]="'Agente del reclamo ' + r.folio"
-                      [ngModel]="r.agenteId ?? ''" (ngModelChange)="asignar(r.folio, $event)">
-                <option value="">Sin asignar</option>
-                <option *ngFor="let a of agentesFiltrados(r.folio)" [value]="a.id">{{ a.nombre }}</option>
-              </select>
-              <small *ngIf="agentesFiltrados(r.folio).length === 0">No hay agentes que coincidan.</small>
-            </div>
+            <app-agente-combobox *ngIf="esAdmin && r.estado === EstadoReclamo.RECIBIDO; else soloNombre"
+                                 [agentes]="agentesConCarga" [seleccionadoId]="r.agenteId"
+                                 [etiqueta]="'Asignar agente al reclamo ' + r.folio"
+                                 (seleccionado)="asignar(r.folio, $event)"></app-agente-combobox>
             <ng-template #soloNombre><span class="nombre-agente">{{ nombreAgente(r) }}</span></ng-template>
           </td>
           <td>
