@@ -32,6 +32,29 @@
 
   <div class="sesion" *ngIf="usuario$ | async as usuario">
 
+    <button type="button" class="notificaciones-boton" (click)="alternarNotificaciones()"
+            aria-label="Notificaciones" [attr.aria-expanded]="notificacionesAbiertas">
+      <span class="campana" aria-hidden="true">🔔</span>
+      <span class="contador" *ngIf="noLeidas$ | async as noLeidas">{{ noLeidas > 99 ? '99+' : noLeidas }}</span>
+    </button>
+
+    <div class="menu-fondo" *ngIf="notificacionesAbiertas" (click)="cerrarNotificaciones()"></div>
+    <div class="menu-notificaciones" *ngIf="notificacionesAbiertas">
+      <div class="notificaciones-titulo">
+        <strong>Notificaciones</strong>
+        <button type="button" (click)="marcarTodasComoLeidas()">Marcar como leídas</button>
+      </div>
+      <div *ngIf="notificaciones$ | async as notificaciones">
+        <button type="button" class="notificacion" *ngFor="let notificacion of notificaciones"
+                [class.no-leida]="!notificacion.leida" (click)="marcarComoLeida(notificacion)">
+          <strong>{{ notificacion.titulo }}</strong>
+          <span>{{ notificacion.mensaje }}</span>
+          <small>{{ notificacion.fecha | date:'dd/MM/yyyy HH:mm' }}</small>
+        </button>
+        <p class="sin-notificaciones" *ngIf="notificaciones.length === 0">No tienes notificaciones nuevas.</p>
+      </div>
+    </div>
+
     <button type="button" class="perfil-boton" (click)="alternarMenu()"
             aria-label="Menú de usuario" [attr.aria-expanded]="menuAbierto">
       <span class="avatar">{{ iniciales(usuario.nombre) }}</span>

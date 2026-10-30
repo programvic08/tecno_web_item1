@@ -27,6 +27,7 @@ export interface Reclamo {
   evidenciaDataUrl?: string;  // contenido del archivo en base64 (data URL)
   fecha: string;
   fechaResolucion?: string;
+  resultadoCierre?: 'Resuelto' | 'Rechazado';
   prioridad: PrioridadReclamo;
   estado: EstadoReclamo;
   agenteAsignado: string;          // nombre para mostrar

@@ -1,0 +1,70 @@
+<main class="detalle-container">
+  <div *ngIf="reclamo as caso; else resultadoVacio" class="detalle-card">
+    <div class="detalle-header">
+      <div>
+        <h1>Reclamo completo</h1>
+        <p class="folio">Folio: {{ caso.folio }}</p>
+      </div>
+      <app-status-badge [estado]="caso.estado"></app-status-badge>
+    </div>
+
+    <section class="detalle-seccion">
+      <h2>Información del reclamo</h2>
+      <div class="detalle-grid">
+        <p><strong>Categoría:</strong> {{ caso.categoria }}</p>
+        <p><strong>Subcategoría:</strong> {{ caso.subcategoria }}</p>
+        <p><strong>Fecha de ingreso:</strong> {{ caso.fecha }}</p>
+        <p><strong>Prioridad:</strong> {{ caso.prioridad }}</p>
+        <p><strong>Agente asignado:</strong> {{ caso.agenteAsignado }}</p>
+        <p><strong>Sector/Zona:</strong> {{ caso.sectorZona || 'Sin indicar' }}</p>
+        <p><strong>Dirección:</strong> {{ caso.direccion }}</p>
+        <p><strong>Fecha observada:</strong> {{ caso.fechaHoraObservada || 'Sin indicar' }}</p>
+      </div>
+      <div class="descripcion">
+        <strong>Descripción:</strong>
+        <p>{{ caso.descripcion }}</p>
+      </div>
+    </section>
+
+    <section class="detalle-seccion">
+      <h2>Evidencia adjunta</h2>
+      <ng-container *ngIf="caso.evidenciaNombre; else sinEvidencia">
+        <p><strong>Archivo:</strong> {{ caso.evidenciaNombre }}</p>
+        <img *ngIf="caso.evidenciaTipo?.startsWith('image/')"
+             [src]="caso.evidenciaDataUrl" [alt]="'Evidencia de ' + caso.folio" class="evidencia">
+        <button type="button" class="btn-descargar" (click)="descargarEvidencia()">
+          Descargar evidencia
+        </button>
+      </ng-container>
+      <ng-template #sinEvidencia>
+        <p class="muted">Este reclamo no tiene pruebas adjuntas.</p>
+      </ng-template>
+    </section>
+
+    <section class="detalle-seccion">
+      <h2>Bitácora de avances</h2>
+      <ol *ngIf="caso.bitacora?.length; else sinBitacora" class="bitacora">
+        <li *ngFor="let entrada of caso.bitacora">
+          <strong>{{ entrada.fecha }} · {{ entrada.estado }}</strong>
+          <span>{{ entrada.autor }}</span>
+          <p>{{ entrada.observacion }}</p>
+        </li>
+      </ol>
+      <ng-template #sinBitacora>
+        <p class="muted">Todavía no hay avances registrados.</p>
+      </ng-template>
+    </section>
+
+    <div class="acciones">
+      <button type="button" class="btn-volver" (click)="volver()">Volver a la bandeja</button>
+      <a class="btn-gestionar" [routerLink]="['/modificar-reclamo']"
+         [queryParams]="{ folio: caso.folio }">Gestionar avances</a>
+    </div>
+  </div>
+
+  <ng-template #resultadoVacio>
+    <div *ngIf="buscado" class="error-card">
+      No se encontró el reclamo solicitado entre los casos visibles para tu rol.
+    </div>
+  </ng-template>
+</main>

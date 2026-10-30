@@ -2032,6 +2032,32 @@ app-navbar .enlaces .pronto { color: #6e8ca6; padding: 16px 24px; cursor: not-al
 
 app-navbar .sesion { position: relative; flex-shrink: 0; }
 
+app-navbar .notificaciones-boton {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 8px;
+  color: var(--card-bg);
+  cursor: pointer;
+  font-size: 20px;
+}
+
+app-navbar .notificaciones-boton:hover { background: var(--primary-blue-hover); border-radius: 50%; }
+app-navbar .campana { display: block; line-height: 1; }
+app-navbar .contador {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 18px;
+  padding: 2px 4px;
+  border-radius: 10px;
+  background: var(--nyc-red);
+  color: var(--card-bg);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
 app-navbar .perfil-boton { background: none; border: none; padding: 0; }
 
 app-navbar .avatar {
@@ -2051,6 +2077,58 @@ app-navbar .avatar {
 app-navbar .perfil-boton:hover .avatar { background: var(--surface-info); }
 
 app-navbar .menu-fondo { position: fixed; inset: 0; z-index: 19; }
+
+app-navbar .menu-notificaciones {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 52px;
+  z-index: 20;
+  width: min(360px, calc(100vw - 32px));
+  max-height: 420px;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(15, 44, 75, 0.25);
+  color: var(--text-dark);
+}
+
+app-navbar .notificaciones-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--primary-blue);
+}
+
+app-navbar .notificaciones-titulo button {
+  border: 0;
+  background: none;
+  color: var(--accent-blue);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+app-navbar .notificacion {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-dark);
+  cursor: pointer;
+  text-align: left;
+}
+
+app-navbar .notificacion:hover,
+app-navbar .notificacion.no-leida { background: var(--surface-info-light); }
+app-navbar .notificacion span { font-size: 13px; }
+app-navbar .notificacion small { color: var(--text-gray); }
+app-navbar .sin-notificaciones { padding: 20px 16px; color: var(--text-gray); font-size: 13px; }
 
 app-navbar .menu-usuario {
   position: absolute;

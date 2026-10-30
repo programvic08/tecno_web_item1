@@ -10,6 +10,7 @@ import { BandejaReclamosComponent } from './pages/bandeja-reclamos/bandeja-recla
 import { ReporteReclamosComponent } from './pages/reporte-reclamos/reporte-reclamos.component';
 import { EstadoReclamoComponent } from './pages/estado-reclamo/estado-reclamo.component';
 import { ModificarReclamoComponent } from './pages/modificar-reclamo/modificar-reclamo.component';
+import { DetalleReclamoComponent } from './pages/detalle-reclamo/detalle-reclamo.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
 import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recuperar-contrasena/recuperar-contrasena.component';
 import { GestionAgentesComponent } from './pages/gestion-agentes/gestion-agentes.component';
@@ -47,6 +48,7 @@ const routes: Routes = [
     children: [
       { path: 'adminHome', component: AdminhomeComponent },
       { path: 'bandeja-reclamos', component: BandejaReclamosComponent },
+      { path: 'detalle-reclamo', component: DetalleReclamoComponent },
       { path: 'modificar-reclamo', component: ModificarReclamoComponent },
       { path: 'reporteReclamo', component: ReporteReclamosComponent }
     ]

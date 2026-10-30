@@ -182,6 +182,16 @@ export class AuthService {
     return this.credencialesMock.filter(cuenta => !eliminados.includes(this.usuariosMock[cuenta.rol].id));
   }
 
+  obtenerUsuarioPorId(id: number): Usuario | null {
+    return this.leerPerfil(id);
+  }
+
+  obtenerAdministradores(): Usuario[] {
+    return Object.values(this.usuariosMock)
+      .filter(usuario => usuario.rol === RolUsuario.ADMINISTRADOR)
+      .map(usuario => this.leerPerfil(usuario.id) ?? usuario);
+  }
+
   // Personal al que el administrador puede asignarle reclamos. Incluye las
   // cuentas base (el administrador también es agente) y los agentes creados
   // desde la pantalla de gestión que siguen activos.

@@ -2,8 +2,10 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { MARCA_PORTAL, RUTAS, apartadosPortal } from '../../../core/config/navegacion.config';
 import { ApartadoPortal } from '../../../models/navegacion.model';
+import { Notificacion } from '../../../models/notificacion.model';
 import { Usuario } from '../../../models/usuario.model';
 
 @Component({
@@ -16,17 +18,25 @@ export class NavbarComponent {
   readonly rutaPerfil = RUTAS.perfil;
 
   menuAbierto = false;
+  notificacionesAbiertas = false;
 
   // Se consumen con el async pipe: Angular se suscribe y se desuscribe solo.
   apartados$: Observable<ApartadoPortal[]>;
   usuario$: Observable<Usuario | null>;
+  notificaciones$: Observable<Notificacion[]>;
+  noLeidas$: Observable<number>;
 
   constructor(
     private authService: AuthService,
+    private notificacionService: NotificacionService,
     private router: Router
   ) {
     this.apartados$ = this.authService.rol$.pipe(map(rol => apartadosPortal(rol)));
     this.usuario$ = this.authService.usuario$;
+    this.notificaciones$ = this.notificacionService.notificaciones$;
+    this.noLeidas$ = this.notificaciones$.pipe(
+      map(notificaciones => notificaciones.filter(notificacion => !notificacion.leida).length)
+    );
   }
 
   // Iniciales del avatar (máximo dos letras)
@@ -53,8 +63,26 @@ export class NavbarComponent {
     this.menuAbierto = false;
   }
 
+  alternarNotificaciones(): void {
+    this.notificacionesAbiertas = !this.notificacionesAbiertas;
+    this.menuAbierto = false;
+  }
+
+  cerrarNotificaciones(): void {
+    this.notificacionesAbiertas = false;
+  }
+
+  marcarComoLeida(notificacion: Notificacion): void {
+    this.notificacionService.marcarComoLeida(notificacion.id);
+  }
+
+  marcarTodasComoLeidas(): void {
+    this.notificacionService.marcarTodasComoLeidas();
+  }
+
   cerrarSesion(): void {
     this.cerrarMenu();
+    this.cerrarNotificaciones();
     this.authService.logout();
     this.router.navigate([RUTAS.login]);
   }

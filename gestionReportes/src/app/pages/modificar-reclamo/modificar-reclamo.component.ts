@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Reclamo, SIN_ASIGNAR } from '../../models/reclamo.model';
-import { EstadoReclamo, PrioridadReclamo, RolUsuario } from '../../models/reclamo.enums';
-import { AgenteAsignable } from '../../models/usuario.model';
+import { EstadoReclamo } from '../../models/reclamo.enums';
+import { RUTAS } from '../../core/config/navegacion.config';
 import { take } from 'rxjs/operators';
 
 @Component({
@@ -12,24 +12,16 @@ import { take } from 'rxjs/operators';
   templateUrl: './modificar-reclamo.component.html',
   styleUrls: ['./modificar-reclamo.component.css']
 })
-export class ModificarReclamoComponent implements OnInit {
+export class ModificarReclamoComponent implements OnInit, OnDestroy {
   busquedaFolio: string = '';
   reclamo: Reclamo | null = null;
   buscado: boolean = false;
   actualizadoExito: boolean = false;
   sinPermiso: boolean = false;
 
-  // Solo el administrador reasigna; el agente ve el responsable pero no lo cambia
-  esAdmin = false;
-  agentes: AgenteAsignable[] = [];
-
-  estados = Object.values(EstadoReclamo);
-  prioridades = Object.values(PrioridadReclamo);
-
-  nuevoEstado!: EstadoReclamo;
-  nuevaPrioridad!: PrioridadReclamo;
-  nuevoAgenteId: number | null = null;
+  readonly EstadoReclamo = EstadoReclamo;
   nuevaObservacion: string = '';
+  private redireccion?: ReturnType<typeof setTimeout>;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,8 +29,6 @@ export class ModificarReclamoComponent implements OnInit {
     private reclamoService: ReclamoService,
     private authService: AuthService
   ) {
-    this.esAdmin = this.authService.obtenerRolActual() === RolUsuario.ADMINISTRADOR;
-    this.agentes = this.authService.obtenerAgentes();
   }
 
   get agenteActual(): string {
@@ -54,9 +44,14 @@ export class ModificarReclamoComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.redireccion);
+  }
+
   buscarReclamo(): void {
     if (!this.busquedaFolio.trim()) return;
 
+    clearTimeout(this.redireccion);
     this.buscado = true;
     this.actualizadoExito = false;
     this.sinPermiso = false;
@@ -71,50 +66,37 @@ export class ModificarReclamoComponent implements OnInit {
 
       if (encontrado) {
         this.reclamo = { ...encontrado };
-        this.nuevoEstado = encontrado.estado;
-        this.nuevaPrioridad = encontrado.prioridad;
-        this.nuevoAgenteId = encontrado.agenteId ?? null;
+        this.nuevaObservacion = '';
       } else {
         this.reclamo = null;
       }
     });
   }
 
-  guardarCambios(): void {
+  get nombreCiudadano(): string {
+    return this.reclamo?.usuarioId
+      ? this.authService.obtenerUsuarioPorId(this.reclamo.usuarioId)?.nombre ?? 'Ciudadano no disponible'
+      : 'Ciudadano no disponible';
+  }
+
+  ejecutar(accion: 'avance' | 'rechazar' | 'resolver'): void {
     if (!this.reclamo) return;
-
-    const cambios: Partial<Reclamo> = {
-      estado: this.nuevoEstado,
-      prioridad: this.nuevaPrioridad
-    };
-
-    // Solo el administrador envía la asignación (el servicio además la descarta si no lo es)
-    if (this.esAdmin) {
-      const agente = this.agentes.find(a => a.id === this.nuevoAgenteId) ?? null;
-      cambios.agenteId = agente?.id ?? null;
-      cambios.agenteAsignado = agente?.nombre ?? SIN_ASIGNAR;
+    const folio = this.reclamo.folio;
+    const guardado = accion === 'avance'
+      ? this.reclamoService.registrarAvance(folio, this.nuevaObservacion)
+      : accion === 'rechazar'
+        ? this.reclamoService.rechazarReclamo(folio, this.nuevaObservacion)
+        : this.reclamoService.resolverReclamo(folio);
+    this.sinPermiso = !guardado;
+    if (guardado) {
+      this.busquedaFolio = folio;
+      this.buscarReclamo();
+      this.actualizadoExito = true;
+      if (this.reclamo?.estado === EstadoReclamo.CERRADO) {
+        this.redireccion = setTimeout(() => {
+          this.router.navigate([RUTAS.bandeja]);
+        }, 2000);
+      }
     }
-
-    // Delegamos la actualización al servicio, que valida el permiso. La observación queda en la bitácora.
-    const guardado = this.reclamoService.actualizarReclamo(
-      this.reclamo.folio,
-      cambios,
-      this.nuevaObservacion,
-      this.authService.obtenerUsuarioActual()?.nombre
-    );
-
-    if (!guardado) {
-      this.sinPermiso = true;
-      return;
-    }
-    this.sinPermiso = false;
-    this.nuevaObservacion = '';
-
-    this.actualizadoExito = true;
-
-    setTimeout(() => {
-      this.actualizadoExito = false;
-      this.router.navigate(['/bandeja-reclamos']);
-    }, 2000);
   }
 }

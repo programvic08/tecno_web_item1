@@ -13,6 +13,7 @@ export const RUTAS = {
   historial: '/historial',
   estado: '/estado-reclamo',
   bandeja: '/bandeja-reclamos',
+  detalle: '/detalle-reclamo',
   modificar: '/modificar-reclamo',
   reportes: '/reporteReclamo',
   agentes: '/gestion-agentes',
