@@ -44,7 +44,7 @@
       <div class="user-buttons">
         <button type="button" class="btn-user" *ngFor="let cuenta of cuentasPrueba"
                 [disabled]="cargando" (click)="usarCuentaPrueba(cuenta)">
-          {{ cuenta.rol }}
+          {{ cuenta.etiqueta ?? cuenta.rol }}
         </button>
       </div>
     </div>

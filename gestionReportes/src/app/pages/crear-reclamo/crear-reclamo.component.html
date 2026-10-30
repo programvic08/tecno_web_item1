@@ -113,9 +113,9 @@
           #archivoInput
           id="evidencia"
           type="file"
-          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+          accept="image/*"
           (change)="onArchivoSeleccionado($event)" />
-        <small>Formatos permitidos: PDF, JPG, PNG o WEBP (máx. {{ tamanoMaximoMB }} MB)</small>
+        <small>Solo imágenes: PNG, JPG, WEBP, etc. (máx. {{ tamanoMaximoMB }} MB)</small>
 
         <p *ngIf="errorArchivo" class="error" role="alert">{{ errorArchivo }}</p>
 
@@ -224,9 +224,9 @@
           #archivoPlantilla
           id="evidenciaPlantilla"
           type="file" [disabled]="enviado"
-          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+          accept="image/*"
           (change)="onArchivoSeleccionado($event)" />
-        <small>Formatos permitidos: PDF, JPG, PNG o WEBP (máx. {{ tamanoMaximoMB }} MB)</small>
+        <small>Solo imágenes: PNG, JPG, WEBP, etc. (máx. {{ tamanoMaximoMB }} MB)</small>
 
         <p *ngIf="errorArchivo" class="error" role="alert">{{ errorArchivo }}</p>
 

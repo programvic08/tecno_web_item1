@@ -58,10 +58,6 @@
              class="evidencia-imagen"
              [src]="reclamoEncontrado.evidenciaDataUrl"
              [alt]="'Evidencia adjunta: ' + reclamoEncontrado.evidenciaNombre">
-
-        <p *ngIf="reclamoEncontrado.evidenciaTipo === 'application/pdf'">
-          Archivo PDF adjunto (sin vista previa).
-        </p>
       </ng-container>
 
       <ng-template #sinEvidencia>

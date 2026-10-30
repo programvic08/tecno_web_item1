@@ -40,9 +40,6 @@
          [src]="reclamo.evidenciaDataUrl"
          [alt]="'Evidencia adjunta: ' + reclamo.evidenciaNombre">
 
-    <p *ngIf="reclamo.evidenciaTipo === 'application/pdf'">
-      Archivo PDF adjunto (sin vista previa).
-    </p>
   </ng-container>
 
   <ng-template #sinEvidencia>

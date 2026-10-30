@@ -286,16 +286,107 @@ app-bandeja-reclamos > :where(.container) .btn-asignar:hover {
   background: #0f6a33;
 }
 
-app-bandeja-reclamos > :where(.container) .select-agente {
+/* Selector de agente (combobox): el campo y la lista desplegable.
+   La lista es position: fixed para que el scroll de la tabla no la recorte;
+   su posicion la calcula el componente con la del campo. */
+app-agente-combobox {
+  display: block;
+  min-width: 160px;
+}
+
+app-agente-combobox .combo-agente {
+  position: relative;
+}
+
+app-agente-combobox .combo-agente__campo {
   width: 100%;
-  min-width: 112px;
   height: var(--field-height);
-  padding: 0 var(--field-padding-x);
+  padding: 0 calc(var(--field-padding-x) + 18px) 0 var(--field-padding-x);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   background: var(--card-bg);
+  color: var(--text-dark);
   font-size: var(--field-font-size);
   font-family: var(--font-body);
+  cursor: pointer;
+}
+
+app-agente-combobox .combo-agente__campo::placeholder {
+  color: var(--text-gray);
+  opacity: 1;
+}
+
+app-agente-combobox .combo-agente__campo[aria-expanded="true"] {
+  border-color: var(--accent-blue);
+  cursor: text;
+}
+
+/* Flecha decorativa a la derecha del campo (no recibe clicks: pasan al input) */
+app-agente-combobox .combo-agente__flecha {
+  position: absolute;
+  top: 50%;
+  right: var(--field-padding-x);
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--text-gray);
+  border-bottom: 2px solid var(--text-gray);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+app-agente-combobox .combo-agente__lista {
+  position: fixed;
+  z-index: 1000;
+  max-height: 220px;
+  overflow-y: auto;
+  width: max-content;
+  max-width: 320px;
+  list-style: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  box-shadow: 0 6px 16px rgba(15, 44, 75, 0.18);
+}
+
+app-agente-combobox .combo-agente__opcion,
+app-agente-combobox .combo-agente__vacio {
+  padding: 9px var(--field-padding-x);
+  font-size: var(--field-font-size);
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+app-agente-combobox .combo-agente__opcion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+/* Contador de reclamos activos de cada agente */
+app-agente-combobox .combo-agente__contador {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-info);
+  color: var(--primary-blue);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+app-agente-combobox .combo-agente__opcion--activa {
+  background: var(--surface-info-light);
+}
+
+app-agente-combobox .combo-agente__opcion--elegida {
+  font-weight: 700;
+  color: var(--primary-blue);
+}
+
+app-agente-combobox .combo-agente__vacio {
+  color: var(--text-gray);
 }
 
 /* En la vista de agente el nombre va en una sola linea: si se parte, la fila

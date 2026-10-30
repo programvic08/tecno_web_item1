@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { USUARIO_ADMIN_PRUEBA, USUARIO_AGENTE_PRUEBA, USUARIO_CIUDADANO_PRUEBA } from '../../testing/usuarios-prueba';
 import { NotificacionService } from './notificacion.service';
 import { Usuario } from '../../models/usuario.model';
+import { evaluarPrioridad } from '../../shared/utils/prioridad';
 
 describe('ReclamoService', () => {
   let service: ReclamoService;
@@ -232,7 +233,7 @@ describe('ReclamoService', () => {
         prioridad: PrioridadReclamo.URGENTE, agenteId: USUARIO_ADMIN_PRUEBA.id, agenteAsignado: 'Otro'
       });
       expect(guardado).toBeFalse();
-      expect(buscar('REC-2026-001').prioridad).toBe(PrioridadReclamo.ALTA);
+      expect(buscar('REC-2026-001').prioridad).toBe(evaluarPrioridad(buscar('REC-2026-001')).prioridad);
       expect(buscar('REC-2026-001').agenteId).toBe(USUARIO_AGENTE_PRUEBA.id);
       expect(buscar('REC-2026-001').agenteAsignado).toBe('Agente Pérez');
     });
@@ -259,6 +260,57 @@ describe('ReclamoService', () => {
       service.obtenerReporte().subscribe(r => expect(r.totalReclamos).toBe(1)).unsubscribe();
       usuarioActual.and.returnValue(USUARIO_ADMIN_PRUEBA);
       service.obtenerReporte().subscribe(r => expect(r.totalReclamos).toBe(2)).unsubscribe();
+    });
+  });
+
+  describe('prioridad automática', () => {
+    const nuevo = (extra: Partial<Reclamo> = {}) => ({
+      categoria: 'Seguridad y Ruidos', subcategoria: 'Inseguridad', descripcion: 'Descripcion',
+      esRecurrente: false, direccion: 'Broadway 100', ubicacion: 'Broadway 100',
+      sectorZona: 'Manhattan', usuarioId: 1, ...extra
+    });
+    const buscar = (folio: string) => {
+      let encontrado: Reclamo | undefined;
+      service.reclamos$.subscribe(rs => encontrado = rs.find(r => r.folio === folio)).unsubscribe();
+      return encontrado!;
+    };
+    beforeEach(() => { spyOn(TestBed.inject(NotificacionService), 'crear'); });
+
+    it('asigna la prioridad al crear el reclamo según el puntaje, sin aceptar una prioridad propia', () => {
+      let creado!: Reclamo;
+      service.crearReclamo({ ...nuevo(), prioridad: PrioridadReclamo.BAJA } as any).subscribe(r => creado = r);
+      expect(creado.prioridad).toBe(PrioridadReclamo.URGENTE);
+      expect(creado.puntaje?.total).toBe(80);
+      expect(creado.puntaje?.envejecimiento).toBe(0);
+    });
+
+    it('un reclamo de baja gravedad en una zona poco poblada queda con prioridad baja', () => {
+      let creado!: Reclamo;
+      service.crearReclamo(nuevo({
+        categoria: 'Aseo y Ornato', subcategoria: 'Corte de césped', direccion: 'Calle Tranquila 5', sectorZona: 'Staten Island'
+      })).subscribe(r => creado = r);
+      expect(creado.prioridad).toBe(PrioridadReclamo.BAJA);
+    });
+
+    it('no permite cambiar la prioridad ni el puntaje a mano', () => {
+      expect(service.actualizarReclamo('REC-2026-001', { prioridad: PrioridadReclamo.URGENTE })).toBeFalse();
+      expect(service.actualizarReclamo('REC-2026-001', { puntaje: undefined })).toBeFalse();
+    });
+
+    it('recalcula la prioridad cuando cambia un dato que forma parte del puntaje', () => {
+      const antes = buscar('REC-2026-001').puntaje!.total;
+      expect(service.actualizarReclamo('REC-2026-001', { subcategoria: 'Inseguridad' })).toBeTrue();
+      expect(buscar('REC-2026-001').puntaje!.total).toBeGreaterThan(antes);
+    });
+
+    it('al cerrar un reclamo se congela su prioridad', () => {
+      service.asignarAgente('REC-2026-002', USUARIO_ADMIN_PRUEBA);
+      service.registrarAvance('REC-2026-002', 'En camino');
+      expect(service.resolverReclamo('REC-2026-002')).toBeTrue();
+      const cerrado = buscar('REC-2026-002');
+      expect(cerrado.estado).toBe(EstadoReclamo.CERRADO);
+      expect(cerrado.puntaje).toBeDefined();
+      expect(cerrado.prioridad).toBe(evaluarPrioridad(cerrado).prioridad);
     });
   });
 

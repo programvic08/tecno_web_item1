@@ -41,6 +41,8 @@ export interface UsuarioRegistrado extends Omit<Usuario, 'rol'> {
 // Cuenta de demostración (solo para simular el backend)
 export interface CuentaPrueba extends LoginDto {
   rol: RolUsuario;
+  // Texto del botón de acceso rápido cuando hay varias cuentas del mismo rol (por defecto, el rol)
+  etiqueta?: string;
 }
 
 // Cuenta de agente creada por el administrador, tal como se guarda en
@@ -68,6 +70,11 @@ export interface AgenteGestion {
 
 // Agente al que se le puede asignar un reclamo (lo que lista el selector del administrador)
 export type AgenteAsignable = Pick<Usuario, 'id' | 'nombre'>;
+
+// Agente con su carga de trabajo: reclamos activos (en cualquier estado menos cerrado, resuelto o rechazado)
+export interface AgenteConCarga extends AgenteAsignable {
+  reportesActivos?: number;
+}
 
 // Contenido (payload) del token de sesión simulado
 export interface TokenPayload {

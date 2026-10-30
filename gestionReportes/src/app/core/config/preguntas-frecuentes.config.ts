@@ -68,7 +68,7 @@ export const PREGUNTAS_FRECUENTES: PreguntaFrecuente[] = [
       'Procura que la fotografía sea clara, tenga buena iluminación y muestre tanto el daño como alguna referencia del lugar. ' +
       'Por ejemplo, puedes mostrar la luminaria afectada, la acumulación de basura o el tramo de vereda deteriorado. ' +
       'La imagen complementa tu descripción, por lo que también debes explicar qué ocurre e indicar la ubicación. ' +
-      'Respeta los formatos y el tamaño máximo que indique el formulario, evita mostrar datos personales innecesarios y toma las fotografías desde un lugar seguro.'
+      'Solo se aceptan imágenes (por ejemplo PNG o JPG), con el tamaño máximo que indique el formulario; evita mostrar datos personales innecesarios y toma las fotografías desde un lugar seguro.'
   },
   {
     pregunta: '¿Cómo puedo conocer el estado de mi reclamo?',

@@ -1,12 +1,13 @@
 import { FechaNoFuturaDirective } from './shared/directives/fecha-no-futura.directive';
 import { HttpClientModule } from '@angular/common/http';
 import { DireccionAutocompleteComponent } from './shared/components/direccion-autocomplete/direccion-autocomplete.component';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ReclamoService } from './core/services/reclamo.service';
 
 // Páginas
 import { LoginComponent } from './pages/login/login.component';
@@ -31,6 +32,7 @@ import { ComoHagoParaComponent } from './shared/components/como-hago-para/como-h
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { StatusBadgeComponent } from './shared/components/status-badge/status-badge.component';
 import { FaqComponent } from './shared/components/faq/faq.component';
+import { AgenteComboboxComponent } from './shared/components/agente-combobox/agente-combobox.component';
 import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recuperar-contrasena/recuperar-contrasena.component';
 
 
@@ -55,6 +57,7 @@ import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recup
     FooterComponent,
     StatusBadgeComponent,
     DireccionAutocompleteComponent,
+    AgenteComboboxComponent,
     FaqComponent,
     EstadoReclamoComponent,
     ModificarReclamoComponent,
@@ -70,7 +73,15 @@ import { RecuperarContrasenaComponent } from './pages/recuperar-contrasena/recup
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [
+    // Carga los reclamos de ejemplo al arrancar la aplicación (ng serve)
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [ReclamoService],
+      useFactory: (reclamos: ReclamoService) => () => reclamos.cargarReclamosDemo()
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

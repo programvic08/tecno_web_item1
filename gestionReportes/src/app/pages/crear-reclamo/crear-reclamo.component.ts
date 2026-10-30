@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReclamoService } from '../../core/services/reclamo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CategoriaReclamo } from '../../models/reclamo.model';
-import { PrioridadReclamo } from '../../models/reclamo.enums';
 import { RUTAS } from '../../core/config/navegacion.config';
 import { obtenerPlantilla } from '../../core/config/plantillas-reclamo.config';
 
@@ -46,13 +45,7 @@ export class CrearReclamoComponent implements OnInit {
   fechaMaxima: string = '';
   errorFecha: string = '';
 
-  // Evidencia adjunta (solo PDF o imágenes)
-  readonly tiposPermitidos: string[] = [
-    'application/pdf',
-    'image/jpeg',
-    'image/png',
-    'image/webp'
-  ];
+  // Evidencia adjunta: solo imágenes (PNG, JPG, WEBP, GIF, etc.)
   readonly tamanoMaximoMB = 5;
 
   evidenciaNombre: string = '';
@@ -139,8 +132,8 @@ export class CrearReclamoComponent implements OnInit {
       return;
     }
 
-    if (!this.tiposPermitidos.includes(archivo.type)) {
-      this.errorArchivo = 'Formato no permitido. Solo se aceptan PDF o imágenes (JPG, PNG, WEBP).';
+    if (!archivo.type.startsWith('image/')) {
+      this.errorArchivo = 'Formato no permitido. Solo se aceptan imágenes (PNG, JPG, WEBP, etc.).';
       this.limpiarEvidencia();
       input.value = '';
       return;
@@ -222,7 +215,6 @@ export class CrearReclamoComponent implements OnInit {
       evidenciaNombre: this.evidenciaNombre,
       evidenciaTipo: this.evidenciaTipo,
       evidenciaDataUrl: this.evidenciaDataUrl,
-      prioridad: PrioridadReclamo.MEDIA,
       usuarioId: this.authService.obtenerUsuarioActual()?.id
     }).subscribe(() => {
       this.enviado = true;
