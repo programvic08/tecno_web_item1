@@ -45,15 +45,14 @@ describe('UserhomeComponent', () => {
     expect(component.parametrosReporte(component.frecuentes[0])).toEqual({ plantilla: 'microbasural' });
   });
 
-  it('el cuarto slide desplaza hacia la seccion de reportes frecuentes', () => {
-    const seccion = component.reportesFrecuentes!.nativeElement;
-    const scroll = spyOn(seccion, 'scrollIntoView');
+  it('el cuarto slide enlaza la guia de tipos de reclamos', () => {
     const carrusel = fixture.debugElement.children[0].componentInstance as ReportesCarouselComponent;
     carrusel.seleccionar(3);
     fixture.detectChanges();
-    const boton = fixture.nativeElement.querySelector('.accion-seccion') as HTMLButtonElement;
-    boton.click();
-    expect(scroll).toHaveBeenCalledWith(jasmine.objectContaining({ block: 'start' }));
+    const lamina = fixture.nativeElement.querySelectorAll('.lamina')[3] as HTMLElement;
+    const enlace = lamina.querySelector('a.mas') as HTMLAnchorElement;
+    expect(enlace.getAttribute('href')).toBe('assets/docs/guia-tipos-reclamos.pdf');
+    expect(enlace.getAttribute('target')).toBe('_blank');
   });
 
   it('agrupa los seis estados y mantiene las otras preguntas separadas', () => {
