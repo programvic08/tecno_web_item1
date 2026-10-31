@@ -1,6 +1,6 @@
 import { FechaNoFuturaDirective } from '../../shared/directives/fecha-no-futura.directive';
 import { of, Subject, throwError } from 'rxjs';
-import { GeocodingService } from '../../core/services/geocoding.service';
+import { DireccionSugerencia, GeocodingService } from '../../core/services/geocoding.service';
 import { DireccionAutocompleteComponent } from '../../shared/components/direccion-autocomplete/direccion-autocomplete.component';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
@@ -234,7 +234,7 @@ describe('CrearReclamoComponent', () => {
 
   for (const tipo of ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']) {
     for (const plantilla of [false, true]) {
-      it('lee evidencia ' + tipo + ', plantilla=' + plantilla, async () => {
+      it((tipo.startsWith('image/') ? 'lee evidencia ' : 'rechaza evidencia ') + tipo + ', plantilla=' + plantilla, async () => {
         abrir(plantilla ? { plantilla: 'microbasural' } : {});
         if (!plantilla) component.paso = 2;
         fixture.detectChanges();
@@ -245,6 +245,15 @@ describe('CrearReclamoComponent', () => {
         input.dispatchEvent(new Event('change'));
         await terminarLectura();
         fixture.detectChanges();
+        if (!tipo.startsWith('image/')) {
+          expect(component.errorArchivo).toContain('Solo se aceptan imágenes');
+          expect(component.evidenciaNombre).toBe('');
+          expect(component.evidenciaTipo).toBe('');
+          expect(component.evidenciaDataUrl).toBe('');
+          expect(input.value).toBe('');
+          expect(fixture.nativeElement.querySelector('img')).toBeNull();
+          return;
+        }
         expect(component.evidenciaNombre).toBe('evidencia');
         expect(component.evidenciaTipo).toBe(tipo);
         expect(component.evidenciaDataUrl).toBe('data:' + tipo + ';base64,Y29udGVuaWRv');
@@ -277,7 +286,7 @@ describe('CrearReclamoComponent', () => {
 
   it('rechaza archivos mayores de 5 MB', () => {
     abrir();
-    const input = seleccionar(new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'grande.pdf', { type: 'application/pdf' }));
+    const input = seleccionar(new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'grande.png', { type: 'image/png' }));
     expect(component.errorArchivo).toContain('5 MB');
     expect(component.evidenciaNombre).toBe('');
     expect(input.value).toBe('');
@@ -285,10 +294,10 @@ describe('CrearReclamoComponent', () => {
 
   it('acepta exactamente 5 MB', async () => {
     abrir();
-    seleccionar(new File([new Uint8Array(5 * 1024 * 1024)], 'limite.pdf', { type: 'application/pdf' }));
+    seleccionar(new File([new Uint8Array(5 * 1024 * 1024)], 'limite.png', { type: 'image/png' }));
     await terminarLectura();
     expect(component.errorArchivo).toBe('');
-    expect(component.evidenciaNombre).toBe('limite.pdf');
+    expect(component.evidenciaNombre).toBe('limite.png');
   });
 
   it('quitar evidencia cancela una lectura pendiente', async () => {
@@ -455,7 +464,7 @@ describe('CrearReclamoComponent', () => {
   }));
 
   it('descarta respuestas anteriores cuando el usuario borra el texto', fakeAsync(() => {
-    const pendiente = new Subject<any[]>();
+    const pendiente = new Subject<DireccionSugerencia[]>();
     (TestBed.inject(GeocodingService).buscar as jasmine.Spy).and.returnValue(pendiente);
     abrir({ plantilla: 'microbasural' });
     tick();
@@ -465,7 +474,7 @@ describe('CrearReclamoComponent', () => {
     tick(350);
     input.value = '';
     input.dispatchEvent(new Event('input'));
-    pendiente.next([{ textoCorto: 'Broadway' }]);
+    pendiente.next([{ textoCorto: 'Broadway', displayName: 'Broadway, New York', lat: '40.7', lon: '-74' }]);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[role="option"]')).toBeNull();
     expect(component.direccion).toBe('');

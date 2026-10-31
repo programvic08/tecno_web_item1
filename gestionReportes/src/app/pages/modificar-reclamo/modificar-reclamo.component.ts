@@ -13,6 +13,7 @@ import { take } from 'rxjs/operators';
   styleUrls: ['./modificar-reclamo.component.css']
 })
 export class ModificarReclamoComponent implements OnInit, OnDestroy {
+  readonly rutas = RUTAS;
   busquedaFolio: string = '';
   reclamo: Reclamo | null = null;
   buscado: boolean = false;

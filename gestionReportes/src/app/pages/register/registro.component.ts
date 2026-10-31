@@ -1,3 +1,4 @@
+import { RUTAS } from '../../core/config/navegacion.config';
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +10,7 @@ import { AuthService, MOTIVO_CUENTA_CREADA } from '../../core/services/auth.serv
   styleUrls: ['./registro.component.css']
 })
 export class RegistroComponent {
+  readonly rutas = RUTAS;
   nombre: string = '';
   email: string = '';
   password: string = '';
@@ -21,7 +23,6 @@ export class RegistroComponent {
     private router: Router
   ) {}
 
-  // Se usa en la plantilla para avisar si las dos contraseñas no son iguales
   get passwordsCoinciden(): boolean {
     return this.password === this.confirmarPassword;
   }
@@ -52,7 +53,7 @@ export class RegistroComponent {
       next: () => {
         this.cargando = false;
         // La cuenta no inicia sesión sola: se lleva al login con un aviso
-        this.router.navigate(['/login'], { queryParams: { motivo: MOTIVO_CUENTA_CREADA } });
+        this.router.navigate([RUTAS.login], { queryParams: { motivo: MOTIVO_CUENTA_CREADA } });
       },
       error: (error: unknown) => {
         this.cargando = false;

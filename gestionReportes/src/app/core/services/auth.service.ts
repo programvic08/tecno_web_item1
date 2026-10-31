@@ -289,7 +289,7 @@ export class AuthService {
       case RolUsuario.ADMINISTRADOR:
         return RUTAS.inicioAdmin;
       default:
-        return '/login';
+        return RUTAS.login;
     }
   }
 
@@ -356,7 +356,7 @@ export class AuthService {
       this.logout();
     }
     return this.router.createUrlTree(
-      ['/login'],
+      [RUTAS.login],
       expirada ? { queryParams: { motivo: MOTIVO_SESION_EXPIRADA } } : {}
     );
   }
@@ -389,7 +389,7 @@ export class AuthService {
 
   private cerrarPorExpiracion(): void {
     this.logout();
-    this.router.navigate(['/login'], { queryParams: { motivo: MOTIVO_SESION_EXPIRADA } });
+    this.router.navigate([RUTAS.login], { queryParams: { motivo: MOTIVO_SESION_EXPIRADA } });
   }
 
   // --- Lectura del token ---

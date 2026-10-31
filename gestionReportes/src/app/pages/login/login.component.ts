@@ -1,3 +1,4 @@
+import { RUTAS } from '../../core/config/navegacion.config';
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +11,7 @@ import { CuentaPrueba } from '../../models/usuario.model';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  readonly rutas = RUTAS;
   email: string = '';
   password: string = '';
   errorMessage: string = '';

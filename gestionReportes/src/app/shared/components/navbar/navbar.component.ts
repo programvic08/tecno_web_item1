@@ -7,7 +7,6 @@ import { MARCA_PORTAL, RUTAS, apartadosPortal } from '../../../core/config/naveg
 import { ApartadoPortal } from '../../../models/navegacion.model';
 import { Notificacion } from '../../../models/notificacion.model';
 import { Usuario } from '../../../models/usuario.model';
-import { RolUsuario } from '../../../models/reclamo.enums';
 
 
 @Component({
@@ -90,10 +89,7 @@ export class NavbarComponent {
   }
 
   
-  getHomeRoute(usuario: any): string {
-    if (usuario && usuario.rol === RolUsuario.CIUDADANO) {
-      return '/userHome';
-    }
-    return '/adminHome';
+  getHomeRoute(usuario: Usuario | null): string {
+    return this.authService.obtenerRutaInicio(usuario?.rol ?? null);
   }
 }

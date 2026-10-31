@@ -1,3 +1,4 @@
+import { AgenteComboboxComponent } from '../../shared/components/agente-combobox/agente-combobox.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -11,7 +12,7 @@ describe('BandejaReclamosComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BandejaReclamosComponent, StatusBadgeComponent ],
+      declarations: [ BandejaReclamosComponent, StatusBadgeComponent, AgenteComboboxComponent ],
       imports: [ FormsModule, RouterTestingModule ]
     })
     .compileComponents();
@@ -25,13 +26,14 @@ describe('BandejaReclamosComponent', () => {
     expect(component).toBeTruthy();
   });
   it('filtra agentes por parte del nombre sin distinguir mayusculas', () => {
-    component.agentes = [{id: 3, nombre: 'Ana Perez'}, {id: 2, nombre: 'Luis Soto'}];
-    component.busquedasAgente['caso'] = '  pEr  ';
-    expect(component.agentesFiltrados('caso')).toEqual([{id: 3, nombre: 'Ana Perez'}]);
-    component.busquedasAgente['caso'] = 'nadie';
-    expect(component.agentesFiltrados('caso')).toEqual([]);
-    component.busquedasAgente['caso'] = '';
-    expect(component.agentesFiltrados('caso').length).toBe(2);
+    const selector = TestBed.createComponent(AgenteComboboxComponent).componentInstance;
+    selector.agentes = [{id: 3, nombre: 'Ana Perez'}, {id: 2, nombre: 'Luis Soto'}];
+    selector.texto = '  pEr  ';
+    expect(selector.filtrados).toEqual([{id: 3, nombre: 'Ana Perez'}]);
+    selector.texto = 'nadie';
+    expect(selector.filtrados).toEqual([]);
+    selector.texto = '';
+    expect(selector.filtrados.length).toBe(2);
   });
 
 });

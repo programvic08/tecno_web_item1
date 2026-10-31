@@ -1,7 +1,8 @@
+import { RUTAS } from '../../../core/config/navegacion.config';
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service'; // Ajusta tu ruta
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-recuperar-contrasena',
@@ -9,6 +10,7 @@ import { AuthService } from '../../../core/services/auth.service'; // Ajusta tu 
   styleUrls: ['./recuperar-contrasena.component.css']
 })
 export class RecuperarContrasenaComponent {
+  readonly rutas = RUTAS;
   // Control de pasos: 1 = Email, 2 = Código, 3 = Nueva Contraseña
   paso: number = 1;
 
@@ -23,7 +25,6 @@ export class RecuperarContrasenaComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  // Paso 1: Enviar solicitud de correo
   onEnviarCorreo(form: NgForm): void {
     if (form.invalid) {
       form.form.markAllAsTouched();
@@ -38,7 +39,6 @@ export class RecuperarContrasenaComponent {
       next: () => {
         this.cargando = false;
         this.successMessage = 'Código enviado. (Revisa la consola F12 para ver el código simulado).';
-        // Avanzar al paso 2 después de un breve momento
         setTimeout(() => {
           this.successMessage = '';
           this.paso = 2;
@@ -52,7 +52,6 @@ export class RecuperarContrasenaComponent {
     });
   }
 
-  // Paso 2: Verificar el código ingresado
   onVerificarCodigo(form: NgForm): void {
     if (form.invalid) {
       form.form.markAllAsTouched();
@@ -75,7 +74,6 @@ export class RecuperarContrasenaComponent {
     });
   }
 
-  // Paso 3: Guardar la nueva contraseña
   onCambiarPassword(form: NgForm): void {
     if (form.invalid) {
       form.form.markAllAsTouched();
@@ -95,7 +93,7 @@ export class RecuperarContrasenaComponent {
         this.cargando = false;
         this.successMessage = 'Contraseña actualizada con éxito. Redirigiendo al login...';
         setTimeout(() => {
-          this.router.navigate(['/login']);
+          this.router.navigate([RUTAS.login]);
         }, 2000);
       },
       error: (err) => {

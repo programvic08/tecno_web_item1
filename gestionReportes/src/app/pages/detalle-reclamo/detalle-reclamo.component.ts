@@ -1,3 +1,4 @@
+import { RUTAS } from '../../core/config/navegacion.config';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
@@ -10,6 +11,7 @@ import { Reclamo } from '../../models/reclamo.model';
   styleUrls: ['./detalle-reclamo.component.css']
 })
 export class DetalleReclamoComponent implements OnInit {
+  readonly rutas = RUTAS;
   reclamo: Reclamo | null = null;
   buscado = false;
 
@@ -40,7 +42,7 @@ export class DetalleReclamoComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/bandeja-reclamos']);
+    this.router.navigate([RUTAS.bandeja]);
   }
 
   private buscar(folio: string): void {

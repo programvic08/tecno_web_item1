@@ -69,7 +69,7 @@
           </td>
           <td>
             <div class="acciones-tabla">
-              <button class="btn" [routerLink]="['/modificar-reclamo']" [queryParams]="{ folio: r.folio }">Gestionar / Editar</button>
+              <button class="btn" [routerLink]="[rutas.modificar]" [queryParams]="{ folio: r.folio }">Gestionar / Editar</button>
               <button class="btn btn-asignar" (click)="asignarme(r.folio)" *ngIf="esAdmin && r.estado === EstadoReclamo.RECIBIDO && !r.agenteId">Asignarme</button>
             </div>
           </td>

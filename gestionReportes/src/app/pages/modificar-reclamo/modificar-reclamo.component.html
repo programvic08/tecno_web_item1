@@ -77,7 +77,7 @@
                 (click)="ejecutar('resolver')">Resolver reclamo</button>
       </div>
     </form>
-    <a class="btn-cancelar" routerLink="/bandeja-reclamos">Volver a Bandeja</a>
+    <a class="btn-cancelar" [routerLink]="rutas.bandeja">Volver a Bandeja</a>
 
 
     <div *ngIf="sinPermiso" class="error-card" role="alert">

@@ -1,3 +1,4 @@
+import { RUTAS } from '../../core/config/navegacion.config';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ReclamoService } from '../../core/services/reclamo.service';
@@ -13,6 +14,7 @@ import { compararPorUrgencia, esReclamoAbierto } from '../../shared/utils/priori
   styleUrls: ['./bandeja-reclamos.component.css']
 })
 export class BandejaReclamosComponent implements OnInit, OnDestroy {
+  readonly rutas = RUTAS;
   reclamos: Reclamo[] = [];
   
   filtroEstado: string = 'Todos';

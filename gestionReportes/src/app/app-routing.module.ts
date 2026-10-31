@@ -1,3 +1,4 @@
+import { RUTAS } from './core/config/navegacion.config';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
@@ -21,10 +22,10 @@ import { RoleGuard } from './core/guards/role.guard';
 import { ROLES_PERSONAL, RolUsuario } from './models/reclamo.enums';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
-  { path: 'registro', component: RegistroComponent, canActivate: [GuestGuard] },
-  { path: 'recuperar-contrasena', component: RecuperarContrasenaComponent },
+  { path: '', redirectTo: RUTAS.login.slice(1), pathMatch: 'full' },
+  { path: RUTAS.login.slice(1), component: LoginComponent, canActivate: [GuestGuard] },
+  { path: RUTAS.registro.slice(1), component: RegistroComponent, canActivate: [GuestGuard] },
+  { path: RUTAS.recuperarContrasena.slice(1), component: RecuperarContrasenaComponent },
 
   // --- RUTAS HIJAS DEL CIUDADANO ---
   {
@@ -32,10 +33,10 @@ const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { rolesPermitidos: [RolUsuario.CIUDADANO] },
     children: [
-      { path: 'userHome', component: UserhomeComponent },
-      { path: 'crear-reclamo', component: CrearReclamoComponent },
-      { path: 'historial', component: HistorialComponent },
-      { path: 'estado-reclamo', component: EstadoReclamoComponent }
+      { path: RUTAS.inicioCiudadano.slice(1), component: UserhomeComponent },
+      { path: RUTAS.crear.slice(1), component: CrearReclamoComponent },
+      { path: RUTAS.historial.slice(1), component: HistorialComponent },
+      { path: RUTAS.estado.slice(1), component: EstadoReclamoComponent }
     ]
   },
 
@@ -46,11 +47,11 @@ const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { rolesPermitidos: ROLES_PERSONAL },
     children: [
-      { path: 'adminHome', component: AdminhomeComponent },
-      { path: 'bandeja-reclamos', component: BandejaReclamosComponent },
-      { path: 'detalle-reclamo', component: DetalleReclamoComponent },
-      { path: 'modificar-reclamo', component: ModificarReclamoComponent },
-      { path: 'reporteReclamo', component: ReporteReclamosComponent }
+      { path: RUTAS.inicioAdmin.slice(1), component: AdminhomeComponent },
+      { path: RUTAS.bandeja.slice(1), component: BandejaReclamosComponent },
+      { path: RUTAS.detalle.slice(1), component: DetalleReclamoComponent },
+      { path: RUTAS.modificar.slice(1), component: ModificarReclamoComponent },
+      { path: RUTAS.reportes.slice(1), component: ReporteReclamosComponent }
     ]
   },
 
@@ -60,14 +61,14 @@ const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { rolesPermitidos: [RolUsuario.ADMINISTRADOR] },
     children: [
-      { path: 'gestion-agentes', component: GestionAgentesComponent }
+      { path: RUTAS.agentes.slice(1), component: GestionAgentesComponent }
     ]
   },
 
   // --- RUTA COMPARTIDA: perfil (cualquier usuario con sesión válida, sin importar el rol) ---
-  { path: 'perfil', component: PerfilComponent, canActivate: [AuthGuard] },
+  { path: RUTAS.perfil.slice(1), component: PerfilComponent, canActivate: [AuthGuard] },
 
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: RUTAS.login.slice(1) }
 ];
 
 @NgModule({

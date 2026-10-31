@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable, defer, map, of } from 'rxjs';
 
 import {
   Reclamo,
+  CrearReclamoDto,
+  ActualizarReclamoDto,
   CategoriaReclamo,
   EntradaBitacora,
   ReporteEstadistico
@@ -23,9 +25,6 @@ import { RECLAMOS_DEMO } from '../config/reclamos-demo.config';
 })
 export class ReclamoService {
 
-  // ==========================================
-  // 1. DATOS DE PRUEBA
-  // ==========================================
 
   private reclamosMock: Reclamo[] = [
     {
@@ -169,11 +168,8 @@ export class ReclamoService {
     ];
   }
 
-  // ==========================================
-  // 3. CREAR RECLAMO
-  // ==========================================
 
-  crearReclamo(nuevoReclamo: Omit<Reclamo, 'id' | 'folio' | 'estado' | 'agenteAsignado' | 'agenteId' | 'fecha' | 'prioridad' | 'puntaje'>): Observable<Reclamo> {
+  crearReclamo(nuevoReclamo: CrearReclamoDto): Observable<Reclamo> {
     const id = this.generarId();
     const fecha = new Date().toISOString().split('T')[0];
 
@@ -219,9 +215,6 @@ export class ReclamoService {
     ) + 1;
   }
 
-  // ==========================================
-  // 4. RECLAMOS POR USUARIO
-  // ==========================================
 
   obtenerReclamosDeUsuario(
     usuarioId: number | undefined
@@ -238,11 +231,8 @@ export class ReclamoService {
     );
   }
 
-  // ==========================================
-  // 5. ACTUALIZAR RECLAMO
-  // ==========================================
 
-  actualizarReclamo(folio: string, cambios: Partial<Reclamo>, observacion?: string, autor?: string): boolean {
+  actualizarReclamo(folio: string, cambios: ActualizarReclamoDto, observacion?: string, autor?: string): boolean {
     const reclamo = this.buscarGestionable(folio);
     if (!reclamo || reclamo.estado === EstadoReclamo.CERRADO) return false;
     const protegidos: (keyof Reclamo)[] = [
@@ -374,9 +364,6 @@ export class ReclamoService {
     this.reclamosSubject.next(this.reclamosSubject.value.map(r => r.folio === guardado.folio ? guardado : r));
   }
 
-  // ==========================================
-  // 7. ESTADÍSTICAS BASE
-  // ==========================================
 
   private readonly estadisticaBase: ReporteComun[] = [
     { id: 1, categoria: 'Aseo y Ornato', subcategoria: 'Microbasural', cantidad: 42 },
@@ -393,9 +380,6 @@ export class ReclamoService {
     { id: 12, categoria: 'Seguridad y Ruidos', subcategoria: 'Inseguridad', cantidad: 5 }
   ];
 
-  // ==========================================
-  // 8. REPORTES MÁS COMUNES
-  // ==========================================
 
   obtenerReportesComunes(): Observable<ReporteComun[]> {
 
@@ -437,9 +421,6 @@ export class ReclamoService {
     );
   }
 
-  // ==========================================
-  // 9. REPORTE ESTADÍSTICO GENERAL
-  // ==========================================
 
   obtenerReporte(filtros?: {
     fechaDesde?: string;
@@ -462,8 +443,6 @@ export class ReclamoService {
             r => r.categoria === filtros.categoria
           );
         }
-
-        // Filtrar por estado.
         if (
           filtros?.estado &&
           filtros.estado !== 'Todos'
@@ -472,8 +451,6 @@ export class ReclamoService {
             r => r.estado === filtros.estado
           );
         }
-
-        // Filtrar por fecha de ingreso.
         const reclamosFiltrados = seleccionados.filter(r => {
 
           const fecha = r.fecha.slice(0, 10);
@@ -485,8 +462,6 @@ export class ReclamoService {
               fecha <= filtros.fechaHasta)
           );
         });
-
-        // Cantidad de reclamos por estado.
         const reclamosPorEstado = Object.values(
           EstadoReclamo
         ).map(estado => ({
@@ -529,8 +504,6 @@ export class ReclamoService {
               0
             ) / duraciones.length
           : null;
-
-        // Construir reporte completo.
         return {
           totalReclamos: reclamosFiltrados.length,
           tiempoPromedioResolucionDias: promedio,
@@ -546,9 +519,6 @@ export class ReclamoService {
     );
   }
 
-  // ==========================================
-  // 10. CANTIDAD DE RECLAMOS POR MES
-  // ==========================================
 
   private agruparCantidadPorMes(
     reclamos: Reclamo[],
@@ -588,8 +558,6 @@ export class ReclamoService {
     ) {
       return [];
     }
-
-    // Contar reclamos por mes de ingreso.
     const conteo = new Map<string, number>();
 
     for (const reclamo of reclamos) {
@@ -654,9 +622,6 @@ export class ReclamoService {
     return resultado;
   }
 
-  // ==========================================
-  // 11. CALCULAR DÍAS HASTA RESOLUCIÓN
-  // ==========================================
 
   private diasHastaResolucion(
     reclamo: Reclamo

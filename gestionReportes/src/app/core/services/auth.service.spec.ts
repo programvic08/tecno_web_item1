@@ -132,7 +132,7 @@ describe('AuthService', () => {
       expect(service.obtenerUsuarioPorId(9001)?.nombre).toBe('Ana Soto');
       localStorage.setItem(perfil, JSON.stringify({ nombre: 'Ana Perez' }));
       expect(service.obtenerUsuarioPorId(9001)?.nombre).toBe('Ana Perez');
-      expect((service.obtenerUsuarioPorId(9001) as any).password).toBeUndefined();
+      expect(Object.prototype.hasOwnProperty.call(service.obtenerUsuarioPorId(9001), 'password')).toBeFalse();
       expect(service.obtenerUsuarioPorId(-1)).toBeNull();
     } finally {
       if (anterior === null) localStorage.removeItem(clave); else localStorage.setItem(clave, anterior);

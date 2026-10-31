@@ -1,6 +1,6 @@
 import { of } from 'rxjs';
 import { EstadoReclamo, PrioridadReclamo } from '../../models/reclamo.enums';
-import { Reclamo } from '../../models/reclamo.model';
+import { Reclamo, CrearReclamoDto, ActualizarReclamoDto } from '../../models/reclamo.model';
 import { TestBed } from '@angular/core/testing';
 
 import { ReclamoService } from './reclamo.service';
@@ -87,6 +87,7 @@ describe('ReclamoService', () => {
     service.obtenerReporte({ categoria: 'B' }).subscribe(r => expect(r.tiempoPromedioResolucionDias).toBe(0));
     service.obtenerReporte({ categoria: 'Sin coincidencias' }).subscribe(r => expect(r.tiempoPromedioResolucionDias).toBeNull());
   });
+  // Los payloads inválidos se fuerzan solo para verificar las defensas en ejecución.
   describe('flujo controlado y notificaciones', () => {
     const folio = 'REC-2026-002';
     let notificar: jasmine.Spy;
@@ -99,7 +100,7 @@ describe('ReclamoService', () => {
 
     it('crea recibido sin agente y notifica a administradores con el folio', () => {
       service.crearReclamo({ ...caso(), estado: EstadoReclamo.CERRADO, agenteId: 3,
-        resultadoCierre: 'Resuelto', fechaResolucion: '2020-01-01' } as any).subscribe(r => {
+        resultadoCierre: 'Resuelto', fechaResolucion: '2020-01-01' } as unknown as CrearReclamoDto).subscribe(r => {
         expect(r.estado).toBe(EstadoReclamo.RECIBIDO);
         expect(r.agenteId).toBeNull();
         expect(r.resultadoCierre).toBeUndefined();
@@ -151,7 +152,7 @@ describe('ReclamoService', () => {
       service.asignarAgente(folio, USUARIO_AGENTE_PRUEBA);
       expect(service.resolverReclamo(folio)).toBeFalse();
       service.registrarAvance(folio, 'Trabajo');
-      expect(service.actualizarReclamo(folio, { estado: EstadoReclamo.RECIBIDO })).toBeFalse();
+      expect(service.actualizarReclamo(folio, { estado: EstadoReclamo.RECIBIDO } as unknown as ActualizarReclamoDto)).toBeFalse();
       expect(service.rechazarReclamo(folio, 'Motivo')).toBeFalse();
       expect(service.resolverReclamo(folio)).toBeTrue();
       expect(caso().fechaResolucion).toBe(new Date().toISOString().slice(0, 10));
@@ -160,15 +161,15 @@ describe('ReclamoService', () => {
       expect(caso().estado).toBe(EstadoReclamo.CERRADO);
       expect(notificar).toHaveBeenCalledWith([1], 'resolucion', 'Tu reclamo fue resuelto y cerrado', jasmine.any(String), caso());
       expect(service.resolverReclamo(folio)).toBeFalse();
-      expect(service.actualizarReclamo(folio, { estado: EstadoReclamo.EN_REVISION })).toBeFalse();
+      expect(service.actualizarReclamo(folio, { estado: EstadoReclamo.EN_REVISION } as unknown as ActualizarReclamoDto)).toBeFalse();
       expect(service.asignarAgente(folio, USUARIO_ADMIN_PRUEBA)).toBeFalse();
     });
     it('bloquea saltos manuales y manipulación de campos protegidos', () => {
       for (const estado of Object.values(EstadoReclamo)) {
-        expect(service.actualizarReclamo(folio, { estado })).toBeFalse();
+        expect(service.actualizarReclamo(folio, { estado } as unknown as ActualizarReclamoDto)).toBeFalse();
       }
       for (const cambios of [{ bitacora: [] }, { resultadoCierre: 'Resuelto' as const }, { agenteId: 3 }, { usuarioId: 3 }]) {
-        expect(service.actualizarReclamo(folio, cambios)).toBeFalse();
+        expect(service.actualizarReclamo(folio, cambios as unknown as ActualizarReclamoDto)).toBeFalse();
       }
       expect(service.registrarAvance(folio, 'Sin asignar')).toBeFalse();
     });
@@ -223,7 +224,7 @@ describe('ReclamoService', () => {
     it('el agente no puede modificar un reclamo ajeno ni uno sin asignar', () => {
       usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
       const antes = buscar('REC-2026-002');
-      expect(service.actualizarReclamo('REC-2026-002', { estado: EstadoReclamo.RESUELTO })).toBeFalse();
+      expect(service.actualizarReclamo('REC-2026-002', { estado: EstadoReclamo.RESUELTO } as unknown as ActualizarReclamoDto)).toBeFalse();
       expect(buscar('REC-2026-002')).toEqual(antes);
     });
 
@@ -231,7 +232,7 @@ describe('ReclamoService', () => {
       usuarioActual.and.returnValue(USUARIO_AGENTE_PRUEBA);
       const guardado = service.actualizarReclamo('REC-2026-001', {
         prioridad: PrioridadReclamo.URGENTE, agenteId: USUARIO_ADMIN_PRUEBA.id, agenteAsignado: 'Otro'
-      });
+      } as unknown as ActualizarReclamoDto);
       expect(guardado).toBeFalse();
       expect(buscar('REC-2026-001').prioridad).toBe(evaluarPrioridad(buscar('REC-2026-001')).prioridad);
       expect(buscar('REC-2026-001').agenteId).toBe(USUARIO_AGENTE_PRUEBA.id);
@@ -264,7 +265,7 @@ describe('ReclamoService', () => {
   });
 
   describe('prioridad automática', () => {
-    const nuevo = (extra: Partial<Reclamo> = {}) => ({
+    const nuevo = (extra: Partial<CrearReclamoDto> = {}) => ({
       categoria: 'Seguridad y Ruidos', subcategoria: 'Inseguridad', descripcion: 'Descripcion',
       esRecurrente: false, direccion: 'Broadway 100', ubicacion: 'Broadway 100',
       sectorZona: 'Manhattan', usuarioId: 1, ...extra
@@ -278,7 +279,7 @@ describe('ReclamoService', () => {
 
     it('asigna la prioridad al crear el reclamo según el puntaje, sin aceptar una prioridad propia', () => {
       let creado!: Reclamo;
-      service.crearReclamo({ ...nuevo(), prioridad: PrioridadReclamo.BAJA } as any).subscribe(r => creado = r);
+      service.crearReclamo({ ...nuevo(), prioridad: PrioridadReclamo.BAJA } as unknown as CrearReclamoDto).subscribe(r => creado = r);
       expect(creado.prioridad).toBe(PrioridadReclamo.URGENTE);
       expect(creado.puntaje?.total).toBe(80);
       expect(creado.puntaje?.envejecimiento).toBe(0);
@@ -293,8 +294,8 @@ describe('ReclamoService', () => {
     });
 
     it('no permite cambiar la prioridad ni el puntaje a mano', () => {
-      expect(service.actualizarReclamo('REC-2026-001', { prioridad: PrioridadReclamo.URGENTE })).toBeFalse();
-      expect(service.actualizarReclamo('REC-2026-001', { puntaje: undefined })).toBeFalse();
+      expect(service.actualizarReclamo('REC-2026-001', { prioridad: PrioridadReclamo.URGENTE } as unknown as ActualizarReclamoDto)).toBeFalse();
+      expect(service.actualizarReclamo('REC-2026-001', { puntaje: undefined } as unknown as ActualizarReclamoDto)).toBeFalse();
     });
 
     it('recalcula la prioridad cuando cambia un dato que forma parte del puntaje', () => {

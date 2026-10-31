@@ -72,3 +72,32 @@ export interface ReporteEstadistico {
     cantidad: number | null;
   }[];
 }
+export interface CrearReclamoDto {
+  categoria: string;
+  subcategoria: string;
+  descripcion: string;
+  esRecurrente: boolean;
+  direccion: string;
+  fechaHoraObservada?: string;
+  ubicacion: string;
+  sectorZona?: string;
+  evidenciaNombre?: string;
+  evidenciaTipo?: string;
+  evidenciaDataUrl?: string;
+  usuarioId?: number;
+}
+
+export interface ActualizarReclamoDto {
+  categoria?: string;
+  subcategoria?: string;
+  descripcion?: string;
+  esRecurrente?: boolean;
+  direccion?: string;
+  fechaHoraObservada?: string;
+  ubicacion?: string;
+  sectorZona?: string;
+  evidenciaNombre?: string;
+  evidenciaTipo?: string;
+  evidenciaDataUrl?: string;
+  fecha?: string;
+}

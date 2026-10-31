@@ -27,7 +27,7 @@
       </div>
 
       <div class="recuperar-contraseña">
-      <a routerLink="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
+      <a [routerLink]="rutas.recuperarContrasena">¿Olvidaste tu contraseña?</a>
       </div>
       <p class="mensaje-exito" *ngIf="mensajeExito" role="status">{{ mensajeExito }}</p>
       <p class="mensaje-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
@@ -51,6 +51,6 @@
   </div>
 
   <div class="login-footer">
-    <p>¿No tienes cuenta? <a routerLink="/registro">Crear una</a></p>
+    <p>¿No tienes cuenta? <a [routerLink]="rutas.registro">Crear una</a></p>
   </div>
 </div>

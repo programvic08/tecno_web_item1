@@ -7,15 +7,17 @@ export const MARCA_PORTAL = 'NYC · Atención Ciudadana';
 // Única fuente de rutas: si se renombran (p. ej. a /reclamos/nuevo), solo cambia este objeto.
 export const RUTAS = {
   login: '/login',
-  inicioCiudadano: '/userHome',
-  inicioAdmin: '/adminHome',
+  registro: '/registro',
+  recuperarContrasena: '/recuperar-contrasena',
+  inicioCiudadano: '/user-home',
+  inicioAdmin: '/admin-home',
   crear: '/crear-reclamo',
   historial: '/historial',
   estado: '/estado-reclamo',
   bandeja: '/bandeja-reclamos',
   detalle: '/detalle-reclamo',
   modificar: '/modificar-reclamo',
-  reportes: '/reporteReclamo',
+  reportes: '/reporte-reclamos',
   agentes: '/gestion-agentes',
   perfil: '/perfil'
 } as const;
