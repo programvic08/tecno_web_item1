@@ -422,6 +422,15 @@ export class ReclamoService {
   }
 
 
+  private estadoParaReporte(reclamo: Reclamo): EstadoReclamo {
+    // El cierre conserva el estado del flujo; las estadisticas distinguen su resultado.
+    if (reclamo.estado === EstadoReclamo.CERRADO) {
+      if (reclamo.resultadoCierre === 'Resuelto') return EstadoReclamo.RESUELTO;
+      if (reclamo.resultadoCierre === 'Rechazado') return EstadoReclamo.RECHAZADO;
+    }
+    return reclamo.estado;
+  }
+
   obtenerReporte(filtros?: {
     fechaDesde?: string;
     fechaHasta?: string;
@@ -448,7 +457,9 @@ export class ReclamoService {
           filtros.estado !== 'Todos'
         ) {
           seleccionados = seleccionados.filter(
-            r => r.estado === filtros.estado
+            r => filtros.estado === EstadoReclamo.CERRADO
+              ? r.estado === EstadoReclamo.CERRADO
+              : this.estadoParaReporte(r) === filtros.estado
           );
         }
         const reclamosFiltrados = seleccionados.filter(r => {
@@ -467,7 +478,9 @@ export class ReclamoService {
         ).map(estado => ({
           estado,
           cantidad: reclamosFiltrados.filter(
-            r => r.estado === estado
+            r => estado === EstadoReclamo.CERRADO
+              ? [EstadoReclamo.RESUELTO, EstadoReclamo.RECHAZADO].includes(this.estadoParaReporte(r))
+              : this.estadoParaReporte(r) === estado
           ).length
         }));
 
