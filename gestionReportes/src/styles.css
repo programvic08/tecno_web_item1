@@ -1154,7 +1154,10 @@ app-modificar-reclamo > .modificar-container {
 app-modificar-reclamo > :where(.modificar-container) .evidencia-imagen {
   display: block;
   max-width: 100%;
-  max-height: 420px;
+  width: 100%;
+  height: clamp(180px, 27vh, 280px);
+  object-fit: contain;
+  background: var(--card-bg);
   margin-top: 8px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -1257,6 +1260,9 @@ app-modificar-reclamo > :where(.modificar-container) .edit-header {
 }
 
 app-modificar-reclamo > :where(.modificar-container) .info-readonly {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
   background: var(--bg-color);
   padding: 16px;
   border-radius: var(--radius-sm);
@@ -1332,6 +1338,61 @@ app-modificar-reclamo > :where(.modificar-container) .error-card {
   border: 1px solid var(--error-border);
   color: var(--error-color);
   border-radius: var(--radius-sm);
+}
+
+app-modificar-reclamo > :where(.modificar-container) .datos-reclamo {
+  list-style: none;
+  padding: 0;
+  margin: -8px 0 16px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .bitacora {
+  margin: 0;
+  padding: 10px 12px 10px 28px;
+  max-height: clamp(180px, 31vh, 320px);
+  overflow-y: auto;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+}
+
+app-modificar-reclamo > :where(.modificar-container) .bitacora li + li {
+  margin-top: 10px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .bitacora-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .info-readonly h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .info-readonly section {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+app-modificar-reclamo > :where(.modificar-container) .evidencia-nombre {
+  display: block;
+  color: var(--primary-blue);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  app-modificar-reclamo > :where(.modificar-container) .info-readonly {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  app-modificar-reclamo > :where(.modificar-container) .acciones {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 600px) {

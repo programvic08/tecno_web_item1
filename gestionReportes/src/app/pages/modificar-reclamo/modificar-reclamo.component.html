@@ -24,37 +24,38 @@
       <app-status-badge [estado]="reclamo.estado"></app-status-badge>
     </div>
 
+    <ul class="datos-reclamo sub-text" aria-label="Datos del reclamo">
+      <li>Ciudadano: {{ nombreCiudadano }}</li>
+      <li>Ubicación: {{ reclamo.ubicacion }}</li>
+      <li>Fecha de Ingreso: {{ reclamo.fecha }}</li>
+      <li *ngIf="reclamo.resultadoCierre">Resultado del cierre: {{ reclamo.resultadoCierre }}</li>
+    </ul>
+
     <div class="info-readonly">
-      <p><strong>Ciudadano:</strong> {{ nombreCiudadano }}</p>
-      <p *ngIf="reclamo.resultadoCierre"><strong>Resultado del cierre:</strong> {{ reclamo.resultadoCierre }}</p>
-      <p><strong>Ubicación:</strong> {{ reclamo.ubicacion }}</p>
-      <p><strong>Fecha de Ingreso:</strong> {{ reclamo.fecha }}</p>
-      <div class="evidencia-agente">
-  <p><strong>Evidencia adjunta:</strong></p>
-
-  <ng-container *ngIf="reclamo.evidenciaDataUrl; else sinEvidencia">
-    <p>{{ reclamo.evidenciaNombre }}</p>
-
-    <img *ngIf="reclamo.evidenciaTipo?.startsWith('image/')"
-         class="evidencia-imagen"
-         [src]="reclamo.evidenciaDataUrl"
-         [alt]="'Evidencia adjunta: ' + reclamo.evidenciaNombre">
-
-  </ng-container>
-
-  <ng-template #sinEvidencia>
-    <p>Este reclamo no tiene evidencia adjunta.</p>
-  </ng-template>
-</div>
-
-      <ng-container *ngIf="reclamo.bitacora?.length">
-        <p><strong>Bitácora de avance:</strong></p>
-        <ul class="bitacora">
+      <section aria-labelledby="titulo-bitacora">
+        <h4 id="titulo-bitacora">Bitácora de avance</h4>
+        <ul *ngIf="reclamo.bitacora?.length; else sinAvances" class="bitacora" tabindex="0" aria-label="Historial de avances">
           <li *ngFor="let entrada of reclamo.bitacora">
-            {{ entrada.fecha }} · {{ entrada.autor }} ({{ entrada.estado }}): {{ entrada.observacion }}
+            <div class="bitacora-meta">
+              <time [attr.datetime]="entrada.fecha">{{ entrada.fecha | date:'dd/MM/yyyy HH:mm' }}</time>
+              <span>{{ entrada.estado }}</span>
+            </div>
+            <strong>{{ entrada.autor }}</strong>
+            <p>{{ entrada.observacion }}</p>
           </li>
         </ul>
-      </ng-container>
+        <ng-template #sinAvances><p>No hay avances registrados.</p></ng-template>
+      </section>
+      <section class="evidencia-agente" aria-labelledby="titulo-evidencia">
+        <h4 id="titulo-evidencia">Evidencia adjunta</h4>
+        <ng-container *ngIf="reclamo.evidenciaDataUrl; else sinEvidencia">
+          <a class="evidencia-nombre" [href]="reclamo.evidenciaDataUrl" target="_blank" rel="noopener"
+             [attr.aria-label]="'Abrir evidencia: ' + reclamo.evidenciaNombre">{{ reclamo.evidenciaNombre }}</a>
+          <img *ngIf="reclamo.evidenciaTipo?.startsWith('image/')" class="evidencia-imagen"
+               [src]="reclamo.evidenciaDataUrl" [alt]="'Evidencia adjunta: ' + reclamo.evidenciaNombre">
+        </ng-container>
+        <ng-template #sinEvidencia><p>Este reclamo no tiene evidencia adjunta.</p></ng-template>
+      </section>
     </div>
 
     <hr class="divider" />
