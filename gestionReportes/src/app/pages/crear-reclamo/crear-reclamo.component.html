@@ -77,56 +77,60 @@
     <p><span class="obligatorio" aria-hidden="true">*</span> Campo obligatorio</p>
 
     <form #donde="ngForm" (ngSubmit)="continuar(donde.valid === true)">
-      <div class="campo">
-        <label for="direccion">Dirección</label>
-        <app-direccion-autocomplete
-          (direccionSeleccionada)="completarSectorDesdeDireccion($event)"
-          inputId="direccion" name="direccion" [(ngModel)]="direccion"
-          [required]="true"></app-direccion-autocomplete>
-      </div>
+      <div class="fields-grid">
+        <div class="campo">
+          <label for="direccion">Dirección</label>
+          <app-direccion-autocomplete
+            (direccionSeleccionada)="completarSectorDesdeDireccion($event)"
+            inputId="direccion" name="direccion" [(ngModel)]="direccion"
+            [required]="true"></app-direccion-autocomplete>
+        </div>
 
-      <div class="campo">
-        <label for="sectorZona">Sector/Zona</label>
-        <select id="sectorZona" name="sectorZona" [(ngModel)]="sectorZona" required>
-          <option value="" disabled>Selecciona un sector/zona</option>
-          <option *ngFor="let borough of boroughs" [value]="borough">{{ borough }}</option>
-        </select>
-      </div>
-      <div class="campo">
-        <label for="ubicacion">Referencia adicional</label>
-        <input id="ubicacion" type="text" name="ubicacion" [(ngModel)]="ubicacionReferencia" placeholder="Ej: frente a Central Park, esquina con 5th Avenue" />
-      </div>
-      <div class="campo">
-        <label for="fechaHora">Fecha y hora observada</label>
-        <input
-          id="fechaHora"
-          type="datetime-local"
-          name="fechaHora"
-          [(ngModel)]="fechaHoraObservada"
-          (change)="validarFecha()" />
-        <small>Solo se permiten fechas pasadas o la fecha y hora actual.</small>
-      </div>
+        <div class="campo">
+          <label for="sectorZona">Sector/Zona</label>
+          <select id="sectorZona" name="sectorZona" [(ngModel)]="sectorZona" required>
+            <option value="" disabled>Selecciona un sector/zona</option>
+            <option *ngFor="let borough of boroughs" [value]="borough">{{ borough }}</option>
+          </select>
+        </div>
 
-      <div class="campo">
-        <label for="evidencia">Evidencia adjunta</label>
-        <input
-          #archivoInput
-          id="evidencia"
-          type="file"
-          accept="image/*"
-          (change)="onArchivoSeleccionado($event)" />
-        <small>Solo imágenes: PNG, JPG, WEBP, etc. (máx. {{ tamanoMaximoMB }} MB)</small>
+        <div class="campo">
+          <label for="ubicacion">Referencia adicional</label>
+          <input id="ubicacion" type="text" name="ubicacion" [(ngModel)]="ubicacionReferencia" placeholder="Ej: frente a Central Park, esquina con 5th Avenue" />
+        </div>
 
-        <p *ngIf="errorArchivo" class="error" role="alert">{{ errorArchivo }}</p>
+        <div class="campo">
+          <label for="fechaHora">Fecha y hora observada</label>
+          <input
+            id="fechaHora"
+            type="datetime-local"
+            name="fechaHora"
+            [(ngModel)]="fechaHoraObservada"
+            (change)="validarFecha()" />
+          <small>Solo se permiten fechas pasadas o la fecha y hora actual.</small>
+        </div>
 
-        <div *ngIf="evidenciaNombre">
-          <span>{{ evidenciaNombre }}</span>
-          <button type="button" class="btn-secundario" (click)="quitarEvidencia(archivoInput)">Quitar</button>
-          <img
-            *ngIf="evidenciaTipo.startsWith('image/')"
-            [src]="evidenciaDataUrl"
-            alt="Vista previa de la evidencia"
-            class="evidencia-preview" />
+        <div class="campo field--full">
+          <label for="evidencia">Evidencia adjunta</label>
+          <input
+            #archivoInput
+            id="evidencia"
+            type="file"
+            accept="image/*"
+            (change)="onArchivoSeleccionado($event)" />
+          <small>Solo imágenes: PNG, JPG, WEBP, etc. (máx. {{ tamanoMaximoMB }} MB)</small>
+
+          <p *ngIf="errorArchivo" class="error" role="alert">{{ errorArchivo }}</p>
+
+          <div *ngIf="evidenciaNombre">
+            <span>{{ evidenciaNombre }}</span>
+            <button type="button" class="btn-secundario" (click)="quitarEvidencia(archivoInput)">Quitar</button>
+            <img
+              *ngIf="evidenciaTipo.startsWith('image/')"
+              [src]="evidenciaDataUrl"
+              alt="Vista previa de la evidencia"
+              class="evidencia-preview" />
+          </div>
         </div>
       </div>
 
@@ -142,89 +146,106 @@
     <h2>3. Revisión</h2>
     <p *ngIf="esPlantilla">Reporte predefinido: completa la ubicación, la fecha y la evidencia antes de enviar.</p>
 
-    <div class="campo">
-      <label>Categoría</label>
-      <p>{{ categoria }}</p>
-    </div>
+    <div class="review-grid">
+      <div class="review-column">
+        <h3>El qué</h3>
 
-    <div class="campo" *ngIf="subcategoria">
-      <label>Subcategoría</label>
-      <p>{{ subcategoria }}</p>
-    </div>
+        <div class="campo">
+          <label>Categoría</label>
+          <p>{{ categoria }}</p>
+        </div>
 
-    <div class="campo">
-      <label>Descripción</label>
-      <p>{{ descripcion }}</p>
-    </div>
+        <div class="campo" *ngIf="subcategoria">
+          <label>Subcategoría</label>
+          <p>{{ subcategoria }}</p>
+        </div>
 
-    <div class="campo">
-      <label>¿Es un problema recurrente?</label>
-      <p>{{ esRecurrente === true ? 'Sí' : (esRecurrente === false ? 'No' : 'No indicado') }}</p>
-    </div>
+        <div class="campo">
+          <label>Descripción</label>
+          <p>{{ descripcion }}</p>
+        </div>
 
-    <ng-container *ngIf="!esPlantilla; else datosPlantilla">
-    <div class="campo">
-      <label>Dirección</label>
-      <p>{{ direccion }}</p>
-    </div>
-
-    <div class="campo">
-      <label>Fecha y hora observada</label>
-      <p>{{ fechaHoraObservada || 'Sin indicar' }}</p>
-    </div>
-
-    <div class="campo">
-      <label>Referencia adicional</label>
-      <p>{{ ubicacionReferencia || 'Sin indicar' }}</p>
-    </div>
-
-    <div class="campo">
-      <label>Sector/Zona</label>
-      <p>{{ sectorZona || 'Sin indicar' }}</p>
-    </div>
-
-    <div class="campo">
-      <label>Evidencia adjunta</label>
-      <p>{{ evidenciaNombre || 'Sin evidencia adjunta.' }}</p>
-      <img
-        *ngIf="evidenciaTipo.startsWith('image/')"
-        [src]="evidenciaDataUrl"
-        alt="Evidencia"
-        class="evidencia-preview" />
-    </div>
-
-    </ng-container>
-    <ng-template #datosPlantilla>
-      <div class="campo">
-        <label for="direccionPlantilla">Dirección</label>
-        <app-direccion-autocomplete
-          (direccionSeleccionada)="completarSectorDesdeDireccion($event)"
-          inputId="direccionPlantilla" [(ngModel)]="direccion"
-          [ngModelOptions]="{ standalone: true }"
-          [required]="true" [disabled]="enviado"></app-direccion-autocomplete>
+        <div class="campo">
+          <label>¿Es un problema recurrente?</label>
+          <p>{{ esRecurrente === true ? 'Sí' : (esRecurrente === false ? 'No' : 'No indicado') }}</p>
+        </div>
       </div>
-      <div class="campo">
-        <label for="sectorPlantilla">Sector/Zona</label>
-        <select id="sectorPlantilla" [(ngModel)]="sectorZona" required [disabled]="enviado">
-          <option value="" disabled>Selecciona un sector/zona</option>
-          <option *ngFor="let borough of boroughs" [value]="borough">{{ borough }}</option>
-        </select>
+
+      <div class="review-column">
+        <h3>Dónde</h3>
+
+        <ng-container *ngIf="!esPlantilla; else editableLocation">
+          <div class="campo">
+            <label>Dirección</label>
+            <p>{{ direccion }}</p>
+          </div>
+
+          <div class="campo">
+            <label>Sector/Zona</label>
+            <p>{{ sectorZona || 'Sin indicar' }}</p>
+          </div>
+
+          <div class="campo">
+            <label>Referencia adicional</label>
+            <p>{{ ubicacionReferencia || 'Sin indicar' }}</p>
+          </div>
+
+          <div class="campo">
+            <label>Fecha y hora observada</label>
+            <p>{{ fechaHoraObservada || 'Sin indicar' }}</p>
+          </div>
+        </ng-container>
+
+        <ng-template #editableLocation>
+          <div class="campo">
+            <label for="direccionPlantilla">Dirección</label>
+            <app-direccion-autocomplete
+              (direccionSeleccionada)="completarSectorDesdeDireccion($event)"
+              inputId="direccionPlantilla" [(ngModel)]="direccion"
+              [ngModelOptions]="{ standalone: true }"
+              [required]="true" [disabled]="enviado"></app-direccion-autocomplete>
+          </div>
+
+          <div class="campo">
+            <label for="sectorPlantilla">Sector/Zona</label>
+            <select id="sectorPlantilla" [(ngModel)]="sectorZona" required [disabled]="enviado">
+              <option value="" disabled>Selecciona un sector/zona</option>
+              <option *ngFor="let borough of boroughs" [value]="borough">{{ borough }}</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="referenciaPlantilla">Referencia adicional</label>
+            <input id="referenciaPlantilla" type="text" [(ngModel)]="ubicacionReferencia" placeholder="Ej: frente a Central Park, esquina con 5th Avenue" [disabled]="enviado" />
+          </div>
+
+          <div class="campo">
+            <label for="fechaPlantilla">Fecha y hora observada</label>
+            <input id="fechaPlantilla" type="datetime-local" [(ngModel)]="fechaHoraObservada" (ngModelChange)="validarFecha()" [disabled]="enviado" />
+          </div>
+        </ng-template>
       </div>
-      <div class="campo">
-        <label for="referenciaPlantilla">Referencia adicional</label>
-        <input id="referenciaPlantilla" type="text" [(ngModel)]="ubicacionReferencia" placeholder="Ej: frente a Central Park, esquina con 5th Avenue" [disabled]="enviado" />
-      </div>
-      <div class="campo">
-        <label for="fechaPlantilla">Fecha y hora observada</label>
-        <input id="fechaPlantilla" type="datetime-local" [(ngModel)]="fechaHoraObservada" (ngModelChange)="validarFecha()" [disabled]="enviado" />
-      </div>
-      <div class="campo">
-        <label for="evidenciaPlantilla">Evidencia adjunta</label>
+    </div>
+
+    <div class="review-evidence">
+      <h3 id="review-evidence-title">Evidencia adjunta</h3>
+
+      <ng-container *ngIf="!esPlantilla; else editableEvidence">
+        <p>{{ evidenciaNombre || 'Sin evidencia adjunta.' }}</p>
+        <img
+          *ngIf="evidenciaTipo.startsWith('image/')"
+          [src]="evidenciaDataUrl"
+          alt="Evidencia"
+          class="evidencia-preview" />
+      </ng-container>
+
+      <ng-template #editableEvidence>
         <input
           #archivoPlantilla
           id="evidenciaPlantilla"
           type="file" [disabled]="enviado"
           accept="image/*"
+          aria-labelledby="review-evidence-title"
           (change)="onArchivoSeleccionado($event)" />
         <small>Solo imágenes: PNG, JPG, WEBP, etc. (máx. {{ tamanoMaximoMB }} MB)</small>
 
@@ -239,12 +260,7 @@
             alt="Vista previa de la evidencia"
             class="evidencia-preview" />
         </div>
-      </div>
-    </ng-template>
-
-    <div class="campo">
-      <label>Datos del ciudadano</label>
-      <p>{{ datosCiudadanoTexto }}</p>
+      </ng-template>
     </div>
 
     <div class="acciones" *ngIf="!enviado">

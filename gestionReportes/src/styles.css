@@ -455,6 +455,80 @@ app-crear-reclamo > :where(.reclamo-container) .campo {
   margin-bottom: 16px;
 }
 
+/* Step "Dónde": two columns (address/sector, reference/date);
+   the evidence field spans the full width. */
+app-crear-reclamo > :where(.reclamo-container) .fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .field--full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+  app-crear-reclamo > :where(.reclamo-container) .fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Step "Revisión": summary in two columns, evidence separated below. */
+app-crear-reclamo > :where(.reclamo-container) .review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 24px 0;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .review-column > h3 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--primary-blue);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .review-evidence {
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .review-evidence > h3 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--primary-blue);
+  margin-bottom: 12px;
+}
+
+app-crear-reclamo > :where(.reclamo-container) .review-evidence > p:not(.error) {
+  padding: 12px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-crear-reclamo > :where(.reclamo-container) .review-evidence input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+app-crear-reclamo > :where(.reclamo-container) .review-evidence small {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-gray);
+}
+
+@media (max-width: 700px) {
+  app-crear-reclamo > :where(.reclamo-container) .review-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
 app-crear-reclamo > :where(.reclamo-container) .campo > label {
   display: block;
   margin-bottom: 8px;

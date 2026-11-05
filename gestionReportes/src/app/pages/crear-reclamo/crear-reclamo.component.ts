@@ -57,12 +57,6 @@ export class CrearReclamoComponent implements OnInit {
 
   enviado: boolean = false;
 
-  // Datos del ciudadano con sesión activa (se muestran en la revisión del reclamo)
-  get datosCiudadanoTexto(): string {
-    const usuario = this.authService.obtenerUsuarioActual();
-    return usuario ? `${usuario.nombre} — ${usuario.email}` : 'Sin datos de usuario';
-  }
-
   constructor(
     private reclamoService: ReclamoService,
     private authService: AuthService,
